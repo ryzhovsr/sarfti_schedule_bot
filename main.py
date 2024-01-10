@@ -135,7 +135,7 @@ def main():
                     day_f = False
                     day_prev = ''
 
-                    for index, row in pd.read_hdf(schedule.get_schedule_current_week_dir(),
+                    for index, row in pd.read_hdf(schedule.get_schedule_week_dir(),
                                                   schedule.get_current_week_id()).query('Группа == @group').iterrows():
                         day_t = str(row['День'])
                         if day_prev == day_t and not day_f:
@@ -417,9 +417,9 @@ def timecheck():
         if time.time() - timing > 300:
             timing = time.time()
             now_time = datetime.now()
-            store_back = pd.read_hdf(schedule.get_schedule_current_week_dir(), schedule.get_current_week_id())
+            store_back = pd.read_hdf(schedule.get_schedule_week_dir(), schedule.get_current_week_id())
             schedule.update_schedule()
-            store_now = pd.read_hdf(schedule.get_schedule_current_week_dir(), schedule.get_current_week_id())
+            store_now = pd.read_hdf(schedule.get_schedule_week_dir(), schedule.get_current_week_id())
             df_diff = pd.concat([store_back, store_now]).drop_duplicates(keep=False)
 
             if (not store_now.equals(store_back)) and (now_time.hour >= 7) and (now_time.hour <= 21):
@@ -554,9 +554,9 @@ def time_check():
         if time.time() - timing > 300:
             timing = time.time()
             now_time = datetime.now()
-            store_back = pd.read_hdf(schedule.get_schedule_current_week_dir(), schedule.get_current_week_id())
+            store_back = pd.read_hdf(schedule.get_schedule_week_dir(), schedule.get_current_week_id())
             schedule.update_schedule()
-            store_now = pd.read_hdf(schedule.get_schedule_current_week_dir(), schedule.get_current_week_id())
+            store_now = pd.read_hdf(schedule.get_schedule_week_dir(), schedule.get_current_week_id())
             df_diff = pd.concat([store_back, store_now]).drop_duplicates(keep=False)
 
             if (not store_now.equals(store_back)) and (now_time.hour >= 7) and (now_time.hour <= 21):
