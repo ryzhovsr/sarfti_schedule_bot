@@ -18,7 +18,7 @@ class ScheduleData:
         self.__in_dates = {}  # Список учебных недель и их date_id
         self.__in_week = {}  # Таблица с расписанием текущей недели
         self.__week_id = ''  # id текущей недели
-        self.__week_ids = [] # все доступные id недель
+        self.__week_ids = []  # все доступные id недель
 
 
         soup = ''  # Разобранная страница
@@ -91,12 +91,8 @@ class ScheduleData:
             print(e)
             pass
 
-
-    def _cal_current_week(self):
-        """Вычисляет текущую неделю"""
     def __cal_week(self):
         """Вычисляет текущую и все актуальные недели"""
-        # определяем рабочую неделю
         now = datetime.now()
         for week in list(self.__in_dates):
             self.__week_ids.append(week)
@@ -105,7 +101,6 @@ class ScheduleData:
                 # current_week = pd.to_datetime(in_dates[week]).strftime('%Y-%m-%d')
                 self.__week_id = week
                 break
-
 
 
     def _get_week_chedule(self, week_id):
@@ -135,8 +130,6 @@ class ScheduleData:
             print(e)
             pass
 
-
-
     def __del_store(self):
         """Удаление старого файла с расписанием."""
         try:
@@ -145,17 +138,15 @@ class ScheduleData:
             print(e, "| Ошибка при удалении")
             pass
 
+    def get_week(self):
+        return self.__week_id
+
     def load_schedule(self):
         """Загружает в файл расписание для актуальной и более новых недель."""
         self.__del_store()
         self.__cal_week()
         for week in self.__week_ids:
             self._get_week_chedule(week)
-
-
-
-    def get_week(self):
-        return self.__week_id
 
 
 if __name__ == "__main__":
