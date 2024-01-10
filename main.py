@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from telebot import types
 from bs4 import BeautifulSoup
 from io import StringIO
-
+from schedule_data import ScheduleData
 
 # Выключаем предупреждение от библиотеки NaturalNameWarning
 warnings.filterwarnings('ignore', category=NaturalNameWarning)
@@ -27,14 +27,6 @@ html_website_soup = ''  # Разобранная html страница
 
 schedule_classes_weekdays = {}  # Расписание учебных занятий в будни (понедельник – пятница)
 schedule_classes_saturday = {}  # Расписание учебных занятий в субботу
-
-groups = {}    # Список групп и их group_id
-teachers = {}  # Список преподавателей и их teacher_id
-places = {}    # Список аудиторий и их place_id
-dates = {}     # Список учебных недель и их date_id
-
-current_week_id = {}        # id текущей (рабочей) недели
-schedule_current_week = {}  # Расписание текущей (рабочей) недели
 
 # Переменные для путей к файлам
 user_dir = ''
@@ -66,6 +58,9 @@ admin_list_id = [int(x) for x in config.get('set', 'admin_list').split(',')]  # 
 
 # Описываются реакции бота на действия пользователя
 def main():
+    schedule = ScheduleData()
+
+
     # Получаем данные из сайта СарФТИ
     get_data_from_sarfti_website()
     pass
