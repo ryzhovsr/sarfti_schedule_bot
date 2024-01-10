@@ -59,6 +59,7 @@ admin_list_id = [int(x) for x in config.get('set', 'admin_list').split(',')]  # 
 # Описываются реакции бота на действия пользователя
 def main():
     schedule = ScheduleData()
+    schedule.update_schedule()
 
 
     # Получаем данные из сайта СарФТИ

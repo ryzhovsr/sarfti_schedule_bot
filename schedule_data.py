@@ -35,41 +35,42 @@ class ScheduleData:
         """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
         with contextlib.suppress(Exception):
             # Берём страницу с расписанием СарФТИ
-            __html_data_sarfti_schedule = requests.post('https://sarfti.ru/?page_id=20',
-                                                        data={'page_id': '20', 'view': 'Просмотр'}).text
+            self.__html_data_sarfti_schedule = requests.post('https://sarfti.ru/?page_id=20',
+                                                             data={'page_id': '20', 'view': 'Просмотр'}).text
 
             # Разбираем страницу
-            __html_soup_sarfti_schedule = BeautifulSoup(__html_data_sarfti_schedule, 'lxml')
+            self.__html_soup_sarfti_schedule = BeautifulSoup(self.__html_data_sarfti_schedule, 'lxml')
 
             # Получаем сырые данные групп, преподавателей, мест (аудиторий) и дат
             groups_raw_data = [i.findAll('option') for i in
-                               __html_soup_sarfti_schedule.findAll('select', attrs={'name': 'group_id'})]
+                               self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'group_id'})]
             teachers_raw_data = [i.findAll('option') for i in
-                                 __html_soup_sarfti_schedule.findAll('select', attrs={'name': 'teacher_id'})]
+                                 self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'teacher_id'})]
             places_raw_data = [i.findAll('option') for i in
-                               __html_soup_sarfti_schedule.findAll('select', attrs={'name': 'place_id'})]
+                               self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'place_id'})]
             dates_raw_data = [i.findAll('option') for i in
-                              __html_soup_sarfti_schedule.findAll('select', attrs={'name': 'date_id'})]
+                              self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'date_id'})]
 
             # Получаем время занятий на будние дни
-            for item in __html_soup_sarfti_schedule.findAll('table',
-                                                            attrs={'style': 'width: 274px; border-style: none;'}):
-                __class_time_weekdays = dict(x.split('=') for x in item.text.
-                                             replace('\n\n\n1 пара', '1 пара').
-                                             replace('\xa0', ' ').
-                                             replace('\n\n\n', ';').
-                                             replace('\n–\n', '=').
-                                             replace('\n', ' | ')[:-1].split(';'))
+            for item in self.__html_soup_sarfti_schedule.findAll('table',
+                                                                 attrs={'style': 'width: 274px; border-style: none;'}):
+                self.__class_time_weekdays = dict(x.split('=') for x in item.text.
+                                                  replace('\n\n\n1 пара', '1 пара').
+                                                  replace('\xa0', ' ').
+                                                  replace('\n\n\n', ';').
+                                                  replace('\n–\n', '=').
+                                                  replace('\n', ' | ')[:-1].split(';'))
                 break
 
             # Получаем время занятий на субботу
-            for item in __html_soup_sarfti_schedule.findAll('table', attrs={'style': 'width: 273px; border: none;'}):
-                __class_time_saturday = dict(x.split('=') for x in item.text.
-                                             replace('\n\n\n1 пара', '1 пара').
-                                             replace('\xa0', ' ').
-                                             replace('\n\n\n', ';').
-                                             replace('\n–\n', '=').
-                                             replace('\n', ' | ')[:-1].split(';'))
+            for item in self.__html_soup_sarfti_schedule.findAll('table',
+                                                                 attrs={'style': 'width: 273px; border: none;'}):
+                self.__class_time_saturday = dict(x.split('=') for x in item.text.
+                                                  replace('\n\n\n1 пара', '1 пара').
+                                                  replace('\xa0', ' ').
+                                                  replace('\n\n\n', ';').
+                                                  replace('\n–\n', '=').
+                                                  replace('\n', ' | ')[:-1].split(';'))
                 break
 
             # Прогоняем цикл по всем сырым данным групп, преподавателей, мест (аудиторий) и дат
