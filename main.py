@@ -7,47 +7,37 @@ import telebot
 import time
 import os
 import glob
-import requests
 import pandas as pd
 import contextlib
 import ast
 from tables import NaturalNameWarning
 from datetime import datetime, timedelta
 from telebot import types
-from bs4 import BeautifulSoup
-from io import StringIO
 from schedule_data import ScheduleData
 
 # Выключаем предупреждение от библиотеки NaturalNameWarning
 warnings.filterwarnings('ignore', category=NaturalNameWarning)
 locale.setlocale(locale.LC_ALL, '')
 
-html_website_data = ''  # Страница c исходным html кодом
-html_website_soup = ''  # Разобранная html страница
 
-schedule_classes_weekdays = {}  # Расписание учебных занятий в будни (понедельник – пятница)
-schedule_classes_saturday = {}  # Расписание учебных занятий в субботу
+schedule = ScheduleData()
+schedule.update_schedule()
 
-# Переменные для путей к файлам
+# Путь к директориям пользователей
 user_dir = ''
-schedule_current_week_dir = ''
 
 # Смотрим под чем исполняется скрипт, и указываем правильные пути
 if os.name == 'nt':
     user_dir = os.path.join(os.getcwd(), 'data\\users\\')
-    schedule_current_week_dir = os.path.join(os.getcwd(), 'Data\\schedule_current_week.h5')
 else:
     user_dir = os.path.join(os.getcwd(), 'data/users/')
-    schedule_current_week_dir = os.path.join(os.getcwd(), 'Data/schedule_current_week.h5')
-
-#######
 
 timing = time.time()  # Инициализируем таймер
-key_list_0 = ''
-log_dt = ''
 menu_1 = {}           # Переменная для хранения главного меню
 key_list_groups = {}  # Переменная для хранения списка групп
 user_config = {}      # Переменная для хранения данных конфига пользователя
+key_list_0 = ''
+log_dt = ''
 
 config = configparser.ConfigParser()                # Создаем переменную-парсер нашего конфиг файла
 config.read('bot.ini', encoding="utf-8")   # Читаем конфиг
@@ -58,14 +48,6 @@ admin_list_id = [int(x) for x in config.get('set', 'admin_list').split(',')]  # 
 
 # Описываются реакции бота на действия пользователя
 def main():
-    schedule = ScheduleData()
-    schedule.update_schedule()
-
-
-    # Получаем данные из сайта СарФТИ
-    get_data_from_sarfti_website()
-    pass
-
     # если бот получил команды /reset или /start
     @bot.message_handler(commands=['reset', 'start'])
     def any_msg(message):
@@ -100,10 +82,10 @@ def main():
                 f.write(str(1))
                 f.close()
 
-                key_list_groups = [None] * groups.__len__()
+                key_list_groups = [None] * schedule.get_groups().__len__()
                 i = 1
-                for key_i in groups:
-                    key_list_groups[i - 1] = types.InlineKeyboardButton(text=groups[key_i],
+                for key_i in schedule.get_groups():
+                    key_list_groups[i - 1] = types.InlineKeyboardButton(text=schedule.get_groups()[key_i],
                                                                         callback_data='pressed_1_' + str(i))
                     i = i + 1
                 keyboard = types.InlineKeyboardMarkup(keyboard=None, row_width=3)
@@ -137,23 +119,24 @@ def main():
             if call.data == 'pressed_0_2':
                 group = ''
                 user_info_read(t_user_id=call.message.chat.id)
-                for group in groups:
+                for group in schedule.get_groups():
                     if group == str(user_config['group_id']):
-                        group = groups[group]
+                        group = schedule.get_groups()[group]
                         break
 
                 if group == '':
                     text_out = 'Выберите группу'
                 else:
-                    text_out = ('*📅 ' + pd.to_datetime(dates[current_week_id]).strftime('%d %B') + ' - ' +
-                                (pd.to_datetime(dates[current_week_id]) + timedelta(days=7)).strftime('%d %B %Yг') +
-                                '*\n')
+                    text_out = ('*📅 ' + pd.to_datetime(schedule.get_dates()[schedule.get_current_week_id()]).
+                                strftime('%d %B') + ' - ' +
+                                (pd.to_datetime(schedule.get_dates()[schedule.get_current_week_id()]) +
+                                 timedelta(days=7)).strftime('%d %B %Yг') + '*\n')
 
                     day_f = False
                     day_prev = ''
 
-                    for index, row in pd.read_hdf(schedule_current_week_dir,
-                                                  current_week_id).query('Группа == @group').iterrows():
+                    for index, row in pd.read_hdf(schedule.get_schedule_current_week_dir(),
+                                                  schedule.get_current_week_id()).query('Группа == @group').iterrows():
                         day_t = str(row['День'])
                         if day_prev == day_t and not day_f:
                             day_f = True
@@ -278,7 +261,7 @@ def main():
                             data.close()
 
                     # запись значения group_id в конфиг пользователя
-                    user_config['group_id'] = list(groups.keys())[x - 1]
+                    user_config['group_id'] = list(schedule.get_groups().keys())[x - 1]
                     f = open(user_dir + str(call.message.chat.id) + '/config', "w+")
                     f.write("{'group_id':" + str(user_config['group_id']) + ", 'warning_on_rasp_change':" + str(
                         user_config['warning_on_rasp_change']) + ", 'c':" + str(user_config['c']) + ", 'd':" + str(
@@ -343,7 +326,7 @@ def main():
         if call.data == 'pressed_time':
             text_out = '🕘 Расписание пар.\n\n' + \
                        '🔹 *ПОНЕДЕЛЬНИК - ПЯТНИЦА:*\n'
-            for item in schedule_classes_weekdays.items():
+            for item in schedule.get_class_time_weekdays().items():
                 if '1' in item[0]:
                     text_out = text_out + u'\u0031\ufe0f\u20e3'
                 if '2' in item[0]:
@@ -365,7 +348,7 @@ def main():
                 text_out = text_out + ' ' + item[1] + '\n'
 
             text_out = text_out + '\n🔹 *СУББОТА:*\n'
-            for item in schedule_classes_saturday.items():
+            for item in schedule.get_class_time_saturday().items():
                 if '1' in item[0]:
                     text_out = text_out + u'\u0031\ufe0f\u20e3'
                 if '2' in item[0]:
@@ -428,15 +411,15 @@ def main():
 
 
 def timecheck():
-    global timing, current_week_id, bot, groups
+    global schedule, timing
 
     while True:
         if time.time() - timing > 300:
             timing = time.time()
             now_time = datetime.now()
-            store_back = pd.read_hdf(schedule_current_week_dir, current_week_id)
-            get_data_from_sarfti_website()
-            store_now = pd.read_hdf(schedule_current_week_dir, current_week_id)
+            store_back = pd.read_hdf(schedule.get_schedule_current_week_dir(), schedule.get_current_week_id())
+            schedule.update_schedule()
+            store_now = pd.read_hdf(schedule.get_schedule_current_week_dir(), schedule.get_current_week_id())
             df_diff = pd.concat([store_back, store_now]).drop_duplicates(keep=False)
 
             if (not store_now.equals(store_back)) and (now_time.hour >= 7) and (now_time.hour <= 21):
@@ -451,7 +434,7 @@ def timecheck():
 
                                 if user_conf['warning_on_rasp_change'] == 1:
                                     for dif_group in df_diff['Группа']:
-                                        if dif_group == groups[str(user_conf['group_id'])]:
+                                        if dif_group == schedule.get_groups()[str(user_conf['group_id'])]:
 
                                             text_out2 = '*⚠ Произошли изменения в расписании! ⚠*'
 
@@ -478,99 +461,6 @@ def timecheck():
         time.sleep(5)
 
 
-# Функция для заполнения/обновления данных со страницы сайта СарФТИ. Вызывается периодический
-def get_data_from_sarfti_website():
-    global html_website_data, html_website_soup, schedule_classes_weekdays, schedule_classes_saturday, groups, \
-        teachers, dates, places, current_week_id, schedule_current_week
-
-    with contextlib.suppress(Exception):
-        # Методом HTTP.POST забираем нужную страницу с сайта
-        html_website_data = requests.post('https://sarfti.ru/?page_id=20',
-                                          data={'page_id': '20', 'view': 'Просмотр'}).text
-        # Разбираем страницу
-        html_website_soup = BeautifulSoup(html_website_data, 'lxml')
-
-        # Получаем сырые данные групп, преподавателей, мест (аудиторий) и дат
-        groups_raw_data = [i.findAll('option') for i in
-                           html_website_soup.findAll('select', attrs={'name': 'group_id'})]
-        teachers_raw_data = [i.findAll('option') for i in
-                             html_website_soup.findAll('select', attrs={'name': 'teacher_id'})]
-        places_raw_data = [i.findAll('option') for i in
-                           html_website_soup.findAll('select', attrs={'name': 'place_id'})]
-        dates_raw_data = [i.findAll('option') for i in
-                          html_website_soup.findAll('select', attrs={'name': 'date_id'})]
-
-        # Получаем раписание занятий на будние дни
-        for item in html_website_soup.findAll('table', attrs={'style': 'width: 274px; border-style: none;'}):
-            schedule_classes_weekdays = dict(x.split('=') for x in item.text.
-                                             replace('\n\n\n1 пара', '1 пара').
-                                             replace('\xa0', ' ').
-                                             replace('\n\n\n', ';').
-                                             replace('\n–\n', '=').
-                                             replace('\n', ' | ')[:-1].split(';'))
-            break
-
-        # Получаем раписание занятий на субботу
-        for item in html_website_soup.findAll('table', attrs={'style': 'width: 273px; border: none;'}):
-            schedule_classes_weekdays = dict(x.split('=') for x in item.text.
-                                             replace('\n\n\n1 пара', '1 пара').
-                                             replace('\xa0', ' ').
-                                             replace('\n\n\n', ';').
-                                             replace('\n–\n', '=').
-                                             replace('\n', ' | ')[:-1].split(';'))
-            break
-
-        # Прогоняем цикл по всем сырым данным групп, преподавателей, мест (аудиторий) и дат
-        for item in [groups_raw_data, teachers_raw_data, places_raw_data, dates_raw_data]:
-            for i in range(0, item[0].__len__()):
-                # Если элемент не содержит "Выберите", то загоняем его в соответствующий список
-                if 'Выберите' not in item[0][i].text:
-                    if item == groups_raw_data:
-                        groups[item[0][i].attrs['value']] = item[0][i].text
-                    if item == teachers_raw_data:
-                        teachers[item[0][i].attrs['value']] = item[0][i].text
-                    if item == places_raw_data:
-                        places[item[0][i].attrs['value']] = item[0][i].text
-                    if item == dates_raw_data:
-                        dates[item[0][i].attrs['value']] = item[0][i].text
-
-        # Удаляем переменные, хранящие необработанные данные из памяти, т.к. мы их обработали
-        del groups_raw_data, teachers_raw_data, places_raw_data, dates_raw_data
-
-        # Определяем id текущей (рабочей) недели
-        time_now = datetime.now()
-        for week_id in list(dates):
-            if (pd.to_datetime(dates[week_id]) - timedelta(days=1) <= time_now <
-                    pd.to_datetime(dates[week_id]) + timedelta(days=7)):
-                # current_week = pd.to_datetime(in_dates[week_id]).strftime('%Y-%m-%d')
-                current_week_id = week_id
-                break
-
-        # Данные сайта по управлению расписанием
-        schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
-                                                 data={'login': '', 'password': '', 'guest': 'Войти+как+Гость'})
-
-        # Данные сайта по печати (вывода) расписания на текущую неделю
-        current_week_schedule_html = requests.post('http://scs.sarfti.ru/date/printT',
-                                                   data={'id': current_week_id, 'show': 'Распечатать',
-                                                         'list': 'list', 'compact': 'compact'},
-                                                   cookies=schedule_management_html.history[0].cookies)
-
-        current_week_schedule_html.encoding = 'utf-8'
-
-        for item in pd.read_html(StringIO(current_week_schedule_html.text)):
-            if 'День' and 'Пара' in item:
-                with contextlib.suppress(Exception):
-                    os.remove(schedule_current_week_dir)
-
-                file = pd.HDFStore(schedule_current_week_dir)
-                file[current_week_id] = item
-                file.close()
-                schedule_current_week = item
-
-                break
-
-
 # функция показа основного меню
 def send_main_menu(t_user_id, t_chat_id, t_message_id):
     global menu_1, key_list_0, user_config
@@ -595,7 +485,7 @@ def send_main_menu(t_user_id, t_chat_id, t_message_id):
 
     if user_config['group_id'] is not None:
         try:
-            menu_1[1] = '👥 ' + groups[str(user_config['group_id'])]
+            menu_1[1] = '👥 ' + schedule.get_groups()[str(user_config['group_id'])]
         except Exception as e:
             print(e)
             menu_1[1] = '👥 Выбрать группу'
@@ -657,15 +547,16 @@ def user_info_read(t_user_id):
 
 
 def time_check():
-    global timing, current_week_id, bot, groups
+    global schedule, timing
+    # global current_week_id, bot, groups
 
     while True:
         if time.time() - timing > 300:
             timing = time.time()
             now_time = datetime.now()
-            store_back = pd.read_hdf(schedule_current_week_dir, current_week_id)
-            get_data_from_sarfti_website()
-            store_now = pd.read_hdf(schedule_current_week_dir, current_week_id)
+            store_back = pd.read_hdf(schedule.get_schedule_current_week_dir(), schedule.get_current_week_id())
+            schedule.update_schedule()
+            store_now = pd.read_hdf(schedule.get_schedule_current_week_dir(), schedule.get_current_week_id())
             df_diff = pd.concat([store_back, store_now]).drop_duplicates(keep=False)
 
             if (not store_now.equals(store_back)) and (now_time.hour >= 7) and (now_time.hour <= 21):
@@ -680,7 +571,7 @@ def time_check():
 
                                 if user_conf['warning_on_rasp_change'] == 1:
                                     for dif_group in df_diff['Группа']:
-                                        if dif_group == groups[str(user_conf['group_id'])]:
+                                        if dif_group == schedule.get_groups()[str(user_conf['group_id'])]:
 
                                             text_out2 = '*⚠ Произошли изменения в расписании! ⚠*'
 

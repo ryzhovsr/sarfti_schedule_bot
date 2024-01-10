@@ -9,10 +9,10 @@ from io import StringIO
 
 class ScheduleData:
     def __init__(self):
-        self.__groups = {}      # Список групп и их group_id
-        self.__teachers = {}    # Список преподавателей и их teacher_id
-        self.__places = {}      # Список аудиторий и их place_id
-        self.__dates = {}       # Список учебных недель и их date_id
+        self.__groups = {}      # Группы
+        self.__teachers = {}    # Преподаватели
+        self.__places = {}      # Аудитории
+        self.__dates = {}       # Учебные недели
 
         self.__current_week_id = {}            # id текущей (рабочей) недели
         self.__schedule_current_week = {}      # Расписание текущей (рабочей) недели
@@ -126,3 +126,27 @@ class ScheduleData:
         self.__load_main_data()
         self.__calc_current_week()
         self.__calc_schedule_current_week()
+
+    def get_dates(self):
+        """Возвращает учебные недели"""
+        return self.__dates
+
+    def get_groups(self):
+        """Возвращает группы"""
+        return self.__groups
+
+    def get_schedule_current_week_dir(self):
+        """Возвращает путь к директории для файла с расписанием"""
+        return self.__schedule_current_week_dir
+
+    def get_class_time_saturday(self):
+        """Возвращает время учебных занятий в субботу"""
+        return self.__class_time_saturday
+
+    def get_class_time_weekdays(self):
+        """Возвращает время учебных занятий в будни (понедельник – пятница)"""
+        return self.__class_time_weekdays
+
+    def get_current_week_id(self):
+        """Возвращает id текущей недели"""
+        return self.__current_week_id
