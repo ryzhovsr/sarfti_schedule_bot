@@ -121,7 +121,9 @@ class ScheduleData:
             for item in pd_temp.read_html(StringIO(traw_input.text)):
                 if 'День' and 'Пара' in item:
                     store = pd.HDFStore('in_week.h5')
-                    store['_' + week_id] = item
+                    print(week_id)
+                    store['_' + week_id] = item # ошибка PerformanceWarning это предупреждение о том что есть таблица  которая будет грузить медленнее чем другие из-за формата данных. Ошибка возникает не на всех неделях
+                    print(item)
                     store.close()
                     self.__in_week = item
                     break
