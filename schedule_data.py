@@ -31,7 +31,7 @@ class ScheduleData:
         else:
             self.__schedule_current_week_dir = os.path.join(os.getcwd(), 'Data/schedule_current_week.h5')
 
-    def _load_main_data(self):
+    def __load_main_data(self):
         """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
         with contextlib.suppress(Exception):
             # Берём страницу с расписанием СарФТИ
@@ -98,7 +98,34 @@ class ScheduleData:
                 self.__current_week_id = week_id
                 break
 
-    def __get_weekly_schedule(self, week_id):
+    def update_schedule(self):
+        """Обновляет расписание"""
+        self.__load_main_data()
+        self.__calc_current_week()
+        self.__calc_schedule_current_week()
+
+    def __del_store(self):
+        """Удаление старого файла с расписанием"""
+        with contextlib.suppress(Exception):
+            os.remove(self.__schedule_current_week_dir)
+
+    def load_schedule(self):
+        """Загружает в файл расписание для актуальной и более новых недель"""
+        self.__del_store()
+        self.__calc_current_week()
+        for week in self.__week_ids:
+            pass
+            # self.__get_week_chedule(week)
+
+    def get_week_schedule(self, week_num):
+        """Возвращает расписание на неделю по week_num, где 0 - текущая, 1 - следующ. ..."""
+        week = '_' + str(int(self.__current_week_id) + week_num)
+        file = pd.HDFStore(self.__schedule_current_week_dir)
+        res_week = file[week]  # Ошибка PerformanceWarning это предупреждение о том, что есть таблица которая будет грузить медленнее чем другие из-за формата данных. Ошибка возникает не на всех неделях
+        file.close()
+        return res_week
+
+    def __calc_schedule_current_week(self):
         """Возвращает распиисание по заданному id недели"""
         # Данные сайта по управлению расписанием
         schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
@@ -106,7 +133,7 @@ class ScheduleData:
 
         # Данные сайта по печати (вывода) расписания на текущую неделю
         current_week_schedule_html = requests.post('http://scs.sarfti.ru/date/printT',
-                                                   data={'id': week_id, 'show': 'Распечатать',
+                                                   data={'id': self.__current_week_id, 'show': 'Распечатать',
                                                          'list': 'list', 'compact': 'compact'},
                                                    cookies=schedule_management_html.history[0].cookies)
 
@@ -115,38 +142,11 @@ class ScheduleData:
         for item in pd.read_html(StringIO(current_week_schedule_html.text)):
             if 'День' and 'Пара' in item:
                 file = pd.HDFStore(self.__schedule_current_week_dir)
-                file['_' + week_id] = item # ошибка PerformanceWarning это предупреждение о том что есть таблица  которая будет грузить медленнее чем другие из-за формата данных. Ошибка возникает не на всех неделях
+                file['_' + self.__current_week_id] = item   # Ошибка PerformanceWarning это предупреждение о том, что есть таблица которая будет грузить медленнее чем другие из-за формата данных. Ошибка возникает не на всех неделях
                 file.close()
                 self.__schedule_current_week = item
                 break
 
-    def update_schedule(self):
-        """Обновляет расписание"""
-        self.__load_main_data()
-        self.__calc_current_week()
-        self.__calc_schedule_current_week()
-
-    def __del_store(self):
-            """Удаление старого файла с расписанием."""
-            with contextlib.suppress(Exception):
-                os.remove(self.__schedule_current_week_dir)
-
-    def load_schedule(self):
-        """Загружает в файл расписание для актуальной и более новых недель."""
-        self.__del_store()
-        self.__cal_week()
-        for week in self.__week_ids:
-            self.__get_week_chedule(week)
-
-    def get_week_schedule(self, week_num):
-        """Возвращает расписание на неделю по week_num, где 0 - текущая, 1 - следующ. ..."""
-        week = '_' + str(int(self.__current_week_id) + week_num)
-        file = pd.HDFStore(self.__schedule_current_week_dir)
-        res_week = file[week]  # ошибка PerformanceWarning это предупреждение о том что есть таблица  которая будет грузить медленнее чем другие из-за формата данных. Ошибка возникает не на всех неделях
-        file.close()
-        return res_week
-
-    
     def get_dates(self):
         """Возвращает учебные недели"""
         return self.__dates
