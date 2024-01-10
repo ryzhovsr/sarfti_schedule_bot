@@ -18,6 +18,8 @@ class ScheduleData:
         self.__in_dates = {}  # Список учебных недель и их date_id
         self.__in_week = {}  # Таблица с расписанием текущей недели
         self.__week_id = ''  # id текущей недели
+        self.__week_ids = [] # все доступные id недель
+
 
         soup = ''  # Разобранная страница
         raw_input = ''  # Неразобранная страница
@@ -92,9 +94,12 @@ class ScheduleData:
 
     def _cal_current_week(self):
         """Вычисляет текущую неделю"""
+    def __cal_week(self):
+        """Вычисляет текущую и все актуальные недели"""
         # определяем рабочую неделю
         now = datetime.now()
         for week in list(self.__in_dates):
+            self.__week_ids.append(week)
             if (pd.to_datetime(self.__in_dates[week]) - timedelta(days=1) <= now <
                     pd.to_datetime(self.__in_dates[week]) + timedelta(days=7)):
                 # current_week = pd.to_datetime(in_dates[week]).strftime('%Y-%m-%d')
@@ -104,6 +109,7 @@ class ScheduleData:
 
 
     def _get_week_chedule(self, week_id):
+        """Парсит и передает в файл неделю week_id"""
         try:
             # методом HTTP.POST забираем нужную страницу с сайта
             answer = requests.post('http://scs.sarfti.ru/login/index',
@@ -119,14 +125,8 @@ class ScheduleData:
             pd_temp = pd
             for item in pd_temp.read_html(StringIO(traw_input.text)):
                 if 'День' and 'Пара' in item:
-                    try:
-                        os.remove('in_week.h5')
-                    except Exception as e:
-                        print(e)
-                        pass
                     store = pd.HDFStore('in_week.h5')
-                    store[week_id] = item
-                    # store[""] = item
+                    store['_' + week_id] = item
                     store.close()
                     self.__in_week = item
                     break
@@ -137,6 +137,23 @@ class ScheduleData:
 
 
 
+    def __del_store(self):
+        """Удаление старого файла с расписанием."""
+        try:
+            os.remove('in_week.h5')
+        except Exception as e:
+            print(e, "| Ошибка при удалении")
+            pass
+
+    def load_schedule(self):
+        """Загружает в файл расписание для актуальной и более новых недель."""
+        self.__del_store()
+        self.__cal_week()
+        for week in self.__week_ids:
+            self._get_week_chedule(week)
+
+
+
     def get_week(self):
         return self.__week_id
 
@@ -144,5 +161,6 @@ class ScheduleData:
 if __name__ == "__main__":
     schedule = ScheduleData()
     schedule.load_main_data()
-    schedule._cal_current_week()
-    schedule._get_week_chedule(schedule.get_week())
+    # schedule._cal_current_week()
+    # schedule._get_week_chedule(schedule.get_week())
+    schedule.load_schedule()
