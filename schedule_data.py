@@ -179,6 +179,10 @@ class ScheduleData:
         """Возвращает группы"""
         return self.__groups
 
+    def get_teachers(self):
+        """Возвращает преподавателей"""
+        return self.__teachers
+
     def get_schedule_week_dir(self):
         """Возвращает путь к директории для файлов с расписанием, а не путь к файлу"""
         return self.__schedule_week_dir
