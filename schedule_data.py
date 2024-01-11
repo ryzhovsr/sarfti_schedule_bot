@@ -37,6 +37,8 @@ class ScheduleData:
         else:
             self.__schedule_week_dir = os.path.join(os.getcwd(), 'Data/')
 
+        self.update_schedule()
+
     def __load_main_data(self):
         """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
         with contextlib.suppress(Exception):

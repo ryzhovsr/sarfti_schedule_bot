@@ -10,6 +10,7 @@ import config
 import edit_message
 
 from database import *
+from schedule_data import ScheduleData
 
 dp = Dispatcher()
 
@@ -49,6 +50,19 @@ async def handle_any_message(message: types.Message):
     db.update_user_message_id(message_from_bot)
 
 
+async def find_coincidence_in_list(mes_text, roster, prefix):
+    result_roster = {}
+    for roster_key in roster:
+        if roster[roster_key].lower().find(mes_text.lower()) != -1:
+            result_roster[roster_key + prefix] = roster[roster_key]
+    return result_roster
+
+
+async def find_coincidence(mes_text):
+    await find_coincidence_in_list(mes_text, sch.get_groups(), 'g')
+    await find_coincidence_in_list(mes_text, sch.get_teachers(), 't')
+
+
 async def main():
     # Для логов взаимодействия с ботом в консоль
     logging.basicConfig(level=logging.INFO)
@@ -59,6 +73,7 @@ async def main():
 
 if __name__ == "__main__":
     db = Database()
+    sch = ScheduleData()
     bot = aiogram.Bot(token=config.bot_token)
     asyncio.run(main())
 
