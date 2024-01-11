@@ -9,7 +9,8 @@ from aiogram.filters import Command
 import config
 import edit_message
 
-from database import *
+from userdb import *
+from utils import find_coincidence_group_teacher
 from schedule_data import ScheduleData
 
 dp = Dispatcher()
@@ -19,8 +20,8 @@ dp = Dispatcher()
 async def handle_start(message: types.Message):
     """Обработчик команды /start"""
     # Если пользователь отправил команду /start не в первый раз и он существует в БД, то удаляем его сообщение
-    if db.is_user_exists(message.chat.id) is not None:
-        await edit_message.delete_last_message_from_db(message.bot, message.chat.id, db.get_cursor())
+    if user_db.is_user_exists(message.chat.id) is not None:
+        await edit_message.delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
 
     message_from_bot = await message.answer(text=f"Привет, {message.from_user.first_name}! 👋 \n"
                                                  f"Введите название группы / ФИО преподавателя.")
@@ -29,38 +30,26 @@ async def handle_start(message: types.Message):
     await edit_message.delete_current_message_from_user(message)
 
     # Обновляем id последнего сообщения у пользователя
-    db.update_user_message_id(message_from_bot)
+    user_db.update_user_message_id(message_from_bot)
 
 
 @dp.message()
 async def handle_any_message(message: types.Message):
     """Обработчик всех сообщений"""
-    await edit_message.delete_last_message_from_db(message.bot, message.chat.id, db.get_cursor())
+    await edit_message.delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
     await edit_message.delete_current_message_from_user(message)
 
-    message_from_bot = ""
+    # Находим совпадения между сообщением пользователя и группами/преподавателями
+    coincidence = await find_coincidence_group_teacher(message.text, sch)
 
-    if message.text and 0:
-        pass
-        # TO DO: Здесь будет реализация поиска по заданному сообщению преподавателя или группы
+    # Если совпадения не пустые
+    if coincidence[0] or coincidence[1]:
+        message_from_bot = await message.answer(text="Я нашёл совпадения!")
     else:
         message_from_bot = await message.answer(text="Ничего не найдено😕\n"
                                                      "Попробуйте ввести название группы / ФИО преподавателя ещё раз.")
 
-    db.update_user_message_id(message_from_bot)
-
-
-async def find_coincidence_in_list(mes_text, roster, prefix):
-    result_roster = {}
-    for roster_key in roster:
-        if roster[roster_key].lower().find(mes_text.lower()) != -1:
-            result_roster[roster_key + prefix] = roster[roster_key]
-    return result_roster
-
-
-async def find_coincidence(mes_text):
-    await find_coincidence_in_list(mes_text, sch.get_groups(), 'g')
-    await find_coincidence_in_list(mes_text, sch.get_teachers(), 't')
+    user_db.update_user_message_id(message_from_bot)
 
 
 async def main():
@@ -72,7 +61,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    db = Database()
+    user_db = UserDatabase()
     sch = ScheduleData()
     bot = aiogram.Bot(token=config.bot_token)
     asyncio.run(main())
