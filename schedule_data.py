@@ -1,11 +1,13 @@
-import os
-import requests
 import contextlib
+import os
+import pickle
 import time
-import pandas as pd
-from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from io import StringIO
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
 
 class ScheduleData:
@@ -18,7 +20,8 @@ class ScheduleData:
         self.__current_week_id = ''            # id текущей (рабочей) недели
         self.__week_ids = []                   # id всех доступные недель
         self.__schedule_current_week = {}      # Расписание текущей (рабочей) недели
-        self.__schedule_week_dir = ''  # Путь к директории для файла с расписанием
+        self.__schedule_week_dir = ''          # Путь к директории для файла с расписанием
+        self.__schedule_week_file_name = 'schedule_week'
 
         self.__class_time_weekdays = {}  # Время учебных занятий в будни (понедельник – пятница)
         self.__class_time_saturday = {}  # Время учебных занятий в субботу
@@ -26,11 +29,13 @@ class ScheduleData:
         self.__html_data_sarfti_schedule = ''  # Страница расписания СарФТИ c исходным html кодом
         self.__html_soup_sarfti_schedule = ''  # Разобранная html страница расписания СарФТИ
 
+        self.schedule_management_html = None  # Страница для использования хэш данных
+
         # Смотрим под чем исполняется скрипт, и указываем правильный путь
         if os.name == 'nt':
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'Data\\schedule_current_week.h5')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'Data\\')
         else:
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'Data/schedule_current_week.h5')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'Data/')
 
     def __load_main_data(self):
         """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
@@ -101,24 +106,19 @@ class ScheduleData:
                 break
 
     def __parse_schedule_week(self, week_id):
-        """Возвращает распиисание по заданному id недели"""
-        # Данные сайта по управлению расписанием
-        schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
-                                                 data={'login': '', 'password': '', 'guest': 'Войти+как+Гость'})
-
+        """Парсит расписание по заданному id недели"""
         # Данные сайта по печати (вывода) расписания на текущую неделю
         current_week_schedule_html = requests.post('http://scs.sarfti.ru/date/printT',
                                                    data={'id': week_id, 'show': 'Распечатать',
                                                          'list': 'list', 'compact': 'compact'},
-                                                   cookies=schedule_management_html.history[0].cookies)
+                                                   cookies=self.schedule_management_html.history[0].cookies)
 
         current_week_schedule_html.encoding = 'utf-8'
 
         for item in pd.read_html(StringIO(current_week_schedule_html.text)):
             if 'День' and 'Пара' in item:
-                file = pd.HDFStore(self.__schedule_week_dir)
-                file[week_id] = item # ошибка PerformanceWarning это предупреждение о том что есть таблица  которая будет грузить медленнее чем другие из-за формата данных. Ошибка возникает не на всех неделях
-                file.close()
+                with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week_id + '.pkl', "wb") as file:
+                    pickle.dump(item, file)
                 self.__schedule_current_week = item
                 break
 
@@ -129,17 +129,25 @@ class ScheduleData:
         self.__load_schedule()
 
     def __del_store(self):
-        """Удаление старого файла с расписанием"""
+        """Удаление всех старых файлов с расписанием"""
         with contextlib.suppress(Exception):
-            os.remove(self.__schedule_week_dir)
+            for filename in os.listdir(self.__schedule_week_dir):
+                file_path = os.path.join(self.__schedule_week_dir, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
 
     def __load_schedule(self):
-        """Загружает в файл расписание для актуальной и более новых недель"""
+        """Загружает в файлы расписание для актуальной и более новых недель"""
         self.__del_store()
+        # Данные сайта по управлению расписанием
+        self.schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
+                                                      data={'login': '', 'password': '',
+                                                            'guest': 'Войти+как+Гость'})
         for week in self.__week_ids:
-            pass
             self.__parse_schedule_week(week)
+        self.schedule_management_html = None
 
+    # TO DO реализовать возможность отсрочить плановый парсинг, ради исключения случайного за-None-вания кэша
     def run_updates(self, iterations_between_updates=30, sleep_time=120):
         """Запускает обновление основных данных и парсер расписания
         iterations_between_updates=30 и sleep_time=120 - будет обновляться база каждый день, а расписание каждые 2 мин
@@ -147,17 +155,21 @@ class ScheduleData:
         while True:
             self.__load_main_data()
             time.sleep(sleep_time)
+            # Данные сайта по управлению расписанием
+            self.schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
+                                                          data={'login': '', 'password': '',
+                                                                'guest': 'Войти+как+Гость'})
             for i in range(iterations_between_updates):
                 self.__parse_schedule_week(self.__load_schedule())
                 time.sleep(sleep_time)
+            self.schedule_management_html = None
 
-    def get_week_schedule(self, week_num):
+    def get_week_schedule(self, week_num=0):
         """Возвращает расписание на неделю по week_num, где 0 - текущая, 1 - следующ. ..."""
-        week = '_' + str(int(self.__current_week_id) + week_num)
-        file = pd.HDFStore(self.__schedule_week_dir)
-        res_week = file[week]  # Ошибка PerformanceWarning это предупреждение о том, что есть таблица которая будет грузить медленнее чем другие из-за формата данных. Ошибка возникает не на всех неделях
-        file.close()
-        return res_week
+        week = str(int(self.__current_week_id) + week_num)
+        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week + '.pkl', "rb") as file:
+            loaded_table = pickle.load(file)
+        return loaded_table
 
     def get_dates(self):
         """Возвращает учебные недели"""
@@ -168,7 +180,7 @@ class ScheduleData:
         return self.__groups
 
     def get_schedule_week_dir(self):
-        """Возвращает путь к директории для файла с расписанием"""
+        """Возвращает путь к директории для файлов с расписанием, а не путь к файлу"""
         return self.__schedule_week_dir
 
     def get_class_time_saturday(self):
@@ -187,6 +199,9 @@ class ScheduleData:
 if __name__ == "__main__":
     schedule = ScheduleData()
     # schedule._cal_current_week()
-    # schedule._get_week_chedule(schedule.get_week())
     schedule.update_schedule()
     # print(schedule.get_week_schedule(0)) # вытаскивание расписание недели
+    # print(schedule.get_week_schedule(1))
+    # print(schedule.get_week_schedule(2))
+    # print(schedule.get_week_schedule(3))
+    # print(schedule.get_week_schedule(4))
