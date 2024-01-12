@@ -5,9 +5,12 @@ import aiogram
 from aiogram import Dispatcher
 from aiogram.filters import Command
 
+from aiogram import F
+
 # Свои модули
 import config
 import edit_message
+import callback_factory
 
 from userdb import *
 from utils import find_coincidence_group_teacher
@@ -36,19 +39,21 @@ async def handle_start(message: types.Message):
 @dp.message()
 async def handle_any_message(message: types.Message):
     """Обработчик всех сообщений"""
-    await edit_message.delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
-    await edit_message.delete_current_message_from_user(message)
 
     # Находим совпадения между сообщением пользователя и группами/преподавателями
     coincidence = await find_coincidence_group_teacher(message.text, sch)
 
     # Если совпадения не пустые
     if coincidence[0] or coincidence[1]:
-        message_from_bot = await message.answer(text="Я нашёл совпадения!")
+        pass
+        message_from_bot = await message.answer("Были найдены следующие совпадения:",
+                                                reply_markup=callback_factory.get_groups_teachers_fab(coincidence))
     else:
         message_from_bot = await message.answer(text="Ничего не найдено😕\n"
                                                      "Попробуйте ввести название группы / ФИО преподавателя ещё раз.")
 
+    await edit_message.delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
+    await edit_message.delete_current_message_from_user(message)
     user_db.update_user_message_id(message_from_bot)
 
 
