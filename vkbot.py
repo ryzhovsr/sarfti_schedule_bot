@@ -1,69 +1,76 @@
-from vkbottle import Keyboard, Text, Callback
-from vkbottle.bot import Bot, Message
-from vkbottle_types import GroupTypes
-from vkbottle_types.events import GroupEventType
+from vkbottle import Keyboard, Callback, GroupEventType
+from vkbottle.bot import Bot, Message, MessageEvent
 
 from schedule_data import ScheduleData
-from utils import find_coincidence_group_teacher
+from vk_userdb import UserDatabase
 
 token = "vk1.a.j8Yt1zZf7KLV75zluh9yXUmfoqE_lbgWZzX9xZaHgvm6kO8C96_ah-l7NXqBakFgzimC8AuMw0Fq0M4KbGQFUjzLrT3DtsFW8yHtdTSWbZY9JP2OhF12OVUwLVN_7ddkj7yxQdNFh-pgatYgWLzSvcA-2SrnG04jvADcNMmg-eUSEXW3j9kEmu3unAwnx2JcrqnY0DgpV1bmyzWEIFRoLA"
 bot = Bot(token)
 sch = ScheduleData()
+user_db = UserDatabase()
 
 
-# Пернести в другой модуль
-def get_groups_teachers_fab(groups_and_teachers_data):
-    """Возвращает клавиатуру с группами и ФИО преподавателей"""
-    builder = Keyboard(inline=True)
-    count = 0  # Счетчик кнопок
+async def send_initial_menu(peer_id):
+    """Возвращает начальное меню"""
+    user = await bot.api.users.get(peer_id)
 
-    for dic in groups_and_teachers_data:
-        for item, value in dic.items():
-            builder.add(
-                Callback(f"{value}", {"callback": f"{item}"})
-            )
+    keyboard = (
+        Keyboard(inline=True)
+        .add(Callback("Преподавателя", {"initial_menu": "teacher"}))
+        .add(Callback("Студента", {"initial_menu": "student"}))
+        .row()
+        .add(Callback("Инфо", {"info": "info"}))
+    ).get_json()
 
-    return builder.get_json()
+    text = f'Привет, {user[0].first_name} {user[0].last_name}!👋\n Какое расписание хочешь получить?'
+
+    return keyboard, text
 
 
 @bot.on.private_message(text=["Начать", "/start", "Привет"])
 async def handle_start(message: Message):
     """Обработчик команды /start"""
-    user = await bot.api.users.get(message.from_id)
-
-    keyboard = (
-        Keyboard(inline=True)
-        .add(Callback("Преподавателя", {"callback": "teacher"}))
-        .add(Callback("Студента", {"callback": "student"}))
-    ).get_json()
-
-    message_from_bot = await message.answer(message=f'Привет, {user[0].first_name} {user[0].last_name}!👋\n'
-                                 f'Какое расписание хочешь получить?',
-                         keyboard=keyboard)
-
-    # await bot.api.messages.delete(peer_id=message.peer_id, message_ids=message.id + 1, delete_for_all=True) удаление сообщение у бота
+    keyboard, text = await send_initial_menu(message.peer_id)
+    message_from_bot = await message.answer(message=text, keyboard=keyboard)
+    # Обновляем id последнего сообщения у пользователя
+    user_db.update_user_message_id(message_from_bot)
 
 
-@bot.on.private_message()
-async def handle_any_message(message: Message):
-    """Обработчик всех сообщений"""
+@bot.on.raw_event(GroupEventType.MESSAGE_EVENT, dataclass=MessageEvent)
+async def message_event_handler(event: MessageEvent):
+    """Отлов callback"""
+    # Получаем id пользователя
+    peer_id = event.peer_id
+    # Получаем id последнего сообщения бота
+    message_id = user_db.get_last_message_id(peer_id)
 
-    # Находим совпадения между сообщением пользователя и группами/преподавателями
-    coincidence = await find_coincidence_group_teacher(message.text, sch)
+    callback = list(event.payload.keys())[0]
 
-    # Если совпадения не пустые
-    if coincidence[0] or coincidence[1]:
-        pass
-        await message.answer(message="Были найдены следующие совпадения:",
-                             keyboard=get_groups_teachers_fab(coincidence))
-    else:
-        await message.answer("Ничего не найдено😕\n Попробуйте ввести название группы / ФИО преподавателя ещё раз.")
+    if callback == "info":
+        if event.payload[callback] == "info":
+            await event.show_snackbar("Ботик находится в разработке🙃")
 
-#Отлов callback
-@bot.on.raw_event(GroupEventType.MESSAGE_EVENT, dataclass=GroupTypes.MessageEvent)
-async def message_event_handler(event: GroupTypes.MessageEvent):
-    if event.object.payload["callback"] == "teacher":
-        await bot.api.messages.delete(peer_id=event.peer_id, message_ids=event.object.
+    # Кнопки начального меню
+    if callback == "initial_menu":
+        # Клавиатура с кнопкой возврата
+        to_selection = Callback("Вернутся к выбору", {"initial_menu": "to_selection"})
+        keyboard = Keyboard(inline=True).add(to_selection).get_json()
+
+        # Если нажата кнопка "Преподаватель"
+        if event.payload[callback] == "teacher":
+            await bot.api.messages.edit(peer_id=peer_id, message_id=message_id, message="Введите ФИО преподавателя:",
+                                        keyboard=keyboard)
+
+        # Если нажата кнопка "Студент"
+        if event.payload[callback] == "student":
+            await bot.api.messages.edit(peer_id=peer_id, message_id=message_id, message="Введите название группы:",
+                                        keyboard=keyboard)
+
+        # Если нажата кнопка "Вернутся к выбору"
+        if event.payload[callback] == "to_selection":
+            keyboard, text = await send_initial_menu(peer_id)
+            await bot.api.messages.edit(peer_id=peer_id, message_id=message_id, message=text,
+                                        keyboard=keyboard)
 
 
 if __name__ == "__main__":
