@@ -10,7 +10,18 @@ async def handle_start(message: Message):
     user = await bot.api.users.get(message.from_id)
     await message.answer(f'Привет, {user[0].first_name} {user[0].last_name}!👋\n'
                          f'Введите название группы / ФИО преподавателя.')
-    #await bot.api.messages.delete(peer_id=message.peer_id, message_ids=message.id + 1, delete_for_all=True) удаление сообщение у бота
+    # await bot.api.messages.delete(peer_id=message.peer_id, message_ids=message.id + 1, delete_for_all=True) удаление сообщение у бота
+
+
+@bot.on.private_message()
+async def handle_any_message(message: Message):
+    """Обработчик всех сообщений"""
+    if message.text and 0:
+        pass
+        # TO DO: Здесь будет реализация поиска по заданному сообщению преподавателя или группы
+    else:
+        await message.answer("Ничего не найдено😕\n Попробуйте ввести название группы / ФИО преподавателя ещё раз.")
+
 
 if __name__ == "__main__":
     bot.run_forever()
