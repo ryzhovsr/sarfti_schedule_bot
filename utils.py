@@ -4,7 +4,8 @@ async def find_coincidence_in_list(mes_text, roster, prefix=""):
     result_roster = {}
 
     for roster_key in roster:
-        if roster[roster_key].lower().startswith(mes_text.lower()) is True:
+        if (roster[roster_key].lower().startswith(mes_text.lower()) or
+                roster[roster_key].lower().startswith(mes_text_with_dash.lower())):
             result_roster[roster_key + prefix] = roster[roster_key]
     return result_roster
 
