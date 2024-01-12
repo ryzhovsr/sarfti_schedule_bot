@@ -31,3 +31,11 @@ class UserDatabase:
 
     def get_cursor(self):
         return self.__cursor
+
+    def get_last_message_id(self, user_id):
+        """Возвращает id последнего сообщения у пользователя"""
+        self.__cursor.execute(f"SELECT message_id FROM users "
+                              f"WHERE user_id = {user_id}")
+
+        # Возвращаем нулевой элемент - там будет содрежаться последний id сообщения данного пользователя
+        return self.__cursor.fetchone()[0]

@@ -24,6 +24,7 @@ async def delete_message(bot, user_data):
         await bot.delete_message(user_data[0], user_data[1])
 
 
-async def modify_message(bot):
+async def modify_message(bot, chat_id: int, message_id: int, text: str, reply_markup=None):
+    """Редактирует сообщение"""
     with contextlib.suppress(Exception):
-        pass
+        return await bot.edit_message_text(text, chat_id, message_id, reply_markup=reply_markup)
