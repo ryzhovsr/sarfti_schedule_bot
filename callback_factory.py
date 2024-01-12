@@ -21,8 +21,7 @@ def get_groups_teachers_fab(groups_and_teachers_data):
 
     # Выравниваем кнопки по 4 в ряд, чтобы получилось 4 + 1
     builder.adjust(3)
-    builder.button(
-        text="Назад", callback_data=GroupsTeachersCallbackFactory(action="finish")
-    )
+    builder.button(text="Назад", callback_data=GroupsTeachersCallbackFactory(action="finish"))
+
     return builder.as_markup()
 
