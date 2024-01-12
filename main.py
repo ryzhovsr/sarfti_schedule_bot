@@ -49,6 +49,7 @@ async def handle_any_message(message: types.Message):
 
     # Если совпадения не пустые
     if coincidence[0] or coincidence[1]:
+        # Пытаемся отредактировать прошлое сообщение, если будет исключение - отправим новое
         try:
             message_from_bot = await edit_message.modify_message(bot, message.chat.id, last_message_id,
                                                                  "Были найдены следующие совпадения:",
@@ -58,7 +59,7 @@ async def handle_any_message(message: types.Message):
             message_from_bot = await message.answer("Были найдены следующие совпадения:",
                                                     reply_markup=callback_factory.get_groups_teachers_fab(coincidence))
     else:
-        text_message = ("Ничего не найдено😕\n"
+        text_message = ("Ничего не найдено 😕\n"
                         "Попробуйте ввести название группы / ФИО преподавателя ещё раз.")
 
         # Пытаемся отредактировать прошлое сообщение, если будет исключение - отправим новое
@@ -67,7 +68,6 @@ async def handle_any_message(message: types.Message):
         except RuntimeError:
             message_from_bot = await message.answer(text_message)
 
-    # await edit_message.delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
     user_db.update_user_message_id(message_from_bot)
 
 
