@@ -4,7 +4,7 @@ async def find_coincidence_in_list(mes_text, roster, prefix=""):
     """Находит совпадения сообщения в списке roster"""
     result_roster = {}
     for roster_key in roster:
-        if roster[roster_key].lower().find(mes_text.lower()) != -1:
+        if roster[roster_key].lower().startswith(mes_text.lower()) is True:
             result_roster[roster_key + prefix] = roster[roster_key]
     return result_roster
 
