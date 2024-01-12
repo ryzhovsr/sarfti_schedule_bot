@@ -37,6 +37,8 @@ class ScheduleData:
         else:
             self.__schedule_week_dir = os.path.join(os.getcwd(), 'Data/')
 
+        self.update_schedule()
+
     def __load_main_data(self):
         """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
         with contextlib.suppress(Exception):
@@ -178,6 +180,10 @@ class ScheduleData:
     def get_groups(self):
         """Возвращает группы"""
         return self.__groups
+
+    def get_teachers(self):
+        """Возвращает преподавателей"""
+        return self.__teachers
 
     def get_schedule_week_dir(self):
         """Возвращает путь к директории для файлов с расписанием, а не путь к файлу"""

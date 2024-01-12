@@ -5,11 +5,16 @@ import aiogram
 from aiogram import Dispatcher
 from aiogram.filters import Command
 
+from aiogram import F
+
 # Свои модули
 import config
 import edit_message
+import callback_factory
 
-from database import *
+from userdb import *
+from utils import find_coincidence_group_teacher
+from schedule_data import ScheduleData
 
 dp = Dispatcher()
 
@@ -18,8 +23,8 @@ dp = Dispatcher()
 async def handle_start(message: types.Message):
     """Обработчик команды /start"""
     # Если пользователь отправил команду /start не в первый раз и он существует в БД, то удаляем его сообщение
-    if db.is_user_exists(message.chat.id) is not None:
-        await edit_message.delete_last_message_from_db(message.bot, message.chat.id, db.get_cursor())
+    if user_db.is_user_exists(message.chat.id) is not None:
+        await edit_message.delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
 
     message_from_bot = await message.answer(text=f"Привет, {message.from_user.first_name}! 👋 \n"
                                                  f"Введите название группы / ФИО преподавателя.")
@@ -28,25 +33,28 @@ async def handle_start(message: types.Message):
     await edit_message.delete_current_message_from_user(message)
 
     # Обновляем id последнего сообщения у пользователя
-    db.update_user_message_id(message_from_bot)
+    user_db.update_user_message_id(message_from_bot)
 
 
 @dp.message()
 async def handle_any_message(message: types.Message):
     """Обработчик всех сообщений"""
-    await edit_message.delete_last_message_from_db(message.bot, message.chat.id, db.get_cursor())
-    await edit_message.delete_current_message_from_user(message)
 
-    message_from_bot = ""
+    # Находим совпадения между сообщением пользователя и группами/преподавателями
+    coincidence = await find_coincidence_group_teacher(message.text, sch)
 
-    if message.text and 0:
+    # Если совпадения не пустые
+    if coincidence[0] or coincidence[1]:
         pass
-        # TO DO: Здесь будет реализация поиска по заданному сообщению преподавателя или группы
+        message_from_bot = await message.answer("Были найдены следующие совпадения:",
+                                                reply_markup=callback_factory.get_groups_teachers_fab(coincidence))
     else:
         message_from_bot = await message.answer(text="Ничего не найдено😕\n"
                                                      "Попробуйте ввести название группы / ФИО преподавателя ещё раз.")
 
-    db.update_user_message_id(message_from_bot)
+    await edit_message.delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
+    await edit_message.delete_current_message_from_user(message)
+    user_db.update_user_message_id(message_from_bot)
 
 
 async def main():
@@ -58,7 +66,8 @@ async def main():
 
 
 if __name__ == "__main__":
-    db = Database()
+    user_db = UserDatabase()
+    sch = ScheduleData()
     bot = aiogram.Bot(token=config.bot_token)
     asyncio.run(main())
 

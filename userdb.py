@@ -3,7 +3,8 @@ import sqlite3
 from aiogram import types
 
 
-class Database:
+class UserDatabase:
+    """Класс содержит id пользователей и их id последнего сообщения в чате"""
     def __init__(self):
         self.__connect = sqlite3.connect("users.db")
         self.__cursor = self.__connect.cursor()
