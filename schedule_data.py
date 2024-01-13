@@ -8,20 +8,22 @@ from io import StringIO
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+
+
 # требуется наличие библиотеки lxml
 
 
 class ScheduleData:
     def __init__(self):
-        self.__groups = {}      # Группы
-        self.__teachers = {}    # Преподаватели
-        self.__places = {}      # Аудитории
-        self.__dates = {}       # Учебные недели
+        self.__groups = {}  # Группы
+        self.__teachers = {}  # Преподаватели
+        self.__places = {}  # Аудитории
+        self.__dates = {}  # Учебные недели
 
-        self.__current_week_id = ''            # id текущей (рабочей) недели
-        self.__week_ids = []                   # id всех доступные недель
-        self.__schedule_current_week = {}      # Расписание текущей (рабочей) недели
-        self.__schedule_week_dir = ''          # Путь к директории для файла с расписанием
+        self.__current_week_id = ''  # id текущей (рабочей) недели
+        self.__week_ids = []  # id всех доступные недель
+        self.__schedule_current_week = {}  # Расписание текущей (рабочей) недели
+        self.__schedule_week_dir = ''  # Путь к директории для файла с расписанием
         self.__schedule_week_file_name = 'schedule_week'
 
         self.__class_time_weekdays = {}  # Время учебных занятий в будни (понедельник – пятница)
@@ -120,7 +122,8 @@ class ScheduleData:
 
         for item in pd.read_html(StringIO(current_week_schedule_html.text)):
             if 'День' and 'Пара' in item:
-                with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week_id + '.pkl', "wb") as file:
+                with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week_id + '.pkl',
+                          "wb") as file:
                     pickle.dump(item, file)
                 self.__schedule_current_week = item
                 break
@@ -184,71 +187,174 @@ class ScheduleData:
 
         dayf = False
         dayprev = ''
-        for index, row in loaded_table.query(output_type + ' == @target').iterrows():
-            dayt = str(row['День'])
-            if dayprev == dayt and dayf == False: dayf = True
-            if dayprev != dayt:
-                dayprev = dayt
-                dayf = False
-                text_out = text_out + '\n'
+        prev_lesson = ''
+        line = ''
+        lesson = loaded_table.query('Преподаватель == @target').iterrows()
+        index, prev_row = next(lesson)
+        prev_day = str(prev_row['День'])
+        list_groups = prev_row['Группа']
 
-            if dayt == 'ПН' and dayf == False:
-                text_out = text_out + '🔹 *ПОНЕДЕЛЬНИК:*\n'
-            if dayt == 'ВТ' and dayf == False:
-                text_out = text_out + '🔹 *ВТОРНИК:*\n'
-            if dayt == 'СР' and dayf == False:
-                text_out = text_out + '🔹 *СРЕДА:*\n'
-            if dayt == 'ЧТ' and dayf == False:
-                text_out = text_out + '🔹 *ЧЕТВЕРГ:*\n'
-            if dayt == 'ПТ' and dayf == False:
-                text_out = text_out + '🔹 *ПЯТНИЦА:*\n'
-            if dayt == 'СУБ' and dayf == False:
-                text_out = text_out + '🔹 *СУББОТА:*\n'
-            if dayt == 'ВС' and dayf == False:
-                text_out = text_out + '🔹 *ВОСКРЕСЕНЬЕ:*\n'
+        out_text = ''
+        repeat = False
+        while True:
+            try:
+                if str(row['День']) != prev_day:
+                    out_text = out_text + self._get_full_day_name(prev_row['Пара']) + '\n'
+                index, row = next(lesson)
+                if (row['Пара'] == prev_row['Пара']) and (str(row['День']) == prev_day):
+                    list_groups = list_groups + ', ' + row['Группа']
+                    repeat = True
+                else:
+                    if not repeat:
+                        list_groups = prev_row['Группа']
+                        repeat = False
 
-            tnum = str(row['Пара'])
-            if str(row['Пара']) == '1': tnum = u'\u0031\ufe0f\u20e3'
-            if str(row['Пара']) == '2': tnum = u'\u0032\ufe0f\u20e3'
-            if str(row['Пара']) == '3': tnum = u'\u0033\ufe0f\u20e3'
-            if str(row['Пара']) == '4': tnum = u'\u0034\ufe0f\u20e3'
-            if str(row['Пара']) == '5': tnum = u'\u0035\ufe0f\u20e3'
-            if str(row['Пара']) == '6': tnum = u'\u0036\ufe0f\u20e3'
-            if str(row['Пара']) == '7': tnum = u'\u0037\ufe0f\u20e3'
-            if str(row['Пара']) == '8': tnum = u'\u0038\ufe0f\u20e3'
-            if str(row['Пара']) == '9': tnum = u'\u0039\ufe0f\u20e3'
 
-            ttype = str(row['Тип']) + ','
-            if str(row['Тип']) == 'Лекция': ttype = u'💬'
-            if str(row['Тип']) == 'Практика': ttype = u'🔥'
-            if 'Лаб' in str(row['Тип']): ttype = str(row['Тип']).replace('Лаб раб', u'🔥').replace('Лаб', u'🔥').replace(
-                '1 пг', u'🅰').replace('2 пг', u'🅱')
+                    # получение расписания
+                    # out_text = line
 
-            if output_type == 'Аудитория':
-                text_out = (text_out + \
-                           tnum + ' ' + \
-                           str(row['Преподаватель']) + ', ' + \
-                           str(row['Группа']) + '\n')
-                           # ttype + ', ' + \
-                           # str(row['Предмет']))
 
-            else:
-                tplace = str(row['Аудитория'])
-                if 'ОНЛАЙН' in str(row['Аудитория']): tplace = str(row['Аудитория']).replace('ОНЛАЙН', u' 📡')
-                if 'Онлайн 1ДО' in str(row['Аудитория']): tplace = str(row['Аудитория']).replace('Онлайн 1ДО', u'1ДО 📡')
-                if 'Онлайн 2ДО' in str(row['Аудитория']): tplace = str(row['Аудитория']).replace('Онлайн 1ДО', u'2ДО 📡')
+                    out_text = out_text + '\n' + \
+                               str(prev_row['Пара']) + ', ' + \
+                               list_groups
+                    repeat = False
+                    print(out_text)
+                    list_groups = row['Группа']
+                    out_text =''
+                prev_row = row
+                prev_day = str(row['День'])
+            except StopIteration:
+                break
+        print(out_text)
+            # if row['Группа'] == prev_row['Группа']:
+            #
+            #
+            #
+            #
+            #
+            # prev_row =  row
+            # #####
+            # dayt = str(row['День'])
+            # # text_out = ''
+            # if dayprev == dayt and dayf == False: dayf = True
+            # if dayprev != dayt:
+            #     dayprev = dayt
+            #     dayf = False
+            #     text_out = text_out + '\n'
+            #
+            # if dayt == 'ПН' and dayf == False:
+            #     text_out = text_out + '🔹 *ПОНЕДЕЛЬНИК:*\n'
+            # if dayt == 'ВТ' and dayf == False:
+            #     text_out = text_out + '🔹 *ВТОРНИК:*\n'
+            # if dayt == 'СР' and dayf == False:
+            #     text_out = text_out + '🔹 *СРЕДА:*\n'
+            # if dayt == 'ЧТ' and dayf == False:
+            #     text_out = text_out + '🔹 *ЧЕТВЕРГ:*\n'
+            # if dayt == 'ПТ' and dayf == False:
+            #     text_out = text_out + '🔹 *ПЯТНИЦА:*\n'
+            # if dayt == 'СУБ' and dayf == False:
+            #     text_out = text_out + '🔹 *СУББОТА:*\n'
+            # if dayt == 'ВС' and dayf == False:
+            #     text_out = text_out + '🔹 *ВОСКРЕСЕНЬЕ:*\n'
+            #
+            # # prev_group =
+            # # current_group = row['Группа']
+            # current_lesson = row['Пара']
+            # # if current_lesson == 1:
+            # #     print('aw')
+            #
+            # if dayf and current_lesson == prev_lesson:
+            #     text_out = text_out + ', ' + row['Группа'] # + '\n'
+            # else:
+            #
+            #     tnum = str(row['Пара'])
+            #     if str(row['Пара']) == '1': tnum = u'\u0031\ufe0f\u20e3'
+            #     if str(row['Пара']) == '2': tnum = u'\u0032\ufe0f\u20e3'
+            #     if str(row['Пара']) == '3': tnum = u'\u0033\ufe0f\u20e3'
+            #     if str(row['Пара']) == '4': tnum = u'\u0034\ufe0f\u20e3'
+            #     if str(row['Пара']) == '5': tnum = u'\u0035\ufe0f\u20e3'
+            #     if str(row['Пара']) == '6': tnum = u'\u0036\ufe0f\u20e3'
+            #     if str(row['Пара']) == '7': tnum = u'\u0037\ufe0f\u20e3'
+            #     if str(row['Пара']) == '8': tnum = u'\u0038\ufe0f\u20e3'
+            #     if str(row['Пара']) == '9': tnum = u'\u0039\ufe0f\u20e3'
+            #
+            #     ttype = str(row['Тип']) + ','
+            #     if str(row['Тип']) == 'Лекция': ttype = u'💬'
+            #     if str(row['Тип']) == 'Практика': ttype = u'🔥'
+            #     if 'Лаб' in str(row['Тип']): ttype = str(row['Тип']).replace('Лаб раб', u'🔥').replace('Лаб',
+            #                                                                                           u'🔥').replace(
+            #         '1 пг', u'🅰').replace('2 пг', u'🅱')
+            #
+            #     if output_type == 'Аудитория':
+            #         text_out = (text_out + '\n' + \
+            #                     tnum + ' ' + \
+            #                     str(row['Преподаватель']) + ', ' + \
+            #                     str(row['Группа']))
+            #         # ttype + ', ' + \
+            #         # str(row['Предмет']))
+            #         # print(text_out)
+            #
+            #     else:
+            #         tplace = str(row['Аудитория'])
+            #         if 'ОНЛАЙН' in str(row['Аудитория']): tplace = str(row['Аудитория']).replace('ОНЛАЙН', u' 📡')
+            #         if 'Онлайн 1ДО' in str(row['Аудитория']): tplace = str(row['Аудитория']).replace('Онлайн 1ДО',
+            #                                                                                          u'1ДО 📡')
+            #         if 'Онлайн 2ДО' in str(row['Аудитория']): tplace = str(row['Аудитория']).replace('Онлайн 1ДО',
+            #                                                                                          u'2ДО 📡')
+            #
+            #         # end_string = ''
+            #         if output_type == 'Группа':
+            #             # end_string =
+            #             text_out = text_out + \
+            #                        tnum + ' ' + ttype + ' ' + \
+            #                        '[' + tplace + '] ' + \
+            #                        str(row['Предмет']) + ', ' + \
+            #                        str(row['Преподаватель']) + '\n'
+            #
+            #
+            #         elif output_type == 'Преподаватель':
+            #             end_string = str(row['Группа']) #+ '\n'
+            #             text_out = text_out + \
+            #                        tnum + ' ' + ttype + ' ' + \
+            #                        '[' + tplace + '] ' + \
+            #                        str(row['Группа']) + \
+            #                        str(row['Предмет']) + ', ' + \
+            #                        end_string
+            #
+            #         # text_out = text_out + \
+            #         #            tnum + ' ' + ttype + ' ' + \
+            #         #            '[' + tplace + '] ' + \
+            #         #            str(row['Предмет']) + ', ' + \
+            #         #            end_string
+            #         # print(text_out)
 
-                text_out = text_out + \
-                           tnum + ' ' + ttype + ' ' + \
-                           '[' + tplace + '] ' + \
-                           str(row['Предмет']) + ', '
-
-                if output_type == 'Группа':
-                    text_out = text_out + str(row['Преподаватель']) + '\n'
-                elif output_type == 'Преподаватель':
-                    text_out = text_out + str(row['Группа']) + '\n'
+            # prev_lesson = current_lesson
+            # text_out = text_out + line
 
         return text_out
+
+
+    def __get_process_schedule_teacher(self, num_lesson, place, groups, lesson):
+        pass
+
+    def __get_num_lesson(self, num_day):
+        pass
+        # num_days =
+        # tnum = str(row['Пара'])
+        #     if str(row['Пара']) == '1': tnum = u'\u0031\ufe0f\u20e3'
+        #     if str(row['Пара']) == '2': tnum = u'\u0032\ufe0f\u20e3'
+        #     if str(row['Пара']) == '3': tnum = u'\u0033\ufe0f\u20e3'
+        #     if str(row['Пара']) == '4': tnum = u'\u0034\ufe0f\u20e3'
+        #     if str(row['Пара']) == '5': tnum = u'\u0035\ufe0f\u20e3'
+        #     if str(row['Пара']) == '6': tnum = u'\u0036\ufe0f\u20e3'
+        #     if str(row['Пара']) == '7': tnum = u'\u0037\ufe0f\u20e3'
+        #     if str(row['Пара']) == '8': tnum = u'\u0038\ufe0f\u20e3'
+        #     if str(row['Пара']) == '9': tnum = u'\u0039\ufe0f\u20e3'
+
+    def _get_full_day_name(self, user_day):
+        full_days = ['ПОНЕДЕЛЬНИК', 'ВТОРНИК', 'СРЕДА', 'ЧЕТВЕРГ', 'ПЯТНИЦА', 'СУББОТА', 'ВОСКРЕСЕНЬЕ']
+        days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СУБ', 'ВС']
+        return '🔹 *' + full_days[days.index(user_day)] + ':*\n'
 
     def get_week_schedule_group(self, group_name, week_num=0):
         """Возвращает расписание группы с именем group_name"""
@@ -261,7 +367,6 @@ class ScheduleData:
     def get_week_schedule_place(self, place_name, week_num=0):
         """Возвращает расписание группы с именем group_name"""
         return self.get_week_schedule('Аудитория', place_name, week_num)
-
 
     def get_dates(self):
         """Возвращает учебные недели"""
@@ -297,8 +402,8 @@ if __name__ == "__main__":
     # schedule._cal_current_week()
     # schedule.update_schedule()
     # print(schedule.get_week_schedule_group('ЦТ-40', 1))
-    # print(schedule.get_week_schedule_teacher('Федоренко Г.А.'))
-    print(schedule.get_week_schedule_place('к2,117', 1))
+    print(schedule.get_week_schedule_teacher('Романова М.Д.'))
+    # print(schedule.get_week_schedule_place('к2,117', 1))
 
     # schedule.get_week_schedule('Группа', 'АВТ-13')
     # print(schedule.get_week_schedule(0)) # вытаскивание расписание недели
