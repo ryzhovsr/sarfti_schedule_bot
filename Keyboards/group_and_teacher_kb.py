@@ -13,8 +13,8 @@ def get_keyboard(groups_and_teachers_data):
     """Возвращает клавиатуру с группами и ФИО преподавателей"""
     builder = InlineKeyboardBuilder()
 
-    for dic in groups_and_teachers_data:
-        for item, value in dic.items():
+    for arr in groups_and_teachers_data:
+        for item, value in arr.items():
             builder.button(text=f"{value}", callback_data=KeyboardGroupsTeachers(action="choice", value=f"{int(item)}"))
 
     builder.button(text="↩ Назад", callback_data=KeyboardGroupsTeachers(action="go_to_back"))

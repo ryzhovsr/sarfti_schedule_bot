@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 
 
 class ScheduleData:
+    """ Класс содержит распарсенные данные из сайта СарФТИ для получения расписания"""
     def __init__(self):
         self.__groups = {}      # Группы
         self.__teachers = {}    # Преподаватели
@@ -119,7 +120,8 @@ class ScheduleData:
 
         for item in pd.read_html(StringIO(current_week_schedule_html.text)):
             if 'День' and 'Пара' in item:
-                with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week_id + '.pkl', "wb") as file:
+                with (open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week_id + '.pkl', "wb")
+                      as file):
                     pickle.dump(item, file)
                 self.__schedule_current_week = item
                 break
@@ -141,6 +143,7 @@ class ScheduleData:
     def __load_schedule(self):
         """Загружает в файлы расписание для актуальной и более новых недель"""
         self.__del_store()
+
         # Данные сайта по управлению расписанием
         self.schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
                                                       data={'login': '', 'password': '',
@@ -204,7 +207,6 @@ class ScheduleData:
 
 if __name__ == "__main__":
     schedule = ScheduleData()
-    # schedule._cal_current_week()
     schedule.update_schedule()
     # print(schedule.get_week_schedule(0)) # вытаскивание расписание недели
     # print(schedule.get_week_schedule(1))
