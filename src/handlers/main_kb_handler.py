@@ -9,29 +9,30 @@ from handlers.selection_kb_handler import pressed_back
 
 async def pressed_current_week_sch(callback: types.CallbackQuery):
     """Обработчик кнопки расписания на текущую неделю"""
-    current_choise = user_db.get_user_current_choice(callback.message.chat.id)
+    current_choice = user_db.get_user_current_choice(callback.message.chat.id)
 
     current_schedule = ""
 
     # Определяем группу или преподавателя
-    if current_choise.endswith("."):
+    if current_choice.endswith("."):
         pass
     else:
-        current_schedule = sch.get_week_schedule_group(current_choise)
+        current_schedule = sch.get_week_schedule_group(current_choice)
 
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text=current_schedule,
-                             reply_markup=schedule_kb.get_keyboard())
+                             reply_markup=schedule_kb.get_keyboard(), parse_mode="Markdown")
     except RuntimeError:
-        message_from_bot = await callback.message.answer(text=current_schedule, reply_markup=schedule_kb.get_keyboard())
+        message_from_bot = await callback.message.answer(text=current_schedule, reply_markup=schedule_kb.get_keyboard(),
+                                                         parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
 
 
 async def pressed_back_main(callback: types.CallbackQuery):
     """Обработчик кнопки назад в main клавиатуре"""
-    # Вызываем уже написанный коллбэк из другой клавиатуры
+    # Вызываем уже написанный колбэк из другой клавиатуры
     await pressed_back(callback)
 
 

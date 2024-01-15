@@ -12,7 +12,7 @@ async def pressed_select(callback: types.CallbackQuery):
     # Получаем id последнего сообщения у пользователя
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
-    # Текст кнопкни, на которую нажал пользователь
+    # Текст кнопки, на которую нажал пользователь
     current_choice = ''
 
     for dic in callback.message.reply_markup.inline_keyboard:
