@@ -15,9 +15,10 @@ def get_keyboard(groups_and_teachers_data):
 
     for arr in groups_and_teachers_data:
         for item, value in arr.items():
-            builder.button(text=f"{value}", callback_data=KeyboardGroupsTeachers(action="choice", value=f"{int(item)}"))
+            builder.button(text=f"{value}", callback_data=KeyboardGroupsTeachers(action="pressed_select",
+                                                                                 value=f"{int(item)}"))
 
-    builder.button(text="↩ Назад", callback_data=KeyboardGroupsTeachers(action="go_to_back"))
+    builder.button(text="↩ Назад", callback_data=KeyboardGroupsTeachers(action="pressed_go_back"))
     # Выравниваем кнопки по 2 в ряд
     builder.adjust(2)
 

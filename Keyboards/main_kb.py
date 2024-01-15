@@ -1,4 +1,3 @@
-from typing import Optional
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -6,7 +5,6 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 class KeyboardMain(CallbackData, prefix="main"):
     """Фабрика колбэков для основной клавиатуры"""
     action: str
-    value: Optional[int] = None
 
 
 def get_keyboard():
@@ -16,7 +14,7 @@ def get_keyboard():
     builder.button(text="🔼 Расписание на текущую неделю", callback_data=KeyboardMain(action="schedule_current_week"))
     builder.button(text="📅 Расписание на другие недели", callback_data=KeyboardMain(action="---"))
     builder.button(text="🔕 Уведомления об изменениях [выкл]", callback_data=KeyboardMain(action="---"))
-    builder.button(text="↩ Назад", callback_data=KeyboardMain(action="go_to_back"))
+    builder.button(text="↩ Назад", callback_data=KeyboardMain(action="pressed_go_back"))
 
     # Выравниваем кнопки по 1 в ряд
     builder.adjust(1)

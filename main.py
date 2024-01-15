@@ -97,7 +97,7 @@ async def handle_any_message(message: types.Message):
             user_db.update_user_message_id(message_from_bot)
 
 
-@dp.callback_query(group_and_teacher_kb.KeyboardGroupsTeachers.filter(F.action == "go_to_back"))
+@dp.callback_query(group_and_teacher_kb.KeyboardGroupsTeachers.filter(F.action == "pressed_go_back"))
 async def click_back_group_and_teacher_kb(callback: types.CallbackQuery):
     """Обработчик кнопки назад в клавиатуре выбора группы/ФИО преподавателя"""
     # Получаем id последнего сообщения у пользователя
@@ -111,7 +111,7 @@ async def click_back_group_and_teacher_kb(callback: types.CallbackQuery):
         user_db.update_user_message_id(message_from_bot)
 
 
-@dp.callback_query(group_and_teacher_kb.KeyboardGroupsTeachers.filter(F.action == "choice"))
+@dp.callback_query(group_and_teacher_kb.KeyboardGroupsTeachers.filter(F.action == "pressed_select"))
 async def click_group_or_teacher(callback: types.CallbackQuery):
     """Обработчик кнопок выбора группы/ФИО преподавателя"""
     # Получаем id последнего сообщения у пользователя
@@ -138,7 +138,7 @@ async def click_group_or_teacher(callback: types.CallbackQuery):
         user_db.update_user_message_id(message_from_bot)
 
 
-@dp.callback_query(main_kb.KeyboardMain.filter(F.action == "go_to_back"))
+@dp.callback_query(main_kb.KeyboardMain.filter(F.action == "pressed_go_back"))
 async def click_back_main(callback: types.CallbackQuery):
     """Обработчик кнопки назад в main клавиатуре"""
     # Вызываем уже написанный коллбэк из другой клавиатуры
