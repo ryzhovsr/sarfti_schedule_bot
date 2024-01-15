@@ -64,4 +64,5 @@ class UserDatabase:
     def get_user_current_choice(self, user_id):
         """Возвращает текущий выбор пользователя в меню (группа/ФИО преподавателя)"""
         self.__cursor.execute(f"SELECT current_choice FROM users WHERE user_id = {user_id}")
-        return self.__cursor.fetchone()
+        # Возвращаем нулевой элемент - там будет содрежаться текущий выбор пользователя
+        return self.__cursor.fetchone()[0]

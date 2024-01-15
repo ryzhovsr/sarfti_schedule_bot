@@ -20,7 +20,7 @@ def get_full_day_name(user_day):
     return '\n🔹 *' + full_days[days.index(user_day)] + ':*\n'
 
 
-def get_schedule_teacher(table, target):
+def form_schedule_teacher(table, target):
     """Возвращает текст расписания для преподавателя"""
     lesson = table.query(f'Преподаватель == {target}').iterrows()
     index, prev_row = next(lesson)
@@ -61,11 +61,11 @@ def get_schedule_teacher(table, target):
     return out_text
 
 
-def get_schedule_group(table, target):
+def form_schedule_group(table, target):
     """Возвращает текст расписания для группы"""
     prev_row = ''
     out_text = ''
-    for index, row in table.query(f'Группа == {target}').iterrows():
+    for index, row in table.query('Группа == @target').iterrows():
         if prev_row != row['День']:
             out_text = out_text + get_full_day_name(row['День'])
         out_text = out_text + get_line_schedule_group(row['Пара'],

@@ -9,19 +9,23 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from edit_schedule_text import form_schedule_teacher, form_schedule_group
+
+
+# требуется наличие библиотеки lxml
+
 
 class ScheduleData:
-    """ Класс содержит распарсенные данные из сайта СарФТИ для получения расписания"""
     def __init__(self):
-        self.__groups = {}      # Группы
-        self.__teachers = {}    # Преподаватели
-        self.__places = {}      # Аудитории
-        self.__dates = {}       # Учебные недели
+        self.__groups = {}  # Группы
+        self.__teachers = {}  # Преподаватели
+        self.__places = {}  # Аудитории
+        self.__dates = {}  # Учебные недели
 
-        self.__current_week_id = ''            # id текущей (рабочей) недели
-        self.__week_ids = []                   # id всех доступные недель
-        self.__schedule_current_week = {}      # Расписание текущей (рабочей) недели
-        self.__schedule_week_dir = ''          # Путь к директории для файла с расписанием
+        self.__current_week_id = ''  # id текущей (рабочей) недели
+        self.__week_ids = []  # id всех доступные недель
+        self.__schedule_current_week = {}  # Расписание текущей (рабочей) недели
+        self.__schedule_week_dir = ''  # Путь к директории для файла с расписанием
         self.__schedule_week_file_name = 'schedule_week'
 
         self.__class_time_weekdays = {}  # Время учебных занятий в будни (понедельник – пятница)
@@ -104,7 +108,6 @@ class ScheduleData:
             self.__week_ids.append(week_id)
             if (pd.to_datetime(self.__dates[week_id]) - timedelta(days=1) <= time_now <
                     pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)):
-                # __current_week_id = pd.to_datetime(self.__dates[week_id]).strftime('%Y-%m-%d')
                 self.__current_week_id = week_id
                 break
 
@@ -120,8 +123,8 @@ class ScheduleData:
 
         for item in pd.read_html(StringIO(current_week_schedule_html.text)):
             if 'День' and 'Пара' in item:
-                with (open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week_id + '.pkl', "wb")
-                      as file):
+                with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week_id + '.pkl',
+                          "wb") as file:
                     pickle.dump(item, file)
                 self.__schedule_current_week = item
                 break
@@ -143,7 +146,6 @@ class ScheduleData:
     def __load_schedule(self):
         """Загружает в файлы расписание для актуальной и более новых недель"""
         self.__del_store()
-
         # Данные сайта по управлению расписанием
         self.schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
                                                       data={'login': '', 'password': '',
@@ -169,12 +171,37 @@ class ScheduleData:
                 time.sleep(sleep_time)
             self.schedule_management_html = None
 
-    def get_week_schedule(self, week_num=0):
+    def __get_week_schedule_all(self, week_num):
         """Возвращает расписание на неделю по week_num, где 0 - текущая, 1 - следующ. ..."""
         week = str(int(self.__current_week_id) + week_num)
         with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week + '.pkl', "rb") as file:
             loaded_table = pickle.load(file)
         return loaded_table
+
+    def get_week_schedule(self, output_type, target, week_num):
+        """Возвращает расписание в зависимости от типа расписания и по чему выводить (например, название группы)"""
+        loaded_table = self.__get_week_schedule_all(week_num)
+        week_id = str(int(self.__current_week_id) + week_num)
+        out_text = '*📅 ' + pd.to_datetime(self.__dates[week_id]).strftime('%d %B') + ' - ' + \
+                   (pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)).strftime('%d %B %Yг') + '*\n'
+
+        if output_type == 'Преподаватель':
+            out_text = out_text + form_schedule_teacher(loaded_table, target)
+        elif output_type == 'Группа':
+            out_text = out_text + form_schedule_group(loaded_table, target)
+        return out_text
+
+    def get_week_schedule_group(self, group_name, week_num=0):
+        """Возвращает расписание группы с именем group_name"""
+        return self.get_week_schedule('Группа', group_name, week_num)
+
+    def get_week_schedule_teacher(self, teacher_name, week_num=0):
+        """Возвращает расписание группы с именем group_name"""
+        return self.get_week_schedule('Преподаватель', teacher_name, week_num)
+
+    def get_week_schedule_place(self, place_name, week_num=0):
+        """Возвращает расписание группы с именем group_name"""
+        return self.get_week_schedule('Аудитория', place_name, week_num)
 
     def get_dates(self):
         """Возвращает учебные недели"""
@@ -207,7 +234,14 @@ class ScheduleData:
 
 if __name__ == "__main__":
     schedule = ScheduleData()
-    schedule.update_schedule()
+    # schedule._cal_current_week()
+    # schedule.update_schedule()
+    print(schedule.get_week_schedule_group('ЦТ-40', 1))
+    # print(schedule.get_week_schedule_teacher('Федоренко Г.А.'))
+    # print(schedule.get_week_schedule_group('ЦТ-40'))
+    # print(schedule.get_week_schedule_place('к2,117', 1))
+
+    # schedule.get_week_schedule('Группа', 'АВТ-13')
     # print(schedule.get_week_schedule(0)) # вытаскивание расписание недели
     # print(schedule.get_week_schedule(1))
     # print(schedule.get_week_schedule(2))

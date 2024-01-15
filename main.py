@@ -12,7 +12,7 @@ import utils
 
 from user_db import *
 from schedule_data import ScheduleData
-from keyboards import group_and_teacher_kb, main_kb
+from keyboards import group_and_teacher_kb, main_kb, schedule_kb
 from aiogram.filters import Command
 
 dp = Dispatcher()
@@ -113,6 +113,7 @@ async def click_back_group_and_teacher_kb(callback: types.CallbackQuery):
 
 @dp.callback_query(group_and_teacher_kb.KeyboardGroupsTeachers.filter(F.action == "choice"))
 async def click_group_or_teacher(callback: types.CallbackQuery):
+    """Обработчик кнопок выбора группы/ФИО преподавателя"""
     # Получаем id последнего сообщения у пользователя
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
@@ -126,7 +127,6 @@ async def click_group_or_teacher(callback: types.CallbackQuery):
             pass
 
     user_db.update_user_current_choice(callback.message.chat.id, current_choice)
-
     text = utils.define_goup_or_teacher(current_choice)
 
     try:
@@ -137,13 +137,53 @@ async def click_group_or_teacher(callback: types.CallbackQuery):
         message_from_bot = await callback.message.answer(text=text, reply_markup=main_kb.get_keyboard())
         user_db.update_user_message_id(message_from_bot)
 
-    pass
-
 
 @dp.callback_query(main_kb.KeyboardMain.filter(F.action == "go_to_back"))
 async def click_back_main(callback: types.CallbackQuery):
+    """Обработчик кнопки назад в main клавиатуре"""
     # Вызываем уже написанный коллбэк из другой клавиатуры
     await click_back_group_and_teacher_kb(callback)
+
+
+@dp.callback_query(schedule_kb.KeyboardSchedule.filter(F.action == "pressed_go_back"))
+async def click_back_sch(callback: types.CallbackQuery):
+    """Обработчик кнопки назад в клавиатуре с расписанием"""
+    current_choise = user_db.get_user_current_choice(callback.message.chat.id)
+    current_choise = utils.define_goup_or_teacher(current_choise)
+
+    last_message_id = user_db.get_last_message_id(callback.message.chat.id)
+
+    try:
+        await message_editor.modify_message(bot, callback.message.chat.id, last_message_id, text=current_choise,
+                                            reply_markup=main_kb.get_keyboard())
+    except RuntimeError:
+        # Если не получилось отредактировать - отправляем новое и записываем его в БД
+        message_from_bot = await callback.message.answer(text=current_choise, reply_markup=main_kb.get_keyboard())
+        user_db.update_user_message_id(message_from_bot)
+
+
+@dp.callback_query(main_kb.KeyboardMain.filter(F.action == "schedule_current_week"))
+async def click_sch_current_week(callback: types.CallbackQuery):
+    """Обработчик кнопки расписания на текущую неделю"""
+    current_choise = user_db.get_user_current_choice(callback.message.chat.id)
+
+    current_schedule = ""
+
+    # Определяем группу или преподавателя
+    if current_choise.endswith("."):
+        pass
+    else:
+        current_schedule = sch.get_week_schedule_group(current_choise)
+
+    last_message_id = user_db.get_last_message_id(callback.message.chat.id)
+
+    try:
+        await message_editor.modify_message(bot, callback.message.chat.id, last_message_id, text=current_schedule,
+                                            reply_markup=schedule_kb.get_keyboard())
+    except RuntimeError:
+        # Если не получилось отредактировать - отправляем новое и записываем его в БД
+        message_from_bot = await callback.message.answer(text=current_schedule, reply_markup=schedule_kb.get_keyboard())
+        user_db.update_user_message_id(message_from_bot)
 
 
 async def main():
