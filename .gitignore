@@ -1,11 +1,14 @@
 # Игнорировать директорию .idea
-.idea/
+/.idea/
 
 # Игнорировать директорию .vscode
-.vscode/
+/.vscode/
 
 # Игнорировать директорию __pycache__
-__pycache__/
+/__pycache__/
 
 # Игнорировать директорию data
-.data/
+/data/
+
+# Игнорировать директорию /keyboards/__pycache__/
+/keyboards/__pycache__/
