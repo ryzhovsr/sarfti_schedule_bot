@@ -44,19 +44,9 @@ async def handle_any_message(message: types.Message):
     # Если пользователь отправил не текст
     if message.text is None:
         return
-    import time
-
-    # record start time
-    start = time.time()
 
     # Находим совпадения между сообщением пользователя и группами/преподавателями
     coincidence = await utils.find_coincidence_group_teacher(message.text, sch)
-
-    # record end time
-    end = time.time()
-
-    print("The time of execution of above program is :",
-          (end - start) * 10 ** 3, "ms")
 
     # Получаем id последнего сообщения у пользователя
     last_message_id = user_db.get_last_message_id(message.chat.id)
