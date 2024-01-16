@@ -11,7 +11,6 @@ from bs4 import BeautifulSoup
 
 from edit_schedule_text import form_schedule_teacher, form_schedule_group
 
-
 # требуется наличие библиотеки lxml
 
 
@@ -184,6 +183,8 @@ class ScheduleData:
         week_id = str(int(self.__current_week_id) + week_num)
         out_text = '* ' + pd.to_datetime(self.__dates[week_id]).strftime('%d %B') + ' - ' + \
                    (pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)).strftime('%d %B %Y г.') + '*\n'
+
+        out_text += "*{} {}*\n".format(output_type, target)
 
         if output_type == 'Преподаватель':
             out_text = out_text + form_schedule_teacher(loaded_table, target)
