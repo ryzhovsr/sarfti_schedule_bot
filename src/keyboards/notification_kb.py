@@ -13,11 +13,11 @@ def get_keyboard():
     """Возвращает клавиатуру с группами и ФИО преподавателей"""
     builder = InlineKeyboardBuilder()
 
-    builder.button(text="🔕 Уведомлять об изменениях на текущей неделе [в разработке]",
+    builder.button(text="🔕 Изменения на текущей неделе [выкл]",
                    callback_data=NotificationsFab(action="---"))
-    builder.button(text="🔕 Уведомлять о новом расписании [в разработке]",
+    builder.button(text="🔕 Новое расписание [выкл]",
                    callback_data=NotificationsFab(action="---"))
-    builder.button(text="🔕 Уведомлять о парах на сегодня [в разработке]",
+    builder.button(text="🔕 Пары на сегодня [выкл]",
                    callback_data=NotificationsFab(action="---"))
     builder.button(text="↩ Вернуться в меню",
                    callback_data=NotificationsFab(action="pressed_back"))

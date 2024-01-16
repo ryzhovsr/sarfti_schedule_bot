@@ -42,18 +42,18 @@ async def message_handler(message: types.Message):
     if len(coincidence[0]) == 1 or len(coincidence[1]) == 1:
         if len(coincidence[0]):
             text = coincidence[0].popitem()[1]
-            user_db.update_user_current_choice(message.chat.id, text)
+            user_db.update_user_current_selection(message.chat.id, text)
         else:
             text = coincidence[1].popitem()[1]
-            user_db.update_user_current_choice(message.chat.id, text)
+            user_db.update_user_current_selection(message.chat.id, text)
 
         text = add_sign_group_or_teacher(text)
 
         try:
             await modify_message(bot, message.chat.id, last_message_id, text=text,
-                                 reply_markup=main_kb.get_keyboard())
+                                 reply_markup=main_kb.get_keyboard(message.chat.id))
         except RuntimeError:
-            message_from_bot = await message.answer(text=text, reply_markup=main_kb.get_keyboard())
+            message_from_bot = await message.answer(text=text, reply_markup=main_kb.get_keyboard(message.chat.id))
             user_db.update_user_message_id(message_from_bot)
 
         return

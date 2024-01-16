@@ -9,15 +9,15 @@ from src.handlers.selection_kb_handler import pressed_back
 
 async def pressed_current_week_sch(callback: types.CallbackQuery):
     """Обработчик кнопки расписания на текущую неделю"""
-    current_choice = user_db.get_user_current_choice(callback.message.chat.id)
+    current_selection = user_db.get_user_current_selection(callback.message.chat.id)
 
     current_schedule = ""
 
     # Определяем группу или преподавателя
-    if current_choice.endswith("."):
-        current_schedule = sch.get_week_schedule_teacher(current_choice)
+    if current_selection.endswith("."):
+        current_schedule = sch.get_week_schedule_teacher(current_selection)
     else:
-        current_schedule = sch.get_week_schedule_group(current_choice)
+        current_schedule = sch.get_week_schedule_group(current_selection)
 
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
@@ -40,7 +40,7 @@ async def pressed_notifications(callback: types.CallbackQuery):
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
     try:
-        await modify_message(bot, callback.message.chat.id, last_message_id, text="Выберете",
+        await modify_message(bot, callback.message.chat.id, last_message_id, text="Выберете необходимые уведомления",
                              reply_markup=notification_kb.get_keyboard(), parse_mode="Markdown")
     except RuntimeError:
         message_from_bot = await callback.message.answer(text="Выберете", reply_markup=notification_kb.get_keyboard(),

@@ -10,16 +10,17 @@ from src.handlers.main_kb_handler import pressed_current_week_sch
 
 async def pressed_back(callback: types.CallbackQuery):
     """Обработчик кнопки назад в клавиатуре с расписанием"""
-    current_choice = user_db.get_user_current_choice(callback.message.chat.id)
-    current_choice = add_sign_group_or_teacher(current_choice)
+    current_selection = user_db.get_user_current_selection(callback.message.chat.id)
+    current_selection = add_sign_group_or_teacher(current_selection)
 
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
     try:
-        await modify_message(bot, callback.message.chat.id, last_message_id, text=current_choice,
-                             reply_markup=main_kb.get_keyboard())
+        await modify_message(bot, callback.message.chat.id, last_message_id, text=current_selection,
+                             reply_markup=main_kb.get_keyboard(callback.message.chat.id))
     except RuntimeError:
-        message_from_bot = await callback.message.answer(text=current_choice, reply_markup=main_kb.get_keyboard())
+        message_from_bot = await callback.message.answer(text=current_selection,
+                                                         reply_markup=main_kb.get_keyboard(callback.message.chat.id))
         user_db.update_user_message_id(message_from_bot)
 
 
