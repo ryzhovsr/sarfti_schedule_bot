@@ -182,8 +182,8 @@ class ScheduleData:
         """Возвращает расписание в зависимости от типа расписания и по чему выводить (например, название группы)"""
         loaded_table = self.__get_week_schedule_all(week_num)
         week_id = str(int(self.__current_week_id) + week_num)
-        out_text = '*📅 ' + pd.to_datetime(self.__dates[week_id]).strftime('%d %B') + ' - ' + \
-                   (pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)).strftime('%d %B %Yг') + '*\n'
+        out_text = '* ' + pd.to_datetime(self.__dates[week_id]).strftime('%d %B') + ' - ' + \
+                   (pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)).strftime('%d %B %Y г.') + '*\n'
 
         if output_type == 'Преподаватель':
             out_text = out_text + form_schedule_teacher(loaded_table, target)

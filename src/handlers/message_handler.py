@@ -89,5 +89,5 @@ def register_handlers_message(dp: Dispatcher):
 # TO DO: Это будет классной заготовкой, чтобы удалённо получать данные о пользователях и их все действия удалённо
 # @dp.message(Command(""))
 # async def handle_get_users_data(message: types.Message):
-#    """Обработчик на секретную команду от админов"""
+#    """Обработчик на секретную команду"""
 #    pass
