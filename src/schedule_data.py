@@ -232,6 +232,14 @@ class ScheduleData:
         """Возвращает id текущей недели"""
         return self.__current_week_id
 
+    def get_upcoming_weeks_list(self):
+        """Возвращает список будущих недель"""
+        week_id_list = self.__week_ids[1:]
+        upcoming_weeks = []
+        for week_id in week_id_list:
+            upcoming_weeks.append(self.__dates[week_id])
+        return upcoming_weeks
+
 
 if __name__ == "__main__":
     schedule = ScheduleData()
