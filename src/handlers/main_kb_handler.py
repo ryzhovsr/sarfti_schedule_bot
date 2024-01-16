@@ -3,7 +3,7 @@ from magic_filter import F
 
 from src.create_bot import bot, user_db, sch
 from src.message_editor import modify_message
-from src.keyboards import schedule_kb, main_kb
+from src.keyboards import schedule_kb, main_kb, notification_kb
 from src.handlers.selection_kb_handler import pressed_back
 
 
@@ -37,7 +37,15 @@ async def pressed_other_week_sch(callback: types.CallbackQuery):
 
 async def pressed_notifications(callback: types.CallbackQuery):
     """Обработчик кнопки уведомлений"""
-    pass
+    last_message_id = user_db.get_last_message_id(callback.message.chat.id)
+
+    try:
+        await modify_message(bot, callback.message.chat.id, last_message_id, text="Выберете",
+                             reply_markup=notification_kb.get_keyboard(), parse_mode="Markdown")
+    except RuntimeError:
+        message_from_bot = await callback.message.answer(text="Выберете", reply_markup=notification_kb.get_keyboard(),
+                                                         parse_mode="Markdown")
+        user_db.update_user_message_id(message_from_bot)
 
 
 async def pressed_back_main(callback: types.CallbackQuery):
