@@ -12,13 +12,13 @@ async def find_coincidence_in_list(mes_text, roster, prefix=""):
 
 async def find_coincidence_group_teacher(mes_text, schedule):
     """Находит совпадение сообщения с группами и ФИО преподавателей"""
-    all_coincidence = [await find_coincidence_in_list(mes_text, schedule.get_groups(), 'g'),
-                       await find_coincidence_in_list(mes_text, schedule.get_teachers(), 't')]
+    all_coincidence = [await find_coincidence_in_list(mes_text, schedule.get_groups()),
+                       await find_coincidence_in_list(mes_text, schedule.get_teachers())]
     return all_coincidence
 
 
 async def add_dash_in_group(text):
-    """Вовзращает текст с тире между символом и цифрой для корректного нахождения сопоставлений групп"""
+    """Возвращает текст с тире между символом и цифрой для корректного нахождения сопоставлений групп"""
     position = 0
 
     for char in text:
@@ -29,3 +29,13 @@ async def add_dash_in_group(text):
             break
 
     return text
+
+
+def add_sign_group_or_teacher(data: str):
+    """Добавляет к строке подпись "👥 Преподаватель" или "👥 Группа"."""
+    if data.endswith("."):
+        data = f"👥 Преподаватель {data}"
+    else:
+        data = f"👥 Группа {data}"
+
+    return data
