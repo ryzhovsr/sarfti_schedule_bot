@@ -1,7 +1,7 @@
 from asyncio import run
-from create_bot import dp, bot
-from handlers import (message_handler, selection_kb_handler,
-                      main_kb_handler, schedule_kb_handler, notification_kb_handler)
+from create import dp, bot
+from handlers import (message_handler, selection_kb_handler, main_kb_handler,
+                      schedule_kb_handler, notification_kb_handler)
 from logging import basicConfig, INFO
 
 

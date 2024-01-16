@@ -9,7 +9,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from edit_schedule_text import form_schedule_teacher, form_schedule_group
+from src_telegram.scripts.edit_schedule_text import form_schedule_teacher, form_schedule_group
 
 # требуется наличие библиотеки lxml
 
