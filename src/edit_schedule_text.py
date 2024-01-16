@@ -1,11 +1,11 @@
-def get_line_schedule_teacher(num_lesson, place, groups, lesson):
+def get_line_schedule_teacher(num_lesson, place, groups, lesson, lesson_type):
     """Возвращает формализованную строку для преподавателя"""
-    return get_num_lesson(num_lesson) + ' [' + place + '] ' + groups + ' ' + lesson + '\n'
+    return get_num_lesson(num_lesson) + get_emoji(lesson_type) + lesson_type + ' [' + place + '] ' + groups + ' ' + lesson + '\n'
 
 
 def get_line_schedule_group(num_lesson, place, teacher, lesson, lesson_type):
     """Возвращает формализованную строку для группы"""
-    return get_num_lesson(num_lesson) + get_emoji(lesson_type) + lesson_type + ', [' + place + '] ' + lesson + ', ' + teacher + '\n'
+    return get_num_lesson(num_lesson) + get_emoji(lesson_type) + lesson_type + ' [' + place + '] ' + lesson + ', ' + teacher + '\n'
 
 
 def get_num_lesson(num_lesson):
@@ -56,7 +56,8 @@ def form_schedule_teacher(table, target):
                 out_text = out_text + get_line_schedule_teacher(prev_row['Пара'],
                                                                 prev_row['Аудитория'],
                                                                 list_groups,
-                                                                prev_row['Предмет'])
+                                                                prev_row['Предмет'],
+                                                                prev_row['Тип'])
                 if str(row['День']) != prev_day:
                     t = get_full_day_name(row['День'])
                     out_text = out_text + t
@@ -71,7 +72,8 @@ def form_schedule_teacher(table, target):
     out_text = out_text + get_line_schedule_teacher(prev_row['Пара'],
                                                     prev_row['Аудитория'],
                                                     list_groups,
-                                                    prev_row['Предмет'])
+                                                    prev_row['Предмет'],
+                                                    prev_row['Тип'])
     return out_text
 
 

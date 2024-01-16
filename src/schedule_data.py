@@ -237,9 +237,9 @@ if __name__ == "__main__":
     schedule = ScheduleData()
     # schedule._cal_current_week()
     # schedule.update_schedule()
-    print(schedule.get_week_schedule_group('ЦТ-40', 1))
+    # print(schedule.get_week_schedule_group('ЦТ-40', 1))
     # print(schedule.get_week_schedule_teacher('Федоренко Г.А.'))
-    # print(schedule.get_week_schedule_group('ЦТ-40'))
+    print(schedule.get_week_schedule_group('ЦТ-40'))
     # print(schedule.get_week_schedule_place('к2,117', 1))
 
     # schedule.get_week_schedule('Группа', 'АВТ-13')
