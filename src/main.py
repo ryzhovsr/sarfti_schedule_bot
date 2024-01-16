@@ -3,6 +3,7 @@ from create_bot import dp, bot
 from handlers import message_handler, selection_kb_handler, main_kb_handler, schedule_kb_handler
 from logging import basicConfig, INFO
 
+
 message_handler.register_handlers_message(dp)
 selection_kb_handler.register_callbacks_selection_kb(dp)
 main_kb_handler.register_callbacks_main_kb(dp)

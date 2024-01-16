@@ -1,10 +1,10 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
 
-from create_bot import bot, user_db, sch
-from message_editor import modify_message
-from keyboards import schedule_kb, main_kb
-from handlers.selection_kb_handler import pressed_back
+from src.create_bot import bot, user_db, sch
+from src.message_editor import modify_message
+from src.keyboards import schedule_kb, main_kb
+from src.handlers.selection_kb_handler import pressed_back
 
 
 async def pressed_current_week_sch(callback: types.CallbackQuery):

@@ -1,10 +1,10 @@
 from aiogram import types, Dispatcher
 from aiogram.filters import Command
 
-from create_bot import bot, user_db, sch
-from message_editor import delete_last_message_from_db, delete_current_message_from_user, modify_message
-from utils import add_sign_group_or_teacher, find_coincidence_group_teacher
-from keyboards import selection_kb, main_kb
+from src.create_bot import bot, user_db, sch
+from src.message_editor import delete_last_message_from_db, delete_current_message_from_user, modify_message
+from src.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
+from src.keyboards import selection_kb, main_kb
 
 
 async def start_handler(message: types.Message):

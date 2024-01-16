@@ -1,10 +1,10 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
 
-from create_bot import bot, user_db
-from message_editor import modify_message
-from utils import add_sign_group_or_teacher
-from keyboards import selection_kb, main_kb
+from src.create_bot import bot, user_db
+from src.message_editor import modify_message
+from src.utils import add_sign_group_or_teacher
+from src.keyboards import selection_kb, main_kb
 
 
 async def pressed_select(callback: types.CallbackQuery):
