@@ -13,16 +13,16 @@ async def pressed_select(callback: types.CallbackQuery):
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
     # Текст кнопки, на которую нажал пользователь
-    current_choice = ''
+    current_selection = ''
 
     for dic in callback.message.reply_markup.inline_keyboard:
         for item in dic:
             if item.callback_data == callback.data:
-                current_choice = item.text
+                current_selection = item.text
             pass
 
-    user_db.update_user_current_choice(callback.message.chat.id, current_choice)
-    text = add_sign_group_or_teacher(current_choice)
+    user_db.update_user_current_selection(callback.message.chat.id, current_selection)
+    text = add_sign_group_or_teacher(current_selection)
 
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text=text,
