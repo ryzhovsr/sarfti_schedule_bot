@@ -22,7 +22,7 @@ def get_full_day_name(user_day):
 
 def form_schedule_teacher(table, target):
     """Возвращает текст расписания для преподавателя"""
-    lesson = table.query(f'Преподаватель == {target}').iterrows()
+    lesson = table.query(f'Преподаватель == @target').iterrows()
     index, prev_row = next(lesson)
     prev_day = str(prev_row['День'])
     list_groups = prev_row['Группа']

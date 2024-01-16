@@ -15,7 +15,7 @@ async def pressed_current_week_sch(callback: types.CallbackQuery):
 
     # Определяем группу или преподавателя
     if current_choice.endswith("."):
-        pass
+        current_schedule = sch.get_week_schedule_teacher(current_choice)
     else:
         current_schedule = sch.get_week_schedule_group(current_choice)
 
