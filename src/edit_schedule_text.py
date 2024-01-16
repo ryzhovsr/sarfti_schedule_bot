@@ -27,9 +27,9 @@ def get_emoji(lesson_type):
         return u'📝'
     if lesson_type.startswith('Лаб'):
         if '1' in lesson_type:
-            return u'🔬' + u'➊'
+            return u'🔬' + u'➊ '
         if '2' in lesson_type:
-            return u'🔬' + u'➊'
+            return u'🔬' + u'➋ '
         return u'🔬'
     return u'🔥'
 
