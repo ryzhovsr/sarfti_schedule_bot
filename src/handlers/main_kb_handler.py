@@ -30,6 +30,16 @@ async def pressed_current_week_sch(callback: types.CallbackQuery):
         user_db.update_user_message_id(message_from_bot)
 
 
+async def pressed_other_week_sch(callback: types.CallbackQuery):
+    """Обработчик кнопки расписания на другие недели"""
+    pass
+
+
+async def pressed_notifications(callback: types.CallbackQuery):
+    """Обработчик кнопки уведомлений"""
+    pass
+
+
 async def pressed_back_main(callback: types.CallbackQuery):
     """Обработчик кнопки назад в main клавиатуре"""
     # Вызываем уже написанный колбэк из другой клавиатуры
@@ -37,5 +47,7 @@ async def pressed_back_main(callback: types.CallbackQuery):
 
 
 def register_callbacks_main_kb(dp: Dispatcher):
-    dp.callback_query.register(pressed_current_week_sch, main_kb.MainFab.filter(F.action == "pressed_sch_current_week"))
+    dp.callback_query.register(pressed_current_week_sch, main_kb.MainFab.filter(F.action == "pressed_current_week_sch"))
+    dp.callback_query.register(pressed_other_week_sch, main_kb.MainFab.filter(F.action == "pressed_other_week_sch"))
+    dp.callback_query.register(pressed_notifications, main_kb.MainFab.filter(F.action == "pressed_notifications"))
     dp.callback_query.register(pressed_back_main, main_kb.MainFab.filter(F.action == "pressed_back"))
