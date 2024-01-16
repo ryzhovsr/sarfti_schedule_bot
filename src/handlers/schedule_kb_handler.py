@@ -5,6 +5,7 @@ from src.create_bot import bot, user_db, sch
 from src.message_editor import modify_message
 from src.utils import add_sign_group_or_teacher
 from src.keyboards import schedule_kb, main_kb
+from src.handlers.main_kb_handler import pressed_current_week_sch
 
 
 async def pressed_back(callback: types.CallbackQuery):
@@ -53,9 +54,11 @@ async def pressed_time(callback: types.CallbackQuery):
 
         try:
             await modify_message(bot, callback.message.chat.id, last_message_id, text=text_out,
-                                 reply_markup=schedule_kb.get_keyboard(), parse_mode="Markdown")
+                                 reply_markup=schedule_kb.get_keyboard_after_press_time(),
+                                 parse_mode="Markdown")
         except RuntimeError:
-            message_from_bot = await callback.message.answer(text=text_out, reply_markup=schedule_kb.get_keyboard(),
+            message_from_bot = await callback.message.answer(text=text_out,
+                                                             reply_markup=schedule_kb.get_keyboard_after_press_time(),
                                                              parse_mode="Markdown")
             user_db.update_user_message_id(message_from_bot)
 
@@ -73,13 +76,19 @@ async def pressed_info(callback: types.CallbackQuery):
 
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text=text_out,
-                             reply_markup=schedule_kb.get_keyboard())
+                             reply_markup=schedule_kb.get_keyboard_after_press_info())
     except RuntimeError:
-        message_from_bot = await callback.message.answer(text=text_out, reply_markup=schedule_kb.get_keyboard())
+        message_from_bot = await callback.message.answer(text=text_out,
+                                                         reply_markup=schedule_kb.get_keyboard_after_press_info())
         user_db.update_user_message_id(message_from_bot)
+
+
+async def pressed_schedule(callback: types.CallbackQuery):
+    await pressed_current_week_sch(callback)
 
 
 def register_callbacks_schedule_kb(dp: Dispatcher):
     dp.callback_query.register(pressed_back, schedule_kb.ScheduleFab.filter(F.action == "pressed_back"))
     dp.callback_query.register(pressed_time, schedule_kb.ScheduleFab.filter(F.action == "pressed_time"))
     dp.callback_query.register(pressed_info, schedule_kb.ScheduleFab.filter(F.action == "pressed_info"))
+    dp.callback_query.register(pressed_schedule, schedule_kb.ScheduleFab.filter(F.action == "pressed_schedule"))
