@@ -3,9 +3,9 @@ def get_line_schedule_teacher(num_lesson, place, groups, lesson):
     return get_num_lesson(num_lesson) + ' [' + place + '] ' + groups + ' ' + lesson + '\n'
 
 
-def get_line_schedule_group(num_lesson, place, teacher, lesson):
+def get_line_schedule_group(num_lesson, place, teacher, lesson, lesson_type):
     """Возвращает формализованную строку для группы"""
-    return get_num_lesson(num_lesson) + ' [' + place + '] ' + lesson + ', ' + teacher + '\n'
+    return get_num_lesson(num_lesson) + get_emoji(lesson_type) + lesson_type + ', [' + place + '] ' + lesson + ', ' + teacher + '\n'
 
 
 def get_num_lesson(num_lesson):
@@ -18,6 +18,20 @@ def get_full_day_name(user_day):
     full_days = ['ПОНЕДЕЛЬНИК', 'ВТОРНИК', 'СРЕДА', 'ЧЕТВЕРГ', 'ПЯТНИЦА', 'СУББОТА', 'ВОСКРЕСЕНЬЕ']
     days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СУБ', 'ВС']
     return '\n🔹 *' + full_days[days.index(user_day)] + ':*\n'
+
+
+def get_emoji(lesson_type):
+    if lesson_type == 'Лекция':
+        return u'💬'
+    if lesson_type == 'Практика':
+        return u'📝'
+    if lesson_type.startswith('Лаб'):
+        if '1' in lesson_type:
+            return u'🔬' + u'➊'
+        if '2' in lesson_type:
+            return u'🔬' + u'➊'
+        return u'🔬'
+    return u'🔥'
 
 
 def form_schedule_teacher(table, target):
@@ -71,6 +85,7 @@ def form_schedule_group(table, target):
         out_text = out_text + get_line_schedule_group(row['Пара'],
                                                       row['Аудитория'],
                                                       row['Преподаватель'],
-                                                      row['Предмет'])
+                                                      row['Предмет'],
+                                                      row['Тип'])
         prev_row = row['День']
     return out_text
