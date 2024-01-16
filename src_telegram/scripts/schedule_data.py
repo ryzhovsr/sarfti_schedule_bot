@@ -15,6 +15,7 @@ from src_telegram.scripts.edit_schedule_text import form_schedule_teacher, form_
 
 # TODO: сделать уведомления
 
+
 class ScheduleData:
     def __init__(self):
         self.__groups = {}  # Группы

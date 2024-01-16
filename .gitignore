@@ -4,8 +4,8 @@
 # Игнорировать директорию .vscode
 /.vscode/
 
-# Игнорировать директорию src/__pycache__
+# Игнорировать директорию все директории __pycache__
 **/__pycache__/
 
-# Игнорировать директорию src/data
-/src_telegram/data/
+# Игнорировать директорию src_telegram/data
+./src_telegram/data/

@@ -26,10 +26,11 @@ async def pressed_select(callback: types.CallbackQuery):
 
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text=text,
-                             reply_markup=main_kb.get_keyboard())
+                             reply_markup=main_kb.get_keyboard(callback.message.chat.id))
     except RuntimeError:
         # Если не получилось отредактировать - отправляем новое и записываем его в БД
-        message_from_bot = await callback.message.answer(text=text, reply_markup=main_kb.get_keyboard())
+        message_from_bot = await callback.message.answer(text=text,
+                                                         reply_markup=main_kb.get_keyboard(callback.message.chat.id))
         user_db.update_user_message_id(message_from_bot)
 
 
