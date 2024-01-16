@@ -18,7 +18,7 @@ async def find_coincidence_group_teacher(mes_text, schedule):
 
 
 async def add_dash_in_group(text):
-    """Вовзращает текст с тире между символом и цифрой для корректного нахождения сопоставлений групп"""
+    """Возвращает текст с тире между символом и цифрой для корректного нахождения сопоставлений групп"""
     position = 0
 
     for char in text:

@@ -58,11 +58,11 @@ class UserDatabase:
     def get_last_message_id(self, user_id):
         """Возвращает id последнего сообщения пользователя"""
         self.__cursor.execute(f"SELECT message_id FROM users WHERE user_id = {user_id}")
-        # Возвращаем нулевой элемент - там будет содрежаться последний id сообщения данного пользователя
+        # Возвращаем нулевой элемент - там будет содержаться последний id сообщения данного пользователя
         return self.__cursor.fetchone()[0]
 
     def get_user_current_choice(self, user_id):
         """Возвращает текущий выбор пользователя в меню (группа/ФИО преподавателя)"""
         self.__cursor.execute(f"SELECT current_choice FROM users WHERE user_id = {user_id}")
-        # Возвращаем нулевой элемент - там будет содрежаться текущий выбор пользователя
+        # Возвращаем нулевой элемент - там будет содержаться текущий выбор пользователя
         return self.__cursor.fetchone()[0]

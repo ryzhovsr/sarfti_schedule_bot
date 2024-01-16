@@ -4,7 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 class SelectionFab(CallbackData, prefix="selFab"):
-    """Фабрика колбэков для клавиатуры групп и ФИО преподаталей"""
+    """Фабрика колбэков для клавиатуры групп и ФИО преподавателей"""
     action: str
     value: Optional[str] = None
 

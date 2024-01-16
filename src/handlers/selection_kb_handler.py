@@ -49,5 +49,3 @@ async def pressed_back(callback: types.CallbackQuery):
 def register_callbacks_selection_kb(dp: Dispatcher):
     dp.callback_query.register(pressed_select, selection_kb.SelectionFab.filter(F.action == "pressed_select"))
     dp.callback_query.register(pressed_back, selection_kb.SelectionFab.filter(F.action == "pressed_back"))
-
-
