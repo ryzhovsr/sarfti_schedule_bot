@@ -47,6 +47,60 @@ class ScheduleData:
 
         self.update_schedule()
 
+        # self.get_notification()
+
+    def get_notification(self):
+
+        # сохраняем данные в переменные для сравнения
+        last_current_week_id = self.__current_week_id
+        last_week_id_list = self.__week_ids
+        last_schedules = {}
+        for week in last_week_id_list:
+            with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week + '.pkl', "rb") as file:
+                last_schedules[week] = pickle.load(file)
+
+        # обновление расписания
+        self.update_schedule()
+
+        if last_current_week_id == self.__current_week_id:
+            if len(last_week_id_list) == len(self.__week_ids):
+                self.__check_changes(self.__week_ids[2], last_schedules[self.__week_ids[2]])
+                pass
+                # цикл по всем неделям self.__week_ids
+                # уведомление об изменении на неделях + на текущей недели + на этом дне
+            else:
+                pass
+                # цикл по неделям last_week_id_list
+                # уведомление об изменении на неделях (новая неделя) + на текущей недели + на этом дне
+            pass
+        else:
+            if len(last_week_id_list) - 1 == len(self.__week_ids):
+                pass
+                # цикл по всем неделям self.__week_ids
+                # уведомление об изменении на неделях + на текущей недели + на этом дне
+            else:
+                pass
+                # цикл по неделям last_week_id_list
+                # уведомление об изменении на неделях (новая неделя) + на текущей недели + на этом дне
+            pass
+
+    def __check_changes(self, week, last_schedule):
+        list_notification = []
+        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week + '.pkl', "rb") as file:
+            new_schedule = pickle.load(file)
+
+            # проверка на различия двух расписаний
+            difference_schedule = pd.concat([new_schedule, last_schedule]).drop_duplicates(keep=False)
+
+            if not difference_schedule.empty:
+                for dif_group in difference_schedule['Группа']:
+
+                    # получить список юзеров
+                    user = []
+
+                    if dif_group in user:
+                        pass
+
     def __load_main_data(self):
         """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
         with contextlib.suppress(Exception):
