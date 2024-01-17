@@ -198,16 +198,32 @@ class ScheduleData:
         out_text = '* ' + pd.to_datetime(self.__dates[week_id]).strftime('%d %B') + ' - ' + \
                    (pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)).strftime('%d %B %Y г.') + '*\n'
         out_text += "*{} {}*\n".format(output_type, target)
+        print(loaded_table)
+
+        # lesson = loaded_table.query(f'Преподаватель == @target').iterrows()
+
+        # if loaded_table.empty:
+        #     return out_text + '\n' + 'Пар на это неделе нет!'
+        # else:
         lessons = ''
         if output_type == 'Преподаватель':
-            lessons = self.__form_schedule_teacher(loaded_table, target)
+            lesson = loaded_table.query(f'Преподаватель == @target')
+            if lesson.empty:
+                print(out_text + '\n' + 'Пар на это неделе нет!')
+
+                return out_text + '\n' + 'Пар на это неделе нет!'
+            else:
+                lessons = self.__form_schedule_teacher(lesson.iterrows(), target)
         elif output_type == 'Группа':
-            lessons = self.__form_schedule_group(loaded_table, target)
-        if lessons == '':
-            out_text = out_text + '\n' + 'Пар на это неделе нет!'
-        else:
-            out_text = out_text + lessons
-        return out_text
+            lesson = loaded_table.query(f'Группа == @target')
+            if lesson.empty:
+                print(out_text + '\n' + 'Пар на это неделе нет!')
+                return out_text + '\n' + 'Пар на это неделе нет!'
+            else:
+
+                lessons = self.__form_schedule_group(loaded_table, target)
+        print(out_text + lessons)
+        return out_text + lessons
 
     def get_week_schedule_group(self, group_name, week_num=0):
         """Возвращает расписание группы с именем group_name"""
@@ -251,9 +267,9 @@ class ScheduleData:
 
     def get_upcoming_weeks_list(self):
         """Возвращает список будущих недель"""
-        week_id_list = self.__week_ids[1:]
+        # week_id_list = self.__week_ids[0:]
         upcoming_weeks = []
-        for week_id in week_id_list:
+        for week_id in self.__week_ids[0:]:
             upcoming_weeks.append(self.__dates[week_id])
         return upcoming_weeks
 
@@ -267,23 +283,27 @@ class ScheduleData:
         return self.__get_num_lesson(num_lesson) + self.__get_emoji(
             lesson_type) + lesson_type + ' \\[' + self.__get_place(place) + '] ' + lesson + ', ' + teacher + '\n'
 
-    def __get_place(self, place):
+    @staticmethod
+    def __get_place(place):
         if 'онлайн' in place.lower():
             return u'📡 ' + place
         else:
             return place
 
-    def __get_num_lesson(self, num_lesson):
+    @staticmethod
+    def __get_num_lesson(num_lesson):
         """Возвращает номер пары в виде эмодзи"""
         return chr(0x0030 + num_lesson) + '\uFE0F' + chr(0x20E3)
 
-    def __get_full_day_name(self, user_day):
+    @staticmethod
+    def __get_full_day_name(user_day):
         """Возвращает полное название дня недели"""
         full_days = ['ПОНЕДЕЛЬНИК', 'ВТОРНИК', 'СРЕДА', 'ЧЕТВЕРГ', 'ПЯТНИЦА', 'СУББОТА', 'ВОСКРЕСЕНЬЕ']
         days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СУБ', 'ВС']
         return '\n🔹 *' + full_days[days.index(user_day)] + ':*\n'
 
-    def __get_emoji(self, lesson_type):
+    @staticmethod
+    def __get_emoji(lesson_type):
         # TODO: поменять эмодзи подгрупп
         if lesson_type == 'Лекция':
             return u'💬'
