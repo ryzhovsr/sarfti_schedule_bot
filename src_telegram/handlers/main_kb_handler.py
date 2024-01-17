@@ -13,9 +13,9 @@ async def pressed_current_week_sch(callback: types.CallbackQuery):
 
     # Определяем группу или преподавателя
     if current_selection.endswith("."):
-        current_schedule = sch.get_week_schedule_teacher(current_selection)
+        current_schedule = sch.get_week_schedule_teacher(current_selection, sch.get_current_week_id())
     else:
-        current_schedule = sch.get_week_schedule_group(current_selection)
+        current_schedule = sch.get_week_schedule_group(current_selection, sch.get_current_week_id())
 
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 

@@ -237,22 +237,20 @@ class ScheduleData:
                 time.sleep(sleep_time)
             self.schedule_management_html = None
 
-    def __get_week_schedule_all(self, week_num):
-        """Возвращает расписание на неделю по week_num, где 0 - текущая, 1 - следующ. ..."""
-        week = str(int(self.__current_week_id) + week_num)
-        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week + '.pkl', "rb") as file:
+    def __get_week_schedule_all(self, week_id):
+        """Возвращает расписание на заданную неделю"""
+        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + str(week_id) + '.pkl', "rb") as file:
             loaded_table = pickle.load(file)
         return loaded_table
 
-    def get_week_schedule(self, output_type, target, week_num):
+    def get_week_schedule(self, output_type, target, week_id):
         """Возвращает расписание в зависимости от типа расписания и по чему выводить (например, название группы)"""
-        loaded_table = self.__get_week_schedule_all(week_num)
-        week_id = str(int(self.__current_week_id) + week_num)
+        loaded_table = self.__get_week_schedule_all(week_id)
         months = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля',
                   'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря']
-        beginning_week = pd.to_datetime(self.__dates[week_id]).strftime('%d ') + \
-                         months[int(pd.to_datetime(self.__dates[week_id]).strftime('%m')) - 1]
-        end_date = pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)
+        beginning_week = (pd.to_datetime(self.__dates[str(week_id)]).strftime('%d ') +
+                          months[int(pd.to_datetime(self.__dates[str(week_id)]).strftime('%m')) - 1])
+        end_date = pd.to_datetime(self.__dates[str(week_id)]) + timedelta(days=7)
         end_week = end_date.strftime('%d ') + months[int(end_date.strftime('%m')) - 1] + end_date.strftime(' %Y г.')
         out_text = ('* ' + beginning_week + ' - ' + end_week + '*\n')
         out_text += "*{} {}*\n".format(output_type, target)
@@ -271,13 +269,13 @@ class ScheduleData:
                 lessons = self.__form_schedule_group(loaded_table, target)
         return out_text + lessons
 
-    def get_week_schedule_group(self, group_name, week_num=0):
+    def get_week_schedule_group(self, group_name, week_id):
         """Возвращает расписание группы с именем group_name"""
-        return self.get_week_schedule('Группа', group_name, week_num)
+        return self.get_week_schedule('Группа', group_name, week_id)
 
-    def get_week_schedule_teacher(self, teacher_name, week_num=0):
+    def get_week_schedule_teacher(self, teacher_name, week_id):
         """Возвращает расписание группы с именем group_name"""
-        return self.get_week_schedule('Преподаватель', teacher_name, week_num)
+        return self.get_week_schedule('Преподаватель', teacher_name, week_id)
 
     def get_week_schedule_place(self, place_name, week_num=0):
         """Возвращает расписание группы с именем group_name"""
@@ -314,9 +312,9 @@ class ScheduleData:
     def get_upcoming_weeks_list(self):
         """Возвращает список будущих недель"""
         # week_id_list = self.__week_ids[0:]
-        upcoming_weeks = []
-        for week_id in self.__week_ids[1:]:
-            upcoming_weeks.append(self.__dates[week_id])
+        upcoming_weeks = {}
+        for week_id in self.__week_ids[-2::-1]:
+            upcoming_weeks[week_id] = (self.__dates[week_id])
         return upcoming_weeks
 
     def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type):

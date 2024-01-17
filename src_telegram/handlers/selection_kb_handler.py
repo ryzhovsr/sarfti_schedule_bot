@@ -19,7 +19,7 @@ async def pressed_select(callback: types.CallbackQuery):
         for item in dic:
             if item.callback_data == callback.data:
                 current_selection = item.text
-            pass
+                break
 
     user_db.update_user_current_selection(callback.message.chat.id, current_selection)
     text = add_sign_group_or_teacher(current_selection)
