@@ -88,19 +88,31 @@ class ScheduleData:
                                                   replace('\n', ' | ')[:-1].split(';'))
                 break
 
+            for i in range(1, groups_raw_data[0].__len__()):
+                self.__groups[groups_raw_data[0][i].attrs['value']] = groups_raw_data[0][i].text
+                # print(item[i].text, i)
+                # print(item[0][i].text)
+            for i in range(1, places_raw_data[0].__len__()):
+                self.__places[places_raw_data[0][i].attrs['value']] = places_raw_data[0][i].text
+            for i in range(0, dates_raw_data[0].__len__()):
+                self.__dates[dates_raw_data[0][i].attrs['value']] = dates_raw_data[0][i].text
+            for i in range(1, teachers_raw_data[0].__len__()):
+                if (not teachers_raw_data[0][i].text.startswith('Аа')) and (teachers_raw_data[0][i].text[-6] != '-'):
+                    self.__teachers[teachers_raw_data[0][i].attrs['value']] = teachers_raw_data[0][i].text
+
             # Прогоняем цикл по всем сырым данным групп, преподавателей, мест (аудиторий) и дат
-            for item in [groups_raw_data, teachers_raw_data, places_raw_data, dates_raw_data]:
-                for i in range(0, item[0].__len__()):
-                    # Если элемент не содержит "Выберите", то загоняем его в соответствующий список
-                    if 'Выберите' not in item[0][i].text:
-                        if item == groups_raw_data:
-                            self.__groups[item[0][i].attrs['value']] = item[0][i].text
-                        if item == teachers_raw_data:
-                            self.__teachers[item[0][i].attrs['value']] = item[0][i].text
-                        if item == places_raw_data:
-                            self.__places[item[0][i].attrs['value']] = item[0][i].text
-                        if item == dates_raw_data:
-                            self.__dates[item[0][i].attrs['value']] = item[0][i].text
+            # for item in [groups_raw_data, teachers_raw_data, places_raw_data, dates_raw_data]:
+            #     for i in range(0, item[0].__len__()):
+            #         # Если элемент не содержит "Выберите", то загоняем его в соответствующий список
+            #         if 'Выберите' not in item[0][i].text:
+            #             if item == groups_raw_data:
+            #                 self.__groups[item[0][i].attrs['value']] = item[0][i].text
+            #             if item == teachers_raw_data:
+            #                 self.__teachers[item[0][i].attrs['value']] = item[0][i].text
+            #             if item == places_raw_data:
+            #                 self.__places[item[0][i].attrs['value']] = item[0][i].text
+            #             if item == dates_raw_data:
+            #                 self.__dates[item[0][i].attrs['value']] = item[0][i].text
 
     def __cal_current_week(self):
         """Вычисляет текущую неделю"""
@@ -185,13 +197,16 @@ class ScheduleData:
         week_id = str(int(self.__current_week_id) + week_num)
         out_text = '* ' + pd.to_datetime(self.__dates[week_id]).strftime('%d %B') + ' - ' + \
                    (pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)).strftime('%d %B %Y г.') + '*\n'
-        # TODO: перевести название месяца на русский
         out_text += "*{} {}*\n".format(output_type, target)
-
+        lessons = ''
         if output_type == 'Преподаватель':
-            out_text = out_text + self.__form_schedule_teacher(loaded_table, target)
+            lessons = self.__form_schedule_teacher(loaded_table, target)
         elif output_type == 'Группа':
-            out_text = out_text + self.__form_schedule_group(loaded_table, target)
+            lessons = self.__form_schedule_group(loaded_table, target)
+        if lessons == '':
+            out_text = out_text + '\n' + 'Пар на это неделе нет!'
+        else:
+            out_text = out_text + lessons
         return out_text
 
     def get_week_schedule_group(self, group_name, week_num=0):
