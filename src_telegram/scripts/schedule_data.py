@@ -38,6 +38,7 @@ class ScheduleData:
         self.schedule_management_html = None  # Страница для использования хэш данных
 
         locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')  # устанавливается русский язык
+
         # Смотрим под чем исполняется скрипт, и указываем правильный путь
         if os.name == 'nt':
             self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram\\data\\')
@@ -90,8 +91,6 @@ class ScheduleData:
 
             for i in range(1, groups_raw_data[0].__len__()):
                 self.__groups[groups_raw_data[0][i].attrs['value']] = groups_raw_data[0][i].text
-                # print(item[i].text, i)
-                # print(item[0][i].text)
             for i in range(1, places_raw_data[0].__len__()):
                 self.__places[places_raw_data[0][i].attrs['value']] = places_raw_data[0][i].text
             for i in range(0, dates_raw_data[0].__len__()):
@@ -195,34 +194,27 @@ class ScheduleData:
         """Возвращает расписание в зависимости от типа расписания и по чему выводить (например, название группы)"""
         loaded_table = self.__get_week_schedule_all(week_num)
         week_id = str(int(self.__current_week_id) + week_num)
-        out_text = '* ' + pd.to_datetime(self.__dates[week_id]).strftime('%d %B') + ' - ' + \
-                   (pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)).strftime('%d %B %Y г.') + '*\n'
+        months = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля',
+                  'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря']
+        beginning_week = pd.to_datetime(self.__dates[week_id]).strftime('%d ') + \
+                         months[int(pd.to_datetime(self.__dates[week_id]).strftime('%m'))]
+        end_date = pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)
+        end_week = end_date.strftime('%d ') + months[int(end_date.strftime('%m'))] + end_date.strftime(' %Y г.')
+        out_text = ('* ' + beginning_week + ' - ' + end_week + '*\n')
         out_text += "*{} {}*\n".format(output_type, target)
-        print(loaded_table)
-
-        # lesson = loaded_table.query(f'Преподаватель == @target').iterrows()
-
-        # if loaded_table.empty:
-        #     return out_text + '\n' + 'Пар на это неделе нет!'
-        # else:
         lessons = ''
         if output_type == 'Преподаватель':
             lesson = loaded_table.query(f'Преподаватель == @target')
             if lesson.empty:
-                print(out_text + '\n' + 'Пар на это неделе нет!')
-
                 return out_text + '\n' + 'Пар на это неделе нет!'
             else:
                 lessons = self.__form_schedule_teacher(lesson.iterrows(), target)
         elif output_type == 'Группа':
             lesson = loaded_table.query(f'Группа == @target')
             if lesson.empty:
-                print(out_text + '\n' + 'Пар на это неделе нет!')
                 return out_text + '\n' + 'Пар на это неделе нет!'
             else:
-
                 lessons = self.__form_schedule_group(loaded_table, target)
-        print(out_text + lessons)
         return out_text + lessons
 
     def get_week_schedule_group(self, group_name, week_num=0):
@@ -269,7 +261,7 @@ class ScheduleData:
         """Возвращает список будущих недель"""
         # week_id_list = self.__week_ids[0:]
         upcoming_weeks = []
-        for week_id in self.__week_ids[0:]:
+        for week_id in self.__week_ids[1:]:
             upcoming_weeks.append(self.__dates[week_id])
         return upcoming_weeks
 
