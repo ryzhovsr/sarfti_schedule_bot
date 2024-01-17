@@ -9,6 +9,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+import locale
+
 # требуется наличие библиотеки lxml
 
 # TODO: сделать уведомления
@@ -34,6 +36,7 @@ class ScheduleData:
 
         self.schedule_management_html = None  # Страница для использования хэш данных
 
+        locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')  # устанавливается русский язык
         # Смотрим под чем исполняется скрипт, и указываем правильный путь
         if os.name == 'nt':
             self.__schedule_week_dir = os.path.join(os.getcwd(), 'Data\\')
