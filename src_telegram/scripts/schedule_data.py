@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 
 from src_telegram.scripts.edit_schedule_text import form_schedule_teacher, form_schedule_group
 
+
 # требуется наличие библиотеки lxml
 
 # TODO: сделать уведомления
@@ -39,9 +40,9 @@ class ScheduleData:
 
         # Смотрим под чем исполняется скрипт, и указываем правильный путь
         if os.name == 'nt':
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram\\Data\\')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'data\\')
         else:
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram/Data/')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'data/')
 
         self.update_schedule()
 
