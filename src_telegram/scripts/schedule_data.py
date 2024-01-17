@@ -259,14 +259,19 @@ class ScheduleData:
 
     def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type):
         """Возвращает формализованную строку для преподавателя"""
-        # TODO: возможно добавить эмодзи при паре онлайн
         return self.__get_num_lesson(num_lesson) + self.__get_emoji(
             lesson_type) + lesson_type + ' \\[' + place + '] ' + groups + ' ' + lesson + '\n'
 
     def __get_line_schedule_group(self, num_lesson, place, teacher, lesson, lesson_type):
         """Возвращает формализованную строку для группы"""
         return self.__get_num_lesson(num_lesson) + self.__get_emoji(
-            lesson_type) + lesson_type + ' \\[' + place + '] ' + lesson + ', ' + teacher + '\n'
+            lesson_type) + lesson_type + ' \\[' + self.__get_place(place) + '] ' + lesson + ', ' + teacher + '\n'
+
+    def __get_place(self, place):
+        if 'онлайн' in place.lower():
+            return u'📡 ' + place
+        else:
+            return place
 
     def __get_num_lesson(self, num_lesson):
         """Возвращает номер пары в виде эмодзи"""
