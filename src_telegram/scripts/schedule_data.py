@@ -9,8 +9,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from src_telegram.scripts.edit_schedule_text import form_schedule_teacher, form_schedule_group
-
 import locale
 
 # требуется наличие библиотеки lxml
@@ -42,9 +40,9 @@ class ScheduleData:
         locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')  # устанавливается русский язык
         # Смотрим под чем исполняется скрипт, и указываем правильный путь
         if os.name == 'nt':
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram\\Data\\')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram\\data\\')
         else:
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram/Data/')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram/data/')
 
         self.update_schedule()
 
@@ -57,8 +55,6 @@ class ScheduleData:
 
             # Разбираем страницу
             self.__html_soup_sarfti_schedule = BeautifulSoup(self.__html_data_sarfti_schedule, 'lxml')
-
-            # TODO: добавить игнорирование некоторых слов в списках преподавателей
 
             # Получаем сырые данные групп, преподавателей, мест (аудиторий) и дат
             groups_raw_data = [i.findAll('option') for i in
