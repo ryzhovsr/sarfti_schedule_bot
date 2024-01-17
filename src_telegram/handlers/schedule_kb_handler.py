@@ -1,25 +1,26 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
 
-from src.create_bot import bot, user_db, sch
-from src.message_editor import modify_message
-from src.utils import add_sign_group_or_teacher
-from src.keyboards import schedule_kb, main_kb
-from src.handlers.main_kb_handler import pressed_current_week_sch
+from src_telegram.create import bot, user_db, sch
+from src_telegram.scripts.message_editor import modify_message
+from src_telegram.scripts.utils import add_sign_group_or_teacher
+from src_telegram.keyboards import schedule_kb, main_kb
+from src_telegram.handlers.main_kb_handler import pressed_current_week_sch
 
 
-async def pressed_back(callback: types.CallbackQuery):
+async def pressed_back_to_main(callback: types.CallbackQuery):
     """Обработчик кнопки назад в клавиатуре с расписанием"""
-    current_choice = user_db.get_user_current_choice(callback.message.chat.id)
-    current_choice = add_sign_group_or_teacher(current_choice)
+    current_selection = user_db.get_user_current_selection(callback.message.chat.id)
+    current_selection = add_sign_group_or_teacher(current_selection)
 
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
     try:
-        await modify_message(bot, callback.message.chat.id, last_message_id, text=current_choice,
-                             reply_markup=main_kb.get_keyboard())
+        await modify_message(bot, callback.message.chat.id, last_message_id, text=current_selection,
+                             reply_markup=main_kb.get_keyboard(callback.message.chat.id))
     except RuntimeError:
-        message_from_bot = await callback.message.answer(text=current_choice, reply_markup=main_kb.get_keyboard())
+        message_from_bot = await callback.message.answer(text=current_selection,
+                                                         reply_markup=main_kb.get_keyboard(callback.message.chat.id))
         user_db.update_user_message_id(message_from_bot)
 
 
@@ -98,7 +99,7 @@ async def pressed_schedule(callback: types.CallbackQuery):
 
 
 def register_callbacks_schedule_kb(dp: Dispatcher):
-    dp.callback_query.register(pressed_back, schedule_kb.ScheduleFab.filter(F.action == "pressed_back"))
+    dp.callback_query.register(pressed_back_to_main, schedule_kb.ScheduleFab.filter(F.action == "pressed_back"))
     dp.callback_query.register(pressed_time, schedule_kb.ScheduleFab.filter(F.action == "pressed_time"))
     dp.callback_query.register(pressed_info, schedule_kb.ScheduleFab.filter(F.action == "pressed_info"))
     dp.callback_query.register(pressed_schedule, schedule_kb.ScheduleFab.filter(F.action == "pressed_schedule"))

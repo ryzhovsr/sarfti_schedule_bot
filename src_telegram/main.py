@@ -1,7 +1,7 @@
 from asyncio import run
-from create_bot import dp, bot
-from handlers import (message_handler, selection_kb_handler,
-                      main_kb_handler, schedule_kb_handler, notification_kb_handler)
+from create import dp, bot
+from handlers import (message_handler, selection_kb_handler, main_kb_handler,
+                      schedule_kb_handler, notification_kb_handler, other_weeks_kb_handler)
 from logging import basicConfig, INFO
 
 
@@ -10,6 +10,7 @@ selection_kb_handler.register_callbacks_selection_kb(dp)
 main_kb_handler.register_callbacks_main_kb(dp)
 schedule_kb_handler.register_callbacks_schedule_kb(dp)
 notification_kb_handler.register_callbacks_schedule_kb(dp)
+other_weeks_kb_handler.register_callbacks_other_weeks_kb(dp)
 
 
 async def main():

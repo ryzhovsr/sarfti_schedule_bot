@@ -1,10 +1,12 @@
 from aiogram import types, Dispatcher
 from aiogram.filters import Command
 
-from src.create_bot import bot, user_db, sch
-from src.message_editor import delete_last_message_from_db, delete_current_message_from_user, modify_message
-from src.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
-from src.keyboards import selection_kb, main_kb
+from src_telegram.create import bot, user_db, sch
+from src_telegram.scripts.message_editor import (delete_last_message_from_db,
+                                                 delete_current_message_from_user,
+                                                 modify_message)
+from src_telegram.scripts.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
+from src_telegram.keyboards import selection_kb, main_kb
 
 
 async def start_handler(message: types.Message):
@@ -42,18 +44,18 @@ async def message_handler(message: types.Message):
     if len(coincidence[0]) == 1 or len(coincidence[1]) == 1:
         if len(coincidence[0]):
             text = coincidence[0].popitem()[1]
-            user_db.update_user_current_choice(message.chat.id, text)
+            user_db.update_user_current_selection(message.chat.id, text)
         else:
             text = coincidence[1].popitem()[1]
-            user_db.update_user_current_choice(message.chat.id, text)
+            user_db.update_user_current_selection(message.chat.id, text)
 
         text = add_sign_group_or_teacher(text)
 
         try:
             await modify_message(bot, message.chat.id, last_message_id, text=text,
-                                 reply_markup=main_kb.get_keyboard())
+                                 reply_markup=main_kb.get_keyboard(message.chat.id))
         except RuntimeError:
-            message_from_bot = await message.answer(text=text, reply_markup=main_kb.get_keyboard())
+            message_from_bot = await message.answer(text=text, reply_markup=main_kb.get_keyboard(message.chat.id))
             user_db.update_user_message_id(message_from_bot)
 
         return

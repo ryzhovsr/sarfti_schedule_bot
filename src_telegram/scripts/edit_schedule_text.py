@@ -1,11 +1,11 @@
 def get_line_schedule_teacher(num_lesson, place, groups, lesson, lesson_type):
     """Возвращает формализованную строку для преподавателя"""
-    return get_num_lesson(num_lesson) + get_emoji(lesson_type) + lesson_type + ' [' + place + '] ' + groups + ' ' + lesson + '\n'
+    return get_num_lesson(num_lesson) + get_emoji(lesson_type) + lesson_type + ' \\[' + place + '] ' + groups + ' ' + lesson + '\n'
 
 
 def get_line_schedule_group(num_lesson, place, teacher, lesson, lesson_type):
     """Возвращает формализованную строку для группы"""
-    return get_num_lesson(num_lesson) + get_emoji(lesson_type) + lesson_type + ' [' + place + '] ' + lesson + ', ' + teacher + '\n'
+    return get_num_lesson(num_lesson) + get_emoji(lesson_type) + lesson_type + ' \\[' + place + '] ' + lesson + ', ' + teacher + '\n'
 
 
 def get_num_lesson(num_lesson):
