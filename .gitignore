@@ -9,3 +9,6 @@
 
 # Игнорировать директорию src_telegram/data
 ./src_telegram/data/
+
+# Игнорирование всех файлов с расписанием
+/src_telegram/data/
