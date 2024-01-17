@@ -251,9 +251,9 @@ class ScheduleData:
         months = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля',
                   'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря']
         beginning_week = pd.to_datetime(self.__dates[week_id]).strftime('%d ') + \
-                         months[int(pd.to_datetime(self.__dates[week_id]).strftime('%m'))]
+                         months[int(pd.to_datetime(self.__dates[week_id]).strftime('%m')) - 1]
         end_date = pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)
-        end_week = end_date.strftime('%d ') + months[int(end_date.strftime('%m'))] + end_date.strftime(' %Y г.')
+        end_week = end_date.strftime('%d ') + months[int(end_date.strftime('%m')) - 1] + end_date.strftime(' %Y г.')
         out_text = ('* ' + beginning_week + ' - ' + end_week + '*\n')
         out_text += "*{} {}*\n".format(output_type, target)
         lessons = ''
