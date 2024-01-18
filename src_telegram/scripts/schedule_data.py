@@ -47,28 +47,39 @@ class ScheduleData:
 
         self.update_schedule()
 
-        # self.get_notification()
+        # from src_telegram.create import user_db
+        # user = user_db.get_all_note_current_week()
+        # list_user = []
+        # for item in user:
+        #     list_user.append(item[0])
+        # print(list_user)
+        # self.get_notification(list_user)
 
-    def get_notification(self):
+    def get_notification(self, list_user):
 
         # сохраняем данные в переменные для сравнения
         last_current_week_id = self.__current_week_id
         last_week_id_list = self.__week_ids
         last_schedules = {}
-        for week in last_week_id_list:
-            with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week + '.pkl', "rb") as file:
-                last_schedules[week] = pickle.load(file)
+        # for week in last_week_id_list:
+        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + last_current_week_id + '.pkl',
+                  "rb") as file:
+            last_schedules[last_current_week_id] = pickle.load(file)
 
         # обновление расписания
         self.update_schedule()
-
+        print("www")
+        list_notification = []
         if last_current_week_id == self.__current_week_id:
-            if len(last_week_id_list) == len(self.__week_ids):
-                self.__check_changes(self.__week_ids[2], last_schedules[self.__week_ids[2]])
+            if len(last_week_id_list) == len(self.__week_ids) >= 1:
+                print("больше или ровна")
+                list_notification.append(self.__check_changes(self.__current_week_id,
+                                                              last_schedules[self.__current_week_id], list_user))
                 pass
+
                 # цикл по всем неделям self.__week_ids
                 # уведомление об изменении на неделях + на текущей недели + на этом дне
-            else:
+            elif len(last_week_id_list) < len(self.__week_ids):
                 pass
                 # цикл по неделям last_week_id_list
                 # уведомление об изменении на неделях (новая неделя) + на текущей недели + на этом дне
@@ -84,22 +95,29 @@ class ScheduleData:
                 # уведомление об изменении на неделях (новая неделя) + на текущей недели + на этом дне
             pass
 
-    def __check_changes(self, week, last_schedule):
-        list_notification = []
+    def __check_changes(self, week, last_schedule, list_user):
         with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week + '.pkl', "rb") as file:
             new_schedule = pickle.load(file)
 
             # проверка на различия двух расписаний
             difference_schedule = pd.concat([new_schedule, last_schedule]).drop_duplicates(keep=False)
+            # print(last_schedule['Группа'].iterrows())
 
-            if not difference_schedule.empty:
-                for dif_group in difference_schedule['Группа']:
+            list_notification = []
+            # if not difference_schedule.empty:
+            # user нужно передать список используемых групп
+            for column in ['Группа', 'Преподаватель']:
+                for dif_group in difference_schedule[column].unique():
+                    if dif_group in list_user:
+                        list_notification.append(dif_group)
 
-                    # получить список юзеров
-                    user = []
-
-                    if dif_group in user:
-                        pass
+            # user нужно передать список используемых преподавателей
+            # list_user = ['Федоренко Г.А.', 'Марин С.В.']
+            # for dif_teacher in difference_schedule['Преподаватель'].unique():
+            #     if dif_teacher in list_user:
+            #         list_notification.append(dif_teacher)
+            print(list_notification)
+            return list_notification
 
     def __load_main_data(self):
         """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
@@ -239,7 +257,8 @@ class ScheduleData:
 
     def __get_week_schedule_all(self, week_id):
         """Возвращает расписание на заданную неделю"""
-        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + str(week_id) + '.pkl', "rb") as file:
+        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + str(week_id) + '.pkl',
+                  "rb") as file:
             loaded_table = pickle.load(file)
         return loaded_table
 

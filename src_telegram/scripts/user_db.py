@@ -106,3 +106,18 @@ class UserDatabase:
         self.__cursor.execute("UPDATE notifications SET is_note_classes_today = ? "
                               "WHERE user_id = ?", (notification, user_id))
         self.__connect.commit()
+
+    def get_all_note_current_week(self):
+        self.__cursor.execute("SELECT users.current_selection "
+                              "FROM users, notifications "
+                              "WHERE users.user_id = notifications.user_id AND "
+                              "notifications.is_note_current_week_changes='1';")
+        return self.__cursor.fetchall()
+
+    # def get_users_with_notifications_week_changes(self):
+    #     self.__cursor.execute(f'SELECT users.user_id, users.current_selection'
+    #                           'FROM users'
+    #                           'JOIN notifications ON users.user_id = notifications.user_id'
+    #                           'WHERE notifications.is_note_current_week_changes = 1;')
+    #     row = self.__cursor.fetchall()
+    #     print(row)
