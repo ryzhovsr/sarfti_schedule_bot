@@ -5,8 +5,8 @@ from vkbottle.bot import Bot, Blueprint
 def get_keyboard():
     """Возвращает клавиатуру начального меню"""
     return (Keyboard(inline=True)
-            .add(Callback("Преподавателя", {"start_menu": "teacher"}))
-            .add(Callback("Студента", {"start_menu": "student"}))
+            .add(Callback("👩‍🏫 Преподавателя", {"start_menu": "teacher"}))
+            .add(Callback("👨‍🎓 Студента", {"start_menu": "student"}))
             .row()
             .add(Callback("Инфо", {"info": "info"}))
             ).get_json()
