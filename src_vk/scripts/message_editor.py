@@ -1,30 +1,37 @@
-from vkbottle import Bot, VKAPIError
-from vkbottle.bot import Blueprint
+from vkbottle import VKAPIError
+from vkbottle.bot import Message, MessageEvent
 
 
-async def send_message(bot: Bot | Blueprint, peer_id, message, keyboard=None):
+async def send_message(message_event: Message | MessageEvent, message, keyboard=None):
+    """Отправляет сообщение пользователю"""
     try:
-        await bot.api.messages.send(peer_id, random_id=0, message=message, keyboard=keyboard)
+        await message_event.ctx_api.messages.send(message_event.peer_id, random_id=0, message=message,
+                                                  keyboard=keyboard)
     except VKAPIError as e:
         print("Возникла ошибка:", e.code)
 
 
-async def edit_message(bot: Bot | Blueprint, peer_id, message_id, message, keyboard=None):
+async def edit_message(message_event: Message | MessageEvent, message_id, message, keyboard=None):
+    """Редактирует сообщение бота"""
     try:
-        await bot.api.messages.edit(peer_id, message_id=message_id, message=message, keyboard=keyboard)
+        await message_event.ctx_api.messages.edit(message_event.peer_id, message_id=message_id, message=message,
+                                                  keyboard=keyboard)
     except VKAPIError as e:
         print("Возникла ошибка:", e.code)
 
 
-async def delete_message(bot: Bot | Blueprint, peer_id, message_id):
+async def delete_message(message_event: Message | MessageEvent, message_id):
+    """Удаляет сообщение бота"""
     try:
-        await bot.api.messages.delete(peer_id=peer_id, message_ids=message_id, delete_for_all=True)
+        await message_event.ctx_api.messages.delete(peer_id=message_event.peer_id, message_ids=message_id,
+                                                    delete_for_all=True)
     except VKAPIError as e:
         print("Возникла ошибка:", e.code)
 
 
-async def turn_page(bot: Bot | Blueprint, search_kb, peer_id, message_id, page_number):
-    keyboard = search_kb.get_list_pages(peer_id)[page_number]
-    await edit_message(bot, peer_id, message_id,
+async def turn_page(message_event: Message | MessageEvent, search_kb, message_id, page_number):
+    """Переворачивает страницу книжки поиска"""
+    keyboard = search_kb.get_list_pages(message_event.peer_id)[page_number]
+    await edit_message(message_event, message_id,
                        "Были найдены следующие совпадения 🔎",
                        keyboard)

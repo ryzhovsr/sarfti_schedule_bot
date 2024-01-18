@@ -12,7 +12,17 @@ class UserDatabase:
      """
 
     def __init__(self):
-        self.__connect = sqlite3.connect("vk_users.db")
+        # Смотрим под чем исполняется скрипт, и указываем правильный путь
+        if os.name == 'nt':
+            self.__db_path = os.path.join(os.getcwd(), 'src_vk\\data\\')
+        else:
+            self.__db_path = os.path.join(os.getcwd(), 'src_vk/data/')
+
+        # Если директории data нет в проекте, создаём её
+        if not os.path.exists(self.__db_path):
+            os.makedirs(self.__db_path)
+        # TODO: исправить некорректное обновление базы данных
+        self.__connect = sqlite3.connect("users.db")
         self.__cursor = self.__connect.cursor()
         self.__cursor.execute("CREATE TABLE IF NOT EXISTS users"
                               "(user_id INTEGER PRIMARY KEY, "
@@ -36,7 +46,7 @@ class UserDatabase:
         return self.__cursor.fetchone()
 
     def update_user_message_id(self, message: Message):
-        """Обновляет id сообщения пользователя"""
+        """Обновляет id сообщения бота"""
         if self.is_user_exists(message.peer_id) is None:
             self.__cursor.execute(f"INSERT INTO users(user_id, message_id) "
                                   f"VALUES({message.peer_id}, {message.message_id});")
@@ -53,14 +63,14 @@ class UserDatabase:
         self.__connect.commit()
 
     def update_user_is_teacher(self, user_id, is_teacher):
-        """Обновляет is_student пользователя"""
+        """Обновляет выбор (преподаватель или группа) пользователя"""
         self.__cursor.execute("UPDATE users SET is_teacher = ? "
                               "WHERE user_id = ?", (is_teacher, user_id))
 
         self.__connect.commit()
 
     def update_user_current_selection(self, user_id, current_selection):
-        """Обновляет name пользователя"""
+        """Обновляет текущий выбор пользователя"""
         self.__cursor.execute("UPDATE users SET current_selection = ? "
                               "WHERE user_id = ?", (current_selection, user_id))
         self.__connect.commit()
@@ -69,20 +79,20 @@ class UserDatabase:
         return self.__cursor
 
     def get_last_message_id(self, user_id):
-        """Возвращает id последнего сообщения у пользователя"""
+        """Возвращает id последнего сообщения у бота"""
         self.__cursor.execute(f"SELECT message_id FROM users WHERE user_id = {user_id}")
 
         # Возвращаем нулевой элемент - там будет содержаться последний id сообщения данного пользователя
         return self.__cursor.fetchone()[0]
 
     def get_user_is_teacher(self, user_id):
-        """Возвращает is_student у пользователя"""
+        """Возвращает выбор (преподаватель или группа) у пользователя"""
         self.__cursor.execute(f"SELECT is_teacher FROM users WHERE user_id = {user_id}")
 
         return self.__cursor.fetchone()[0]
 
     def get_user_current_selection(self, user_id):
-        """Возвращает current_selection у пользователя"""
+        """Возвращает текущий выбор у пользователя"""
         self.__cursor.execute(f"SELECT current_selection FROM users WHERE user_id = {user_id}")
 
         return self.__cursor.fetchone()[0]

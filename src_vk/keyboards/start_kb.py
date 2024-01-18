@@ -1,5 +1,5 @@
 from vkbottle import Keyboard, Callback
-from vkbottle.bot import Bot, Blueprint
+from vkbottle.bot import Message, MessageEvent
 
 
 def get_keyboard():
@@ -10,7 +10,7 @@ def get_keyboard():
             ).get_json()
 
 
-async def get_text(bot: Bot | Blueprint, peer_id):
+async def get_text(message_event: Message | MessageEvent):
     """Возвращает текст начального меню"""
-    user = await bot.api.users.get(peer_id)
+    user = await message_event.ctx_api.users.get([message_event.peer_id])
     return f'Привет, {user[0].first_name} {user[0].last_name}!👋\n Какое расписание хочешь получить?'
