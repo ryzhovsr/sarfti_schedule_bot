@@ -17,7 +17,7 @@ import locale
 
 
 class ScheduleData:
-    def __init__(self):
+    def __init__(self, directory='src_telegram'):
         self.__groups = {}  # Группы
         self.__teachers = {}  # Преподаватели
         self.__places = {}  # Аудитории
@@ -41,9 +41,9 @@ class ScheduleData:
 
         # Смотрим под чем исполняется скрипт, и указываем правильный путь
         if os.name == 'nt':
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'data\\')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), directory + '\\', 'data\\')
         else:
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'data/')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram/data/')
 
         self.update_schedule()
 
