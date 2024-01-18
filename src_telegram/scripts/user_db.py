@@ -114,6 +114,14 @@ class UserDatabase:
                               "notifications.is_note_current_week_changes='1';")
         return self.__cursor.fetchall()
 
+    def get_users_by_current_selection(self, current_selection):
+        self.__cursor.execute("SELECT users.user_id "
+                              "FROM users, notifications "
+                              "WHERE users.user_id = notifications.user_id AND "
+                              "notifications.is_note_current_week_changes='1' AND "
+                              "users.current_selection=?", (current_selection, ))
+        return self.__cursor.fetchall()
+
     # def get_users_with_notifications_week_changes(self):
     #     self.__cursor.execute(f'SELECT users.user_id, users.current_selection'
     #                           'FROM users'

@@ -61,68 +61,54 @@ class ScheduleData:
         # self.get_notification(list_user)
 
     def get_notification(self, list_user):
-
         # сохраняем данные в переменные для сравнения
         last_current_week_id = self.__current_week_id
         last_week_id_list = self.__week_ids
         last_schedules = {}
-        # for week in last_week_id_list:
         with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + last_current_week_id + '.pkl',
                   "rb") as file:
             last_schedules[last_current_week_id] = pickle.load(file)
 
         # обновление расписания
         self.update_schedule()
-        print("www")
-        list_notification = []
+
+        # Проверка на необходимость сопоставление расписаний
+        list_notification = [None, None, None]
         if last_current_week_id == self.__current_week_id:
             if len(last_week_id_list) == len(self.__week_ids) >= 1:
-                print("больше или ровна")
-                list_notification.append(self.__check_changes(self.__current_week_id,
-                                                              last_schedules[self.__current_week_id], list_user))
-                pass
 
-                # цикл по всем неделям self.__week_ids
-                # уведомление об изменении на неделях + на текущей недели + на этом дне
+                # проверка на одинаковое ли расписание на текущей неделе
+                if not last_schedules[self.__current_week_id].equals(self.__schedule_current_week):
+                    list_notification[0] = self.__check_changes(self.__current_week_id,
+                                                                last_schedules[self.__current_week_id], list_user)
+
             elif len(last_week_id_list) < len(self.__week_ids):
                 pass
-                # цикл по неделям last_week_id_list
-                # уведомление об изменении на неделях (новая неделя) + на текущей недели + на этом дне
+
             pass
         else:
             if len(last_week_id_list) - 1 == len(self.__week_ids):
                 pass
-                # цикл по всем неделям self.__week_ids
-                # уведомление об изменении на неделях + на текущей недели + на этом дне
+
             else:
+                # list_notification[1] =
                 pass
-                # цикл по неделям last_week_id_list
-                # уведомление об изменении на неделях (новая неделя) + на текущей недели + на этом дне
+
             pass
+        return list_notification
 
     def __check_changes(self, week, last_schedule, list_user):
-        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week + '.pkl', "rb") as file:
-            new_schedule = pickle.load(file)
+        # проверка на различия двух расписаний
+        difference_schedule = pd.concat([self.__schedule_current_week, last_schedule]).drop_duplicates(keep=False)
+        # print(last_schedule['Группа'].iterrows())
 
-            # проверка на различия двух расписаний
-            difference_schedule = pd.concat([new_schedule, last_schedule]).drop_duplicates(keep=False)
-            # print(last_schedule['Группа'].iterrows())
+        list_notification = []
+        for column in ['Группа', 'Преподаватель']:
+            for dif_group in difference_schedule[column].unique():
+                if dif_group in list_user:
+                    list_notification.append(dif_group)
 
-            list_notification = []
-            # if not difference_schedule.empty:
-            # user нужно передать список используемых групп
-            for column in ['Группа', 'Преподаватель']:
-                for dif_group in difference_schedule[column].unique():
-                    if dif_group in list_user:
-                        list_notification.append(dif_group)
-
-            # user нужно передать список используемых преподавателей
-            # list_user = ['Федоренко Г.А.', 'Марин С.В.']
-            # for dif_teacher in difference_schedule['Преподаватель'].unique():
-            #     if dif_teacher in list_user:
-            #         list_notification.append(dif_teacher)
-            print(list_notification)
-            return list_notification
+        return list_notification
 
     def __load_main_data(self):
         """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
@@ -288,13 +274,13 @@ class ScheduleData:
         if output_type == 'Преподаватель':
             lesson = loaded_table.query(f'Преподаватель == @target')
             if lesson.empty:
-                return out_text + '\n' + 'Пар на это неделе нет!'
+                return out_text + '\n' + 'Пар на этой неделе нет!'
             else:
                 lessons = self.__form_schedule_teacher(lesson.iterrows(), target, special_star, special_slash)
         elif output_type == 'Группа':
             lesson = loaded_table.query(f'Группа == @target')
             if lesson.empty:
-                return out_text + '\n' + 'Пар на это неделе нет!'
+                return out_text + '\n' + 'Пар на этой неделе нет!'
             else:
                 lessons = self.__form_schedule_group(loaded_table, target, special_star, special_slash)
         return out_text + lessons
