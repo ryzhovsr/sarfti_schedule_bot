@@ -1,7 +1,9 @@
 from aiogram import types, Dispatcher
 from aiogram.filters import Command
 from src_telegram.create import bot, user_db, sch
-from src_telegram.scripts.message_editor import (delete_last_message_from_db, delete_current_message_from_user,modify_message)
+from src_telegram.scripts.message_editor import (delete_last_message_from_db,
+                                                 delete_current_message_from_user,
+                                                 modify_message)
 from src_telegram.scripts.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
 from src_telegram.keyboards import selection_kb, main_kb
 from src_telegram.scripts.utils import is_teacher, add_dash_in_group
@@ -36,10 +38,10 @@ async def message_handler(message: types.Message):
     text = message.text
 
     if not is_teacher(message.text):
-        text = await add_dash_in_group(text)
+        text = add_dash_in_group(text)
 
     # Находим совпадения между сообщением пользователя и группами/преподавателями
-    coincidence = await find_coincidence_group_teacher(text, sch)
+    coincidence = find_coincidence_group_teacher(text, sch)
 
     # Получаем id последнего сообщения у пользователя
     last_message_id = user_db.get_last_message_id(message.chat.id)
@@ -80,8 +82,6 @@ async def message_handler(message: types.Message):
                     user_db.update_user_message_id(message_from_bot)
 
                 return
-
-
 
     # Если совпадения не пустые
     if coincidence[0] or coincidence[1]:
