@@ -26,7 +26,7 @@ class SearchKeyboard:
                 keyboard.row()
 
             keyboard.add(
-                Callback("Вернутся к выбору", {"start_menu": "back"})).get_json()
+                Callback("↩ Вернутся к выбору", {"start_menu": "back"})).get_json()
 
             list_pages.append(keyboard)
 
@@ -69,7 +69,7 @@ class SearchKeyboard:
                     keyboard.add(Callback("Следующая ➡️", {"search_menu": "following"})).row()
 
                 keyboard.add(
-                    Callback("Вернутся к выбору", {"start_menu": "back"})).get_json()
+                    Callback("↩ Вернутся к выбору", {"start_menu": "back"})).get_json()
 
                 list_pages.append(keyboard)
 
@@ -95,3 +95,7 @@ class SearchKeyboard:
     def get_page_number(self, peer_id):
 
         return self.__dict_books[peer_id][1]
+
+    def delete_list_pages(self, peer_id):
+
+        del self.__dict_books[peer_id]
