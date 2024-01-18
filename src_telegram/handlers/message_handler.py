@@ -4,9 +4,9 @@ from src_telegram.create import bot, user_db, sch
 from src_telegram.scripts.message_editor import (delete_last_message_from_db,
                                                  delete_current_message_from_user,
                                                  modify_message)
-from src_telegram.scripts.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
+from schedule.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
 from src_telegram.keyboards import selection_kb, main_kb
-from src_telegram.scripts.utils import is_teacher, add_dash_in_group
+from schedule.utils import is_teacher, add_dash_in_group
 
 
 async def start_handler(message: types.Message):

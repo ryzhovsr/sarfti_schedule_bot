@@ -2,10 +2,13 @@ from vkbottle import Keyboard, Callback
 
 
 class SearchKeyboard:
+    """Класс для реализации книжки поиска"""
+
     def __init__(self):
         self.__dict_books = {}
 
     def get_keyboard(self, peer_id, coincidence: dict):
+        """Возвращает и инициализирует для конкретного пользователя страницы поиска"""
         list_pages = []
         number_page = 0
 
@@ -78,11 +81,11 @@ class SearchKeyboard:
         return self.__dict_books[peer_id][0]
 
     def get_list_pages(self, peer_id):
-
+        """Возвращает книжку поиска для конкретного пользователя"""
         return self.__dict_books[peer_id][0]
 
     def set_page_number(self, peer_id, page_number):
-
+        """Изменяем номер страницы книжки для конкретного пользователя"""
         if page_number <= 0:
             self.__dict_books[peer_id][1] = 0
 
@@ -93,9 +96,9 @@ class SearchKeyboard:
             self.__dict_books[peer_id][1] = page_number
 
     def get_page_number(self, peer_id):
-
+        """Возвращает номер страницы книжки для конкретного пользователя"""
         return self.__dict_books[peer_id][1]
 
     def delete_list_pages(self, peer_id):
-
+        """Удаляет книжку у пользователя"""
         del self.__dict_books[peer_id]
