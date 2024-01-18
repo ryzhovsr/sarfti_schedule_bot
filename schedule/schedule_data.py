@@ -18,6 +18,11 @@ import locale
 
 class ScheduleData:
     def __init__(self, directory='src_telegram'):
+        if directory == 'src_telegram':
+            self.__telegram = True
+        else:
+            self.__telegram = False
+
         self.__groups = {}  # Группы
         self.__teachers = {}  # Преподаватели
         self.__places = {}  # Аудитории
@@ -264,6 +269,12 @@ class ScheduleData:
 
     def get_week_schedule(self, output_type, target, week_id):
         """Возвращает расписание в зависимости от типа расписания и по чему выводить (например, название группы)"""
+        if self.__telegram:
+            special_star = '*'
+            special_slash = '\\'
+        else:
+            special_star = special_slash = ''
+
         loaded_table = self.__get_week_schedule_all(week_id)
         months = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля',
                   'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря']
@@ -271,21 +282,22 @@ class ScheduleData:
                           months[int(pd.to_datetime(self.__dates[str(week_id)]).strftime('%m')) - 1])
         end_date = pd.to_datetime(self.__dates[str(week_id)]) + timedelta(days=7)
         end_week = end_date.strftime('%d ') + months[int(end_date.strftime('%m')) - 1] + end_date.strftime(' %Y г.')
-        out_text = ('* ' + beginning_week + ' - ' + end_week + '*\n')
-        out_text += "*{} {}*\n".format(output_type, target)
+        out_text = '{}{} - {}{}\n'.format(special_star, beginning_week, end_week, special_star)
+        out_text += "{}{} {}{}\n".format(special_star, output_type, target, special_star)
         lessons = ''
         if output_type == 'Преподаватель':
             lesson = loaded_table.query(f'Преподаватель == @target')
             if lesson.empty:
                 return out_text + '\n' + 'Пар на это неделе нет!'
             else:
-                lessons = self.__form_schedule_teacher(lesson.iterrows(), target)
+                lessons = self.__form_schedule_teacher(lesson.iterrows(), target, special_star, special_slash)
         elif output_type == 'Группа':
             lesson = loaded_table.query(f'Группа == @target')
             if lesson.empty:
                 return out_text + '\n' + 'Пар на это неделе нет!'
             else:
-                lessons = self.__form_schedule_group(loaded_table, target)
+                lessons = self.__form_schedule_group(loaded_table, target, special_star, special_slash)
+        print(out_text + lessons)
         return out_text + lessons
 
     def get_week_schedule_group(self, group_name, week_id):
@@ -336,15 +348,25 @@ class ScheduleData:
             upcoming_weeks[week_id] = (self.__dates[week_id])
         return upcoming_weeks
 
-    def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type):
+    def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type, special_slash):
         """Возвращает формализованную строку для преподавателя"""
-        return self.__get_num_lesson(num_lesson) + self.__get_emoji(
-            lesson_type) + lesson_type + ' \\[' + place + '] ' + groups + ' ' + lesson + '\n'
+        return '{}{}{} {}[{}] {} {}\n'.format(self.__get_num_lesson(num_lesson),
+                                              self.__get_emoji(lesson_type),
+                                              lesson_type,
+                                              special_slash,
+                                              place,
+                                              groups,
+                                              lesson)
 
-    def __get_line_schedule_group(self, num_lesson, place, teacher, lesson, lesson_type):
+    def __get_line_schedule_group(self, num_lesson, place, teacher, lesson, lesson_type, special_slash):
         """Возвращает формализованную строку для группы"""
-        return self.__get_num_lesson(num_lesson) + self.__get_emoji(
-            lesson_type) + lesson_type + ' \\[' + self.__get_place(place) + '] ' + lesson + ', ' + teacher + '\n'
+        return '{}{}{} {}[{}] {}, {}\n'.format(self.__get_num_lesson(num_lesson),
+                                               self.__get_emoji(lesson_type),
+                                               lesson_type,
+                                               special_slash,
+                                               self.__get_place(place),
+                                               lesson,
+                                               teacher)
 
     @staticmethod
     def __get_place(place):
@@ -359,11 +381,11 @@ class ScheduleData:
         return chr(0x0030 + num_lesson) + '\uFE0F' + chr(0x20E3)
 
     @staticmethod
-    def __get_full_day_name(user_day):
+    def __get_full_day_name(user_day, special_star):
         """Возвращает полное название дня недели"""
         full_days = ['ПОНЕДЕЛЬНИК', 'ВТОРНИК', 'СРЕДА', 'ЧЕТВЕРГ', 'ПЯТНИЦА', 'СУББОТА', 'ВОСКРЕСЕНЬЕ']
         days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СУБ', 'ВС']
-        return '\n🔹 *' + full_days[days.index(user_day)] + ':*\n'
+        return '\n🔹 {}{}:{}\n'.format(special_star, full_days[days.index(user_day)], special_star)
 
     @staticmethod
     def __get_emoji(lesson_type):
@@ -380,13 +402,13 @@ class ScheduleData:
             return u'🔬'
         return u'🔥'
 
-    def __form_schedule_teacher(self, table, target):
+    def __form_schedule_teacher(self, table, target, special_star, special_slash):
         """Возвращает текст расписания для преподавателя"""
         index, prev_row = next(table)
         prev_day = str(prev_row['День'])
         list_groups = prev_row['Группа']
 
-        out_text = self.__get_full_day_name(prev_row['День'])
+        out_text = self.__get_full_day_name(prev_row['День'], special_star)
         repeat = False
         while True:
             try:
@@ -402,9 +424,10 @@ class ScheduleData:
                                                                            prev_row['Аудитория'],
                                                                            list_groups,
                                                                            prev_row['Предмет'],
-                                                                           prev_row['Тип'])
+                                                                           prev_row['Тип'],
+                                                                           special_slash)
                     if str(row['День']) != prev_day:
-                        t = self.__get_full_day_name(row['День'])
+                        t = self.__get_full_day_name(row['День'], special_star)
                         out_text = out_text + t
 
                     repeat = False
@@ -418,21 +441,23 @@ class ScheduleData:
                                                                prev_row['Аудитория'],
                                                                list_groups,
                                                                prev_row['Предмет'],
-                                                               prev_row['Тип'])
+                                                               prev_row['Тип'],
+                                                               special_slash)
         return out_text
 
-    def __form_schedule_group(self, table, target):
+    def __form_schedule_group(self, table, target, special_star, special_slash):
         """Возвращает текст расписания для группы"""
         prev_row = ''
         out_text = ''
         for index, row in table.query('Группа == @target').iterrows():
             if prev_row != row['День']:
-                out_text = out_text + self.__get_full_day_name(row['День'])
+                out_text = out_text + self.__get_full_day_name(row['День'], special_star)
             out_text = out_text + self.__get_line_schedule_group(row['Пара'],
                                                                  row['Аудитория'],
                                                                  row['Преподаватель'],
                                                                  row['Предмет'],
-                                                                 row['Тип'])
+                                                                 row['Тип'],
+                                                                 special_slash)
             prev_row = row['День']
         return out_text
 
