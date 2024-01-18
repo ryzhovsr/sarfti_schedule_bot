@@ -45,7 +45,7 @@ async def message_handler(message: Message):
                 user_db.update_user_current_selection(peer_id, current_selection)
 
             else:
-                message_from_bot = await message.answer(message="Были найдены следующие совпадения🔎:",
+                message_from_bot = await message.answer(message="Были найдены следующие совпадения 🔎",
                                                         keyboard=keyboard)
             user_db.update_user_message_id(message_from_bot)
 

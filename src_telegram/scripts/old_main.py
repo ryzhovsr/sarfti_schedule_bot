@@ -13,7 +13,7 @@ import ast
 from tables import NaturalNameWarning
 from datetime import datetime, timedelta
 from telebot import types
-from schedule_data import ScheduleData
+from schedule.schedule_data import ScheduleData
 
 # Выключаем предупреждение от библиотеки NaturalNameWarning
 warnings.filterwarnings('ignore', category=NaturalNameWarning)

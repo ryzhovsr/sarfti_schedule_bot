@@ -7,8 +7,6 @@ def get_keyboard():
     return (Keyboard(inline=True)
             .add(Callback("👩‍🏫 Преподавателя", {"start_menu": "teacher"}))
             .add(Callback("👨‍🎓 Студента", {"start_menu": "student"}))
-            .row()
-            .add(Callback("Инфо", {"info": "info"}))
             ).get_json()
 
 

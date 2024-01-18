@@ -42,10 +42,6 @@ async def message_event_handler(event: MessageEvent):
                                               main_kb.get_text(is_teacher, current_selection),
                                               main_kb.get_keyboard(peer_id))
 
-    if callback == "info":
-        if event.payload[callback] == "info":
-            await event.show_snackbar("Ботик находится в разработке🙃")
-
     if callback == "current_selection":
         search_kb.delete_list_pages(peer_id)
         await message_editor.edit_message(bp, peer_id, message_id,

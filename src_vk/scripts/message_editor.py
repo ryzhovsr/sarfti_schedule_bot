@@ -26,5 +26,5 @@ async def delete_message(bot: Bot | Blueprint, peer_id, message_id):
 async def turn_page(bot: Bot | Blueprint, search_kb, peer_id, message_id, page_number):
     keyboard = search_kb.get_list_pages(peer_id)[page_number]
     await edit_message(bot, peer_id, message_id,
-                       "Были найдены следующие совпадения:",
+                       "Были найдены следующие совпадения 🔎",
                        keyboard)
