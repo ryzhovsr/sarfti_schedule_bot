@@ -1,12 +1,10 @@
 from aiogram import types, Dispatcher
 from aiogram.filters import Command
-
 from src_telegram.create import bot, user_db, sch
-from src_telegram.scripts.message_editor import (delete_last_message_from_db,
-                                                 delete_current_message_from_user,
-                                                 modify_message)
+from src_telegram.scripts.message_editor import (delete_last_message_from_db, delete_current_message_from_user,modify_message)
 from src_telegram.scripts.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
 from src_telegram.keyboards import selection_kb, main_kb
+from src_telegram.scripts.utils import is_teacher, add_dash_in_group
 
 
 async def start_handler(message: types.Message):
@@ -34,31 +32,56 @@ async def message_handler(message: types.Message):
     if message.text is None:
         return
 
+    # Сообщение пользователя
+    text = message.text
+
+    if not is_teacher(message.text):
+        text = await add_dash_in_group(text)
+
     # Находим совпадения между сообщением пользователя и группами/преподавателями
-    coincidence = await find_coincidence_group_teacher(message.text, sch)
+    coincidence = await find_coincidence_group_teacher(text, sch)
 
     # Получаем id последнего сообщения у пользователя
     last_message_id = user_db.get_last_message_id(message.chat.id)
 
     # Если мы нашли только 1 совпадение
-    if len(coincidence[0]) == 1 or len(coincidence[1]) == 1:
+    if len(coincidence[0]) == 1 and len(coincidence[1]) == 0 or len(coincidence[0]) == 0 and len(coincidence[1]) == 1:
+        # Если список групп не пустой и он полностью совпадает с сообщением пользователя
+
         if len(coincidence[0]):
-            text = coincidence[0].popitem()[1]
-            user_db.update_user_current_selection(message.chat.id, text)
+            if text == list(coincidence[0].values())[0].lower():
+                text = coincidence[0].popitem()[1]
+                user_db.update_user_current_selection(message.chat.id, text)
+
+                text = add_sign_group_or_teacher(text)
+
+                try:
+                    await modify_message(bot, message.chat.id, last_message_id, text=text,
+                                         reply_markup=main_kb.get_keyboard(message.chat.id))
+                except RuntimeError:
+                    message_from_bot = await message.answer(text=text,
+                                                            reply_markup=main_kb.get_keyboard(message.chat.id))
+                    user_db.update_user_message_id(message_from_bot)
+
+                return
         else:
-            text = coincidence[1].popitem()[1]
-            user_db.update_user_current_selection(message.chat.id, text)
+            if text == list(coincidence[1].values())[0].lower():
+                text = coincidence[1].popitem()[1]
+                user_db.update_user_current_selection(message.chat.id, text)
 
-        text = add_sign_group_or_teacher(text)
+                text = add_sign_group_or_teacher(text)
 
-        try:
-            await modify_message(bot, message.chat.id, last_message_id, text=text,
-                                 reply_markup=main_kb.get_keyboard(message.chat.id))
-        except RuntimeError:
-            message_from_bot = await message.answer(text=text, reply_markup=main_kb.get_keyboard(message.chat.id))
-            user_db.update_user_message_id(message_from_bot)
+                try:
+                    await modify_message(bot, message.chat.id, last_message_id, text=text,
+                                         reply_markup=main_kb.get_keyboard(message.chat.id))
+                except RuntimeError:
+                    message_from_bot = await message.answer(text=text,
+                                                            reply_markup=main_kb.get_keyboard(message.chat.id))
+                    user_db.update_user_message_id(message_from_bot)
 
-        return
+                return
+
+
 
     # Если совпадения не пустые
     if coincidence[0] or coincidence[1]:
