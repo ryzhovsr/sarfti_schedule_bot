@@ -297,7 +297,6 @@ class ScheduleData:
                 return out_text + '\n' + 'Пар на это неделе нет!'
             else:
                 lessons = self.__form_schedule_group(loaded_table, target, special_star, special_slash)
-        print(out_text + lessons)
         return out_text + lessons
 
     def get_week_schedule_group(self, group_name, week_id):
