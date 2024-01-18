@@ -41,9 +41,9 @@ class ScheduleData:
 
         # Смотрим под чем исполняется скрипт, и указываем правильный путь
         if os.name == 'nt':
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'data\\')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram\\data\\')
         else:
-            self.__schedule_week_dir = os.path.join(os.getcwd(), 'data/')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), 'src_telegram/data/')
 
         self.update_schedule()
 
