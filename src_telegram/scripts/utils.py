@@ -1,4 +1,4 @@
-async def find_coincidence_in_list(mes_text, roster, prefix=""):
+def find_coincidence_in_list(mes_text, roster, prefix=""):
     """Находит совпадения сообщения в списке roster"""
     result_roster = {}
 
@@ -9,14 +9,14 @@ async def find_coincidence_in_list(mes_text, roster, prefix=""):
     return result_roster
 
 
-async def find_coincidence_group_teacher(mes_text, schedule):
+def find_coincidence_group_teacher(mes_text, schedule):
     """Находит совпадение сообщения с группами и ФИО преподавателей"""
-    all_coincidence = [await find_coincidence_in_list(mes_text, schedule.get_groups()),
-                       await find_coincidence_in_list(mes_text, schedule.get_teachers())]
+    all_coincidence = [find_coincidence_in_list(mes_text, schedule.get_groups()),
+                       find_coincidence_in_list(mes_text, schedule.get_teachers())]
     return all_coincidence
 
 
-async def add_dash_in_group(text: str):
+def add_dash_in_group(text: str):
     """Возвращает текст с тире между символом и цифрой для корректного нахождения сопоставлений групп"""
 
     if "-" in text:

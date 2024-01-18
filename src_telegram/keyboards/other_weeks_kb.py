@@ -1,3 +1,4 @@
+from typing import Optional
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -5,7 +6,13 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 class OtherWeeksFab(CallbackData, prefix="othWeekFab"):
     """Фабрика колбэков для клавиатуры групп и ФИО преподавателей"""
     action: str
-    value: int = None
+    value: Optional[int] = None
+
+
+class SelectionFab(CallbackData, prefix="selFab"):
+    """Фабрика колбэков для клавиатуры групп и ФИО преподавателей"""
+    action: str
+    value: Optional[str] = None
 
 
 def get_keyboard(upcoming_weeks: dict):
@@ -15,7 +22,7 @@ def get_keyboard(upcoming_weeks: dict):
     for item, value in upcoming_weeks.items():
         builder.button(text=f"{value}", callback_data=OtherWeeksFab(action="pressed_week", value=f"{item}"))
 
-    builder.button(text="↩ Вернуться в меню",callback_data=OtherWeeksFab(action="pressed_back"))
+    builder.button(text="↩ Вернуться в меню", callback_data=OtherWeeksFab(action="pressed_back"))
 
     # Выравниваем кнопки по 2 в ряд
     builder.adjust(2)
