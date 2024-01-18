@@ -35,11 +35,15 @@ class SearchKeyboard:
             modul = number_coincidences % button_limit
 
             for i in range(count + 1):
+
+                if i == count and modul == 0:
+                    break
+
                 keyboard = Keyboard(inline=True)
 
                 for j in range(button_limit):
 
-                    if i == count and modul != 0 and j == modul:
+                    if i == count and j == modul:
                         break
 
                     keyboard.add(Callback(f"{search_list[j + i * button_limit]}",
@@ -55,6 +59,9 @@ class SearchKeyboard:
                     keyboard.add(Callback("Следующая ➡️", {"search_menu": "following"})).row()
 
                 elif i == count:
+                    keyboard.add(Callback("⬅️ Предыдущая", {"search_menu": "previous"})).row()
+
+                elif modul == 0 and i == count - 1:
                     keyboard.add(Callback("⬅️ Предыдущая", {"search_menu": "previous"})).row()
 
                 else:

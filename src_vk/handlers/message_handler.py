@@ -1,6 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 
-from src_telegram.scripts.utils import find_coincidence_group_teacher
+from src_telegram.scripts.utils import find_coincidence_group_teacher, add_dash_in_group
 from src_vk.create import user_db, sch, search_kb
 from src_vk.keyboards import start_kb, back_kb
 from src_vk.scripts import message_editor
@@ -23,17 +23,19 @@ async def start_handler(message: Message):
 async def message_handler(message: Message):
     """Обработчик всех сообщений"""
     peer_id = message.peer_id
-    coincidence = await find_coincidence_group_teacher(message.text, sch)
     is_teacher = user_db.get_is_teacher(peer_id)
     message_id = user_db.get_last_message_id(peer_id)
+    text = message.text if is_teacher else add_dash_in_group(message.text)
 
     if is_teacher is not None:
+        coincidence = find_coincidence_group_teacher(text, sch)
         # Удаляем последнее сообщение если это возможно
         await message_editor.delete_message(bp, peer_id, message_id)
         # Если есть совпадение, то выводим их пользователю
         if len(coincidence[is_teacher]) != 0:
             keyboard = search_kb.get_keyboard(peer_id, coincidence[is_teacher])[0]
-            if len(keyboard.buttons) == 2:
+
+            if len(coincidence[is_teacher]) == 1:
                 current_selection = keyboard.buttons[0][0].action.label
                 message_from_bot = await message.answer(message=f"Выбрали {current_selection}",
                                                         keyboard=back_kb.get_keyboard())
