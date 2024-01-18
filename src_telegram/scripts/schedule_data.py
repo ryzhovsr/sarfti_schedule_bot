@@ -363,8 +363,7 @@ class ScheduleData:
 
     def __form_schedule_teacher(self, table, target):
         """Возвращает текст расписания для преподавателя"""
-        lesson = table.query(f'Преподаватель == @target').iterrows()
-        index, prev_row = next(lesson)
+        index, prev_row = next(table)
         prev_day = str(prev_row['День'])
         list_groups = prev_row['Группа']
 
@@ -372,7 +371,7 @@ class ScheduleData:
         repeat = False
         while True:
             try:
-                index, row = next(lesson)
+                index, row = next(table)
                 if (row['Пара'] == prev_row['Пара']) and (str(row['День']) == prev_day):
                     list_groups = list_groups + ', ' + row['Группа']
                     repeat = True
