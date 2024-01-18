@@ -16,29 +16,32 @@ async def pressed_back(callback: types.CallbackQuery):
 async def pressed_week(callback: types.CallbackQuery):
     """Обработчик кнопок выбора других недель"""
     current_selection = user_db.get_user_current_selection(callback.message.chat.id)
-    current_week = 0
+    selected_week = None
 
-    # Определяем на какую кнопку нажал пользователь
     for dic in callback.message.reply_markup.inline_keyboard:
         for item in dic:
             if item.callback_data == callback.data:
                 # Регулярное выражение \d+$, которое соответствует одному или более цифрам в конце строки
-                current_week = int(re.search(r'\d+$', callback.data).group())
+                selected_week = re.search(r'\d+$', callback.data)
+                if selected_week is not None:
+                    selected_week = int(selected_week.group())
                 break
 
     # Определяем группу или преподавателя
     if current_selection.endswith("."):
-        current_schedule = sch.get_week_schedule_teacher(current_selection, current_week)
+        current_schedule = sch.get_week_schedule_teacher(current_selection, selected_week)
     else:
-        current_schedule = sch.get_week_schedule_group(current_selection, current_week)
+        current_schedule = sch.get_week_schedule_group(current_selection, selected_week)
 
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text=current_schedule,
-                             reply_markup=schedule_kb.get_keyboard(), parse_mode="Markdown")
+                             reply_markup=schedule_kb.get_keyboard(selected_week=selected_week), parse_mode="Markdown")
     except RuntimeError:
-        message_from_bot = await callback.message.answer(text=current_schedule, reply_markup=schedule_kb.get_keyboard(),
+        message_from_bot = await callback.message.answer(text=current_schedule,
+                                                         reply_markup=schedule_kb.
+                                                         get_keyboard(selected_week=selected_week),
                                                          parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
 

@@ -9,12 +9,6 @@ class OtherWeeksFab(CallbackData, prefix="othWeekFab"):
     value: Optional[int] = None
 
 
-class SelectionFab(CallbackData, prefix="selFab"):
-    """Фабрика колбэков для клавиатуры групп и ФИО преподавателей"""
-    action: str
-    value: Optional[str] = None
-
-
 def get_keyboard(upcoming_weeks: dict):
     """Возвращает клавиатуру с группами и ФИО преподавателей"""
     builder = InlineKeyboardBuilder()
