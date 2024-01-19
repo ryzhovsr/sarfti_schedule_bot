@@ -3,7 +3,7 @@ from vkbottle import Keyboard, Callback
 from src_vk.create import sch
 
 
-def get_keyboard():
+def get_keyboard() -> str:
     """Возвращает клавиатуру для расписания"""
     return (Keyboard(inline=True)
             .add(Callback("❓ Информация", {"schedule": "info"}))
@@ -12,7 +12,7 @@ def get_keyboard():
             ).get_json()
 
 
-def get_keyboard_after_press_time():
+def get_keyboard_after_press_time() -> str:
     """Возвращает клавиатуру для пар"""
     return (Keyboard(inline=True)
             .add(Callback("❓ Информация", {"schedule": "info"}))
@@ -21,7 +21,7 @@ def get_keyboard_after_press_time():
             ).get_json()
 
 
-def get_keyboard_after_press_info():
+def get_keyboard_after_press_info() -> str:
     """Возвращает клавиатуру для информации"""
     return (Keyboard(inline=True)
             .add(Callback("🔼 Расписание", {"main_menu": "current_week"}))
@@ -30,7 +30,7 @@ def get_keyboard_after_press_info():
             ).get_json()
 
 
-def get_keyboard_next_week(dict_weeks: dict):
+def get_keyboard_next_week(dict_weeks: dict) -> str:
     """Возвращает клавиатуру для следующих недель"""
     keyboard = Keyboard(inline=True)
 
@@ -44,12 +44,12 @@ def get_keyboard_next_week(dict_weeks: dict):
     if len(dict_weeks) % 2 != 0:
         keyboard.row()
 
-    keyboard.add(Callback("↩ Вернуться в меню", {"schedule": "back"})).get_json()
+    keyboard.add(Callback("↩ Вернуться в меню", {"schedule": "back"}))
 
-    return keyboard
+    return keyboard.get_json()
 
 
-def get_text_time():
+def get_text_time() -> str:
     """Возвращает текст для пар"""
     text_out = "🕘 Расписание пар.\n\n" + \
                "🔹 ПОНЕДЕЛЬНИК - ПЯТНИЦА:\n"
@@ -99,7 +99,7 @@ def get_text_time():
     return text_out
 
 
-def get_text_info():
+def get_text_info() -> str:
     """Возвращает текст для информации"""
     return "Что означают значки в расписании занятий:\n\n" + \
         u"\u0031\ufe0f\u20e3 - номер пары\n" + \
