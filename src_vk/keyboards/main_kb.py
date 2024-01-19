@@ -3,7 +3,7 @@ from vkbottle import Keyboard, Callback
 from src_vk.create import user_db
 
 
-def get_keyboard(user_id):
+def get_keyboard(user_id: int) -> str:
     """Возвращает клавиатуру основного меню"""
     keyboard = (Keyboard(inline=True)
                 .add(Callback("🔼 Расписание на текущую неделю", {"main_menu": "current_week"})).row()
@@ -15,11 +15,11 @@ def get_keyboard(user_id):
     else:
         keyboard.add(Callback("🔕 Уведомления [выкл]", {"main_menu": "notifications"})).row()
 
-    keyboard.add(Callback("↩ Назад", {"start_menu": "back"})).get_json()
+    keyboard.add(Callback("↩ Назад", {"start_menu": "back"}))
 
-    return keyboard
+    return keyboard.get_json()
 
 
-def get_text(is_teacher, current_selection):
+def get_text(is_teacher: int, current_selection: str) -> str:
     """Возвращаем текст, относительно от выбора пользователя"""
-    return ("👩‍🏫 Преподаватель " if is_teacher else "👨‍🎓 Группа ") + current_selection
+    return ("👩‍🏫 Преподаватель " if is_teacher == 1 else "👨‍🎓 Группа ") + current_selection

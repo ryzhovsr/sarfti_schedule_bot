@@ -51,11 +51,13 @@ async def message_event_handler(event: MessageEvent):
             await message_editor.edit_message(event, message_id,
                                               schedule_kb.get_text_time(),
                                               schedule_kb.get_keyboard_after_press_time())
+
         # Если нажата кнопка "Информация"
         if event.payload[callback] == "info":
             await message_editor.edit_message(event, message_id,
                                               schedule_kb.get_text_info(),
                                               schedule_kb.get_keyboard_after_press_info())
+
         # Если нажата кнопка "Вернуться в меню"
         if event.payload[callback] == "back":
             await message_editor.edit_message(event, message_id,
@@ -113,6 +115,7 @@ async def message_event_handler(event: MessageEvent):
                                           main_kb.get_keyboard(peer_id))
 
         user_db.update_user_current_selection(peer_id, event.payload[callback])
+
     # Если пользователь выберет неделю
     if callback == "week_selection":
         week = event.payload["week_selection"]

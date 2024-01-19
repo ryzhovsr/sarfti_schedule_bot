@@ -1,1 +1,5 @@
-bot_token = "vk1.a.j8Yt1zZf7KLV75zluh9yXUmfoqE_lbgWZzX9xZaHgvm6kO8C96_ah-l7NXqBakFgzimC8AuMw0Fq0M4KbGQFUjzLrT3DtsFW8yHtdTSWbZY9JP2OhF12OVUwLVN_7ddkj7yxQdNFh-pgatYgWLzSvcA-2SrnG04jvADcNMmg-eUSEXW3j9kEmu3unAwnx2JcrqnY0DgpV1bmyzWEIFRoLA"
+import os
+
+bot_token = os.getenv("bot_token")
+bot_url = "https://vk.com/sarfti_schedule_bot"
+admin_list = os.getenv("admin_list")
