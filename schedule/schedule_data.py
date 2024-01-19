@@ -60,34 +60,34 @@ class ScheduleData:
         # print(list_user)
         # self.get_notification(list_user)
 
-    def get_notification(self, list_user):
+    def get_notification(self, user_selection_list_note_one: list):
         # сохраняем данные в переменные для сравнения
-        last_current_week_id = self.__current_week_id
-        last_week_id_list = self.__week_ids
-        last_schedules = {}
-        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + last_current_week_id + '.pkl',
-                  "rb") as file:
-            last_schedules[last_current_week_id] = pickle.load(file)
+        old_current_week_id = self.__current_week_id
+        old_last_weeks_id = self.__week_ids
+        old_current_schedule = ""
+        with (open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + old_current_week_id + '.pkl', "rb")
+              as file):
+            old_current_schedule = pickle.load(file)
 
         # обновление расписания
         self.update_schedule()
 
         # Проверка на необходимость сопоставление расписаний
-        list_notification = [None, None, None]
-        if last_current_week_id == self.__current_week_id:
-            if len(last_week_id_list) == len(self.__week_ids) >= 1:
+        list_notification = [None, None]
 
+        # Проверка, что изменения произошли на текущей неделе
+        if old_current_week_id == self.__current_week_id:
+            if len(old_last_weeks_id) == len(self.__week_ids) >= 1:
                 # проверка на одинаковое ли расписание на текущей неделе
-                if not last_schedules[self.__current_week_id].equals(self.__schedule_current_week):
-                    list_notification[0] = self.__check_changes(self.__current_week_id,
-                                                                last_schedules[self.__current_week_id], list_user)
+                if not old_current_schedule.equals(self.__schedule_current_week):
+                    list_notification[0] = self.__check_changes(old_current_schedule, user_selection_list_note_one)
 
-            elif len(last_week_id_list) < len(self.__week_ids):
+            elif len(old_last_weeks_id) < len(self.__week_ids):
                 pass
 
             pass
         else:
-            if len(last_week_id_list) - 1 == len(self.__week_ids):
+            if len(old_last_weeks_id) - 1 == len(self.__week_ids):
                 pass
 
             else:
@@ -97,15 +97,14 @@ class ScheduleData:
             pass
         return list_notification
 
-    def __check_changes(self, week, last_schedule, list_user):
+    def __check_changes(self, old_current_schedule, selects_users):
         # проверка на различия двух расписаний
-        difference_schedule = pd.concat([self.__schedule_current_week, last_schedule]).drop_duplicates(keep=False)
-        # print(last_schedule['Группа'].iterrows())
+        difference_schedule = pd.concat([self.__schedule_current_week, old_current_schedule]).drop_duplicates(keep=False)
 
         list_notification = []
         for column in ['Группа', 'Преподаватель']:
             for dif_group in difference_schedule[column].unique():
-                if dif_group in list_user:
+                if dif_group in selects_users:
                     list_notification.append(dif_group)
 
         return list_notification

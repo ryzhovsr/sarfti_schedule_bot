@@ -5,13 +5,16 @@ from handlers import (message_handler, selection_kb_handler, main_kb_handler,
 from logging import basicConfig, INFO
 from threading import Thread
 import time
-from datetime import datetime
-
+from telebot import types
+import telebot
+import asyncio
 from src_telegram.scripts.user_db import UserDatabase
+import config
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # для проверки
 import os
-from timeit import default_timer
+
 
 message_handler.register_handlers_message(dp)
 selection_kb_handler.register_callbacks_selection_kb(dp)
@@ -25,23 +28,36 @@ async def main():
     # Для логов взаимодействия с ботом в консоль
     basicConfig(level=INFO)
 
-    my_thread = Thread(target=timecheck)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    my_thread = Thread(target=lambda: loop.run_until_complete(timecheck()))
     my_thread.start()
-
 
     # Запускаем ожидание бота на получение сообщений
     await dp.start_polling(bot)
 
-def timecheck():
 
-    global timing
-    user_db = UserDatabase()
-    # time.sleep(10)
-    timing = time.time()
+def send_note(tb, users_id: list):
+    """Обработчик кнопки уведомлений"""
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton("Закрыть уведомление", callback_data="pressed_close"))
+    for user_id in users_id:
+        tb.send_message(user_id, 'Произошли изменения в расписании!', reply_markup=markup)
+
+
+def timecheck():
+    db = UserDatabase()
+    time_init = time.time()
+    tb = telebot.TeleBot(token=config.bot_token)
+
+    @tb.callback_query_handler(func=lambda call: call.data == "pressed_close")
+    def pressed_close(call: types.CallbackQuery):
+        tb.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
+
     while True:
-        if time.time() - timing > 10:
-            timing = time.time()
-            nowtime = datetime.now()
+        time.sleep(1)
+        if time.time() - time_init > 10:
+            time_init = time.time()
 
             # для проверки работоспособности удаляет файл 327 и переименовывает 328 в 327
             # Необходимо для искусственного создания изменения в расписании
@@ -53,35 +69,20 @@ def timecheck():
             os.rename(old_filepath, new_filepath)
             # конец
 
-            start_time = default_timer()
-            if (nowtime.hour >= 7) and (nowtime.hour <= 21):
-                # получение списка кортежей всех current_selection, где включены уведомления
-                user_tuple_list = user_db.get_all_note_current_week()
+            # Список выбранных групп/ФИО у людей, кто включил уведомления
+            user_selection_list_note_one = db.get_all_note_current_week()
+            unique_set = set(item for tuple_item in user_selection_list_note_one for item in tuple_item)
+            user_selection_list_note_one = list(unique_set)
+            notifications = sch.get_notification(user_selection_list_note_one)
 
-                # преобразование списка кортежей в список
-                user_list = []
-                for user_tuple in user_tuple_list:
-                    user_list.append(user_tuple[0])
+            # получение списка кортежей с всеми id пользователей, кому нужно отправить уведомление
+            user_notification_one = []
+            for current_selection in notifications[0]:
+                tmp_list = db.get_users_by_current_selection(current_selection)
+                for item in tmp_list:
+                    user_notification_one.append(item[0])
 
-                # получение всех списков у кого произошли изменения
-                # [0] - изменение на текущей неделе
-                # [1] -
-                # [2] -
-                notifications = sch.get_notification(list(set(user_list)))
-
-                # получение списка кортежей с всеми id пользователей, кому нужно отправить уведомление
-                user_notifications = []
-                for current_selection in notifications[0]:
-                    tmp_list = user_db.get_users_by_current_selection(current_selection)
-                    for item in tmp_list:
-                        user_notifications.append(item[0])
-
-                print('Время выполнения: ', default_timer() - start_time)
-                print(user_notifications)
-
-
-
-#
+            send_note(tb, user_notification_one)
 
 
 if __name__ == "__main__":
