@@ -7,8 +7,9 @@
 # Игнорировать директорию все директории __pycache__
 **/__pycache__/
 
-# Игнорировать директорию src_telegram/data
+# Игнорировать директорию с /data
 ./src_telegram/data/
+./src_vk/data/
 
 # Игнорирование всех файлов с расписанием
 /src_telegram/data/
