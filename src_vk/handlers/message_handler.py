@@ -13,6 +13,10 @@ labeler.vbml_ignore_case = True
 @labeler.private_message(text=["Начать", "/start", "Привет", "Хай", "start", "/reset", "reset"])
 async def start_handler(message: Message):
     """Обработчик начальных сообщений"""
+    # Если пользователь существует в базе данных удаляем прошлое сообщение
+    if user_db.is_user_exists(message.peer_id) is not None:
+        await message_editor.delete_message(message, user_db.get_last_message_id(message.peer_id))
+
     message_from_bot = await message.answer(message=await start_kb.get_text(message),
                                             keyboard=start_kb.get_keyboard())
     # Обновляем БД
