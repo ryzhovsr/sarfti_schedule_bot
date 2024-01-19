@@ -215,9 +215,10 @@ class ScheduleData:
         """Удаление всех старых файлов с расписанием"""
         with contextlib.suppress(Exception):
             for filename in os.listdir(self.__schedule_week_dir):
-                file_path = os.path.join(self.__schedule_week_dir, filename)
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
+                if filename != 'users.db':
+                    file_path = os.path.join(self.__schedule_week_dir, filename)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
 
     def __load_schedule(self):
         """Загружает в файлы расписание для актуальной и более новых недель"""

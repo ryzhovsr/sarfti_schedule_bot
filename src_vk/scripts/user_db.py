@@ -22,7 +22,7 @@ class UserDatabase:
         if not os.path.exists(self.__db_path):
             os.makedirs(self.__db_path)
         # TODO: исправить некорректное обновление базы данных
-        self.__connect = sqlite3.connect("users.db")
+        self.__connect = sqlite3.connect(self.__db_path + "users.db")
         self.__cursor = self.__connect.cursor()
         self.__cursor.execute("CREATE TABLE IF NOT EXISTS users"
                               "(user_id INTEGER PRIMARY KEY, "
