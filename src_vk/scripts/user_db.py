@@ -39,7 +39,7 @@ class UserDatabase:
 
         self.__connect.commit()
 
-    def is_user_exists(self, user_id):
+    def is_user_exists(self, user_id: int):
         """Проверяет существует ли пользователь в БД"""
         self.__cursor.execute(f"SELECT * FROM users "
                               f"WHERE user_id = {user_id};")
@@ -62,14 +62,14 @@ class UserDatabase:
 
         self.__connect.commit()
 
-    def update_user_is_teacher(self, user_id, is_teacher):
+    def update_user_is_teacher(self, user_id: int, is_teacher: int):
         """Обновляет выбор (преподаватель или группа) пользователя"""
         self.__cursor.execute("UPDATE users SET is_teacher = ? "
                               "WHERE user_id = ?", (is_teacher, user_id))
 
         self.__connect.commit()
 
-    def update_user_current_selection(self, user_id, current_selection):
+    def update_user_current_selection(self, user_id: int, current_selection: str):
         """Обновляет текущий выбор пользователя"""
         self.__cursor.execute("UPDATE users SET current_selection = ? "
                               "WHERE user_id = ?", (current_selection, user_id))
@@ -78,20 +78,20 @@ class UserDatabase:
     def get_cursor(self):
         return self.__cursor
 
-    def get_last_message_id(self, user_id):
+    def get_last_message_id(self, user_id: int) -> int:
         """Возвращает id последнего сообщения у бота"""
         self.__cursor.execute(f"SELECT message_id FROM users WHERE user_id = {user_id}")
 
         # Возвращаем нулевой элемент - там будет содержаться последний id сообщения данного пользователя
         return self.__cursor.fetchone()[0]
 
-    def get_user_is_teacher(self, user_id):
+    def get_user_is_teacher(self, user_id: int) -> int:
         """Возвращает выбор (преподаватель или группа) у пользователя"""
         self.__cursor.execute(f"SELECT is_teacher FROM users WHERE user_id = {user_id}")
 
         return self.__cursor.fetchone()[0]
 
-    def get_user_current_selection(self, user_id):
+    def get_user_current_selection(self, user_id: int) -> str:
         """Возвращает текущий выбор у пользователя"""
         self.__cursor.execute(f"SELECT current_selection FROM users WHERE user_id = {user_id}")
 

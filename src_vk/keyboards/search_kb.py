@@ -7,7 +7,7 @@ class SearchKeyboard:
     def __init__(self):
         self.__dict_books = {}
 
-    def get_keyboard(self, peer_id, coincidence: dict):
+    def get_keyboard(self, peer_id: int, coincidence: dict) -> list:
         """Возвращает и инициализирует для конкретного пользователя страницы поиска"""
         list_pages = []
         number_page = 0
@@ -80,11 +80,11 @@ class SearchKeyboard:
 
         return self.__dict_books[peer_id][0]
 
-    def get_list_pages(self, peer_id):
+    def get_list_pages(self, peer_id: int) -> list:
         """Возвращает книжку поиска для конкретного пользователя"""
         return self.__dict_books[peer_id][0]
 
-    def set_page_number(self, peer_id, page_number):
+    def set_page_number(self, peer_id: int, page_number: int):
         """Изменяем номер страницы книжки для конкретного пользователя"""
         if page_number <= 0:
             self.__dict_books[peer_id][1] = 0
@@ -95,10 +95,10 @@ class SearchKeyboard:
         else:
             self.__dict_books[peer_id][1] = page_number
 
-    def get_page_number(self, peer_id):
+    def get_page_number(self, peer_id: int) -> int:
         """Возвращает номер страницы книжки для конкретного пользователя"""
         return self.__dict_books[peer_id][1]
 
-    def delete_list_pages(self, peer_id):
+    def delete_list_pages(self, peer_id: int):
         """Удаляет книжку у пользователя"""
         del self.__dict_books[peer_id]

@@ -2,7 +2,7 @@ from vkbottle import VKAPIError
 from vkbottle.bot import Message, MessageEvent
 
 
-async def send_message(message_event: Message | MessageEvent, message, keyboard=None):
+async def send_message(message_event: Message | MessageEvent, message: str, keyboard: str = None):
     """Отправляет сообщение пользователю"""
     try:
         await message_event.ctx_api.messages.send(message_event.peer_id, random_id=0, message=message,
@@ -11,7 +11,7 @@ async def send_message(message_event: Message | MessageEvent, message, keyboard=
         print("Возникла ошибка:", e.code)
 
 
-async def edit_message(message_event: Message | MessageEvent, message_id, message, keyboard=None):
+async def edit_message(message_event: Message | MessageEvent, message_id: int, message: str, keyboard: str = None):
     """Редактирует сообщение бота"""
     try:
         await message_event.ctx_api.messages.edit(message_event.peer_id, message_id=message_id, message=message,
@@ -20,10 +20,10 @@ async def edit_message(message_event: Message | MessageEvent, message_id, messag
         print("Возникла ошибка:", e.code)
 
 
-async def delete_message(message_event: Message | MessageEvent, message_id):
+async def delete_message(message_event: Message | MessageEvent, message_id: int):
     """Удаляет сообщение бота"""
     try:
-        await message_event.ctx_api.messages.delete(peer_id=message_event.peer_id, message_ids=message_id,
+        await message_event.ctx_api.messages.delete(peer_id=message_event.peer_id, message_ids=[message_id],
                                                     delete_for_all=True)
     except VKAPIError as e:
         print("Возникла ошибка:", e.code)
