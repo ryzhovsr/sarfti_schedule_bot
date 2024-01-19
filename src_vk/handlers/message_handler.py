@@ -9,8 +9,10 @@ labeler = BotLabeler()
 
 labeler.vbml_ignore_case = True
 
+list_hellos = ["Начать", "/start", "Привет", "Хай", "start", "/reset", "reset", "Дарова", "Вотсап", "Приветик", "ДД"]
 
-@labeler.private_message(text=["Начать", "/start", "Привет", "Хай", "start", "/reset", "reset"])
+
+@labeler.private_message(text=list_hellos)
 async def start_handler(message: Message):
     """Обработчик начальных сообщений"""
     # Если пользователь существует в базе данных удаляем прошлое сообщение

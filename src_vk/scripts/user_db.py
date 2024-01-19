@@ -21,7 +21,6 @@ class UserDatabase:
         # Если директории data нет в проекте, создаём её
         if not os.path.exists(self.__db_path):
             os.makedirs(self.__db_path)
-        # TODO: исправить некорректное обновление базы данных
         self.__connect = sqlite3.connect(self.__db_path + "users.db")
         self.__cursor = self.__connect.cursor()
         self.__cursor.execute("CREATE TABLE IF NOT EXISTS users"
