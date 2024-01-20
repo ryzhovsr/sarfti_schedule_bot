@@ -37,17 +37,24 @@ async def main():
     await dp.start_polling(bot)
 
 
-def send_note(tb, users_id: list, is_one: bool):
+def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, user_ids_second_notification: list):
     """Обработчик кнопки уведомлений"""
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton("Закрыть уведомление", callback_data="pressed_close"))
 
-    if is_one:
-        for user_id in users_id:
-            tb.send_message(user_id, 'Произошли изменения в расписании \n на текущую неделю!', reply_markup=markup)
-    else:
-        for user_id in users_id:
-            tb.send_message(user_id, 'Появилось расписание\nна другие недели!', reply_markup=markup)
+    # Отправка пользователям оба уведомления
+    for user_id in repeated_user_ids:
+        tb.send_message(user_id, 'Произошли изменения в расписании на текущей недели!\n'
+                                 'Появилось расписание на новую неделю!', reply_markup=markup)
+
+    # Отправка пользователям первое уведомление
+    for user_id in user_ids_first_notification:
+        tb.send_message(user_id, 'Произошли изменения в расписании\n на текущей недели!', reply_markup=markup)
+
+    # Отправка пользователям второе уведомление
+    for user_id in user_ids_second_notification:
+        tb.send_message(user_id, 'Появилось расписание\nна другие недели!', reply_markup=markup)
+
 
 
 def timecheck():
@@ -80,33 +87,36 @@ def timecheck():
             unique_set = set(item for tuple_item in user_selection_list_note_one for item in tuple_item)
             user_selection_list_note_one = list(unique_set)
             # Второе уведомление
-            user_selection_list_note_two = db.get_all_note_new_schedule()
-            unique_set = set(item for tuple_item in user_selection_list_note_two for item in tuple_item)
-            user_selection_list_note_two = list(unique_set)
+            # user_selection_list_note_two = db.get_all_note_new_schedule()
+            # unique_set = set(item for tuple_item in user_selection_list_note_two for item in tuple_item)
+            # user_selection_list_note_two = list(unique_set)
 
-            notifications = sch.get_notification(user_selection_list_note_one, user_selection_list_note_two)
+            notifications = sch.get_notification(user_selection_list_note_one)
 
             # получение списка кортежей с всеми id пользователей, кому нужно отправить первое уведомление
+            user_notification_one = []
+            user_notification_two = []
             try:
-                user_notification_one = []
                 for current_selection in notifications[0]:
                     tmp_list = db.get_users_by_current_selection_changes(current_selection)
                     for item in tmp_list:
                         user_notification_one.append(item[0])
-                send_note(tb, user_notification_one, True)
             except TypeError:
                 pass
 
-            # второе уведомление
-            try:
-                user_notification_two = []
-                for current_selection in notifications[1]:
-                    tmp_list = db.get_users_by_current_selection_adding(current_selection)
-                    for item in tmp_list:
-                        user_notification_two.append(item[0])
-                send_note(tb, user_notification_two, False)
-            except TypeError:
-                pass
+            if notifications[1]:
+                tmp_list = db.get_users_by_current_selection_adding()
+                for item in tmp_list:
+                    user_notification_two.append(item[0])
+
+            if user_notification_one != [] and user_notification_two != []:
+                unique_user_notification_one = [x for x in user_notification_one if x not in user_notification_two]
+                unique_user_notification_two = [x for x in user_notification_two if x not in user_notification_one]
+                repeated_user_notification = list(set(user_notification_one) & set(user_notification_two))
+                send_note(tb, repeated_user_notification, unique_user_notification_one, unique_user_notification_two)
+            else:
+                send_note(tb, [], user_notification_one, user_notification_two)
+
 
 
 if __name__ == "__main__":
