@@ -6,7 +6,7 @@ from src_telegram.scripts.message_editor import (delete_last_message_from_db,
                                                  modify_message)
 from schedule.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
 from src_telegram.keyboards import selection_kb, main_kb
-from schedule.utils import is_teacher, add_dash_in_group
+from schedule.utils import is_teacher, add_dash_in_group, write_user_action
 
 
 async def start_handler(message: types.Message):
@@ -23,11 +23,13 @@ async def start_handler(message: types.Message):
 
     # Обновляем id последнего сообщения у пользователя
     user_db.update_user_message_id(message_from_bot)
+    write_user_action(message=message, text="Отправил /start")
 
 
 async def message_handler(message: types.Message):
     """Обработчик всех сообщений"""
     # Удаляем полученное сообщение у пользователя
+    write_user_action(message=message, text=f"Отправил {message.text}")
     await delete_current_message_from_user(message)
 
     # Если пользователь отправил не текст

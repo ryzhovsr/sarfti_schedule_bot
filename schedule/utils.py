@@ -1,3 +1,8 @@
+from datetime import datetime
+import codecs
+import os
+
+
 def find_coincidence_in_list(mes_text, roster, prefix=""):
     """Находит совпадения сообщения в списке roster"""
     result_roster = {}
@@ -47,3 +52,19 @@ def add_sign_group_or_teacher(data: str):
 def is_teacher(data: str):
     """Проверяет это группа эли преподаватель"""
     return data.endswith(".")
+
+
+# Записывает в журнал все действия пользователей
+def write_user_action(message, directory='src_telegram',  text: str = ""):
+    current_time = datetime.now()
+
+    if os.name == 'nt':
+        journal_dir = os.path.join(os.getcwd(), directory + '\\Data\\user_actions.txt')
+    else:
+        journal_dir = os.path.join(os.getcwd(), directory + '/Data/user_actions.txt')
+
+    with codecs.open(journal_dir, 'a', encoding='utf-8') as f:   # a - ключ добавления в файл
+        f.write(str(current_time)[:19] + " | full_name = " + str(message.from_user.full_name) +
+                " | login = " + str(message.chat.username) +
+                " | ID = " + str(message.from_user.id) +
+                " | action = " + text + "\n")

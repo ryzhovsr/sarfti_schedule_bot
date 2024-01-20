@@ -48,7 +48,7 @@ class ScheduleData:
         if os.name == 'nt':
             self.__schedule_week_dir = os.path.join(os.getcwd(), directory + '\\', 'data\\')
         else:
-            self.__schedule_week_dir = os.path.join(os.getcwd(), directory + '\\', 'data\\')
+            self.__schedule_week_dir = os.path.join(os.getcwd(), directory + '/', 'data/')
 
         self.update_schedule()
 

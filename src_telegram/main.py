@@ -5,7 +5,7 @@ from handlers import (message_handler, selection_kb_handler, main_kb_handler,
 from logging import basicConfig, INFO
 from threading import Thread
 import time
-from telebot import types
+from telebot import types, TeleBot
 import telebot
 import asyncio
 from src_telegram.scripts.user_db import UserDatabase
@@ -53,17 +53,14 @@ def send_note(tb, users_id: list, is_one: bool):
 def timecheck():
     db = UserDatabase()
     time_init = time.time()
-    tb = telebot.TeleBot(token=config.bot_token)
-
-    @tb.callback_query_handler(func=lambda call: call.data == "pressed_close")
-    def pressed_close(call: types.CallbackQuery):
-        tb.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
+    tb: TeleBot = telebot.TeleBot(token=config.bot_token)
 
     while True:
         time.sleep(1)
         if time.time() - time_init > 10:
             time_init = time.time()
 
+            """
             # для проверки работоспособности удаляет файл 327 и переименовывает 328 в 327
             # Необходимо для искусственного создания изменения в расписании
             directory = os.getcwd()
@@ -73,7 +70,7 @@ def timecheck():
             os.remove(new_filepath)
             os.rename(old_filepath, new_filepath)
             # конец
-
+            """
             # Список выбранных групп/ФИО у людей, кто включил уведомления
             # Первое уведомление
             user_selection_list_note_one = db.get_all_note_current_week()
