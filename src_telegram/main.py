@@ -70,19 +70,38 @@ def timecheck():
             # конец
 
             # Список выбранных групп/ФИО у людей, кто включил уведомления
+            # Первое уведомление
             user_selection_list_note_one = db.get_all_note_current_week()
             unique_set = set(item for tuple_item in user_selection_list_note_one for item in tuple_item)
             user_selection_list_note_one = list(unique_set)
-            notifications = sch.get_notification(user_selection_list_note_one)
+            # Второе уведомление
+            user_selection_list_note_two = db.get_all_note_new_schedule()
+            unique_set = set(item for tuple_item in user_selection_list_note_two for item in tuple_item)
+            user_selection_list_note_two = list(unique_set)
 
-            # получение списка кортежей с всеми id пользователей, кому нужно отправить уведомление
-            user_notification_one = []
-            for current_selection in notifications[0]:
-                tmp_list = db.get_users_by_current_selection(current_selection)
-                for item in tmp_list:
-                    user_notification_one.append(item[0])
+            notifications = sch.get_notification(user_selection_list_note_one, user_selection_list_note_two)
 
-            send_note(tb, user_notification_one)
+            # получение списка кортежей с всеми id пользователей, кому нужно отправить первое уведомление
+            try:
+                user_notification_one = []
+                for current_selection in notifications[0]:
+                    tmp_list = db.get_users_by_current_selection_changes(current_selection)
+                    for item in tmp_list:
+                        user_notification_one.append(item[0])
+                send_note(tb, user_notification_one)
+            except TypeError:
+                pass
+
+            # второе уведомление
+            try:
+                user_notification_two = []
+                for current_selection in notifications[1]:
+                    tmp_list = db.get_users_by_current_selection_adding(current_selection)
+                    for item in tmp_list:
+                        user_notification_two.append(item[0])
+                print(user_notification_two)
+            except TypeError:
+                pass
 
 
 if __name__ == "__main__":
