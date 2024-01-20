@@ -129,12 +129,11 @@ class UserDatabase:
                               "users.current_selection=?", (current_selection, ))
         return self.__cursor.fetchall()
 
-    def get_users_by_current_selection_adding(self, current_selection):
+    def get_users_by_current_selection_adding(self):
         self.__cursor.execute("SELECT users.user_id "
                               "FROM users, notifications "
                               "WHERE users.user_id = notifications.user_id AND "
-                              "notifications.is_note_new_schedule='1' AND "
-                              "users.current_selection=?", (current_selection, ))
+                              "notifications.is_note_new_schedule='1'")
         return self.__cursor.fetchall()
 
     # def get_users_with_notifications_week_changes(self):
