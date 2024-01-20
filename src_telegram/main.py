@@ -62,21 +62,21 @@ def timecheck():
     tb: TeleBot = telebot.TeleBot(token=config.bot_token)
 
     while True:
-        time.sleep(1)
-        if time.time() - time_init > 10:
+        time.sleep(10)
+        if time.time() - time_init > 300:
             time_init = time.time()
 
-            """
+
             # для проверки работоспособности удаляет файл 327 и переименовывает 328 в 327
             # Необходимо для искусственного создания изменения в расписании
-            directory = os.getcwd()
-            old_filepath = os.path.join(directory, 'src_telegram\\data\\schedule_week_328.pkl')
-
-            new_filepath = os.path.join(directory, 'src_telegram\\data\\schedule_week_327.pkl')
-            os.remove(new_filepath)
-            os.rename(old_filepath, new_filepath)
+            # directory = os.getcwd()
+            # old_filepath = os.path.join(directory, 'src_telegram\\data\\schedule_week_328.pkl')
+            #
+            # new_filepath = os.path.join(directory, 'src_telegram\\data\\schedule_week_327.pkl')
+            # os.remove(new_filepath)
+            # os.rename(old_filepath, new_filepath)
             # конец
-            """
+
             # Список выбранных групп/ФИО у людей, кто включил уведомления
             # Первое уведомление
             user_selection_list_note_one = db.get_all_note_current_week()

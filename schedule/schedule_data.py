@@ -78,7 +78,7 @@ class ScheduleData:
         list_notification = [None, False]
 
         # FOR TEST для проверки появления новой недели
-        del old_last_weeks_id[1]
+        # del old_last_weeks_id[1]
         # END TEST
 
         # Проверка, что изменения произошли на текущей неделе
