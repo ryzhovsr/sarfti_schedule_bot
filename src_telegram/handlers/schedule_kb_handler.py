@@ -4,7 +4,7 @@ from aiogram import types, Dispatcher
 from magic_filter import F
 from src_telegram.create import bot, user_db, sch
 from src_telegram.scripts.message_editor import modify_message
-from schedule.utils import add_sign_group_or_teacher
+from schedule.utils import add_sign_group_or_teacher, write_user_action
 from src_telegram.keyboards import schedule_kb, main_kb
 from src_telegram.handlers.main_kb_handler import pressed_current_week_sch, pressed_other_week_sch
 
@@ -32,6 +32,7 @@ async def pressed_back(callback: types.CallbackQuery):
 
 async def pressed_time(callback: types.CallbackQuery):
     """Обработчик кнопки "Пары" в клавиатуре с расписанием"""
+    write_user_action(callback=callback, action="Нажал кнопку 'Пары'")
     text_out = "🕘 Расписание пар.\n\n" + \
                "🔹 *ПОНЕДЕЛЬНИК - ПЯТНИЦА:*\n"
 
@@ -93,6 +94,7 @@ async def pressed_time(callback: types.CallbackQuery):
 
 async def pressed_info(callback: types.CallbackQuery):
     """Обработчик кнопки "Информация" в клавиатуре с расписанием"""
+    write_user_action(callback=callback, action="Нажал кнопку 'Информация'")
     text_out = "Что означают значки в расписании занятий:\n\n" + \
                u"\u0031\ufe0f\u20e3 - номер пары\n" + \
                "💬 - лекция\n" + \

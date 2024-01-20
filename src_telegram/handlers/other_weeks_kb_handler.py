@@ -2,6 +2,8 @@ import re
 
 from aiogram import types, Dispatcher
 from magic_filter import F
+
+from schedule.utils import write_user_action
 from src_telegram.scripts.message_editor import modify_message
 from src_telegram.handlers.schedule_kb_handler import pressed_back_to_main
 from src_telegram.create import bot, user_db, sch
@@ -26,6 +28,9 @@ async def pressed_week(callback: types.CallbackQuery):
                 if selected_week is not None:
                     selected_week = int(selected_week.group())
                 break
+
+    write_user_action(callback=callback, action=f"Посмотрел расписание по id недели {selected_week} для "
+                                                f"{current_selection}")
 
     # Определяем группу или преподавателя
     if current_selection.endswith("."):

@@ -56,7 +56,6 @@ def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, us
         tb.send_message(user_id, 'Появилось расписание\nна другие недели!', reply_markup=markup)
 
 
-
 def timecheck():
     db = UserDatabase()
     time_init = time.time()

@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
 
+from schedule.utils import write_user_action
 from src_telegram.create import bot, user_db, sch
 from src_telegram.scripts.message_editor import modify_message
 from src_telegram.keyboards import schedule_kb, main_kb, notification_kb, other_weeks_kb
@@ -9,6 +10,7 @@ from src_telegram.handlers.selection_kb_handler import pressed_back
 
 async def pressed_current_week_sch(callback: types.CallbackQuery):
     """Обработчик кнопки расписания на текущую неделю"""
+    write_user_action(callback=callback, action="Нажал кнопку 'Расписание на текущую неделю'")
     current_selection = user_db.get_user_current_selection(callback.message.chat.id)
 
     # Определяем группу или преподавателя
@@ -32,7 +34,7 @@ async def pressed_current_week_sch(callback: types.CallbackQuery):
 async def pressed_other_week_sch(callback: types.CallbackQuery):
     """Обработчик кнопки расписания на другие недели"""
     # current_selection = user_db.get_user_current_selection(callback.message.chat.id)
-
+    write_user_action(callback=callback, action="Нажал кнопку 'Расписание на другие недели'")
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
     upcoming_weeks = sch.get_upcoming_weeks_list()
 
