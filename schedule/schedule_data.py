@@ -222,7 +222,7 @@ class ScheduleData:
         """Удаление всех старых файлов с расписанием"""
         with contextlib.suppress(Exception):
             for filename in os.listdir(self.__schedule_week_dir):
-                if filename != 'users.db':
+                if filename != 'users.db' and filename != 'user_actions.txt':
                     file_path = os.path.join(self.__schedule_week_dir, filename)
                     if os.path.isfile(file_path):
                         os.remove(file_path)
