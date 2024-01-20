@@ -49,5 +49,3 @@ def register_callbacks_schedule_kb(dp: Dispatcher):
                                notification_kb.NotificationsFab.filter(F.action == "pressed_current_week_change"))
     dp.callback_query.register(pressed_sch_next_week,
                                notification_kb.NotificationsFab.filter(F.action == "pressed_sch_next_week"))
-    dp.callback_query.register(pressed_get_sch_today,
-                               notification_kb.NotificationsFab.filter(F.action == "pressed_get_sch_today"))

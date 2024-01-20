@@ -22,18 +22,11 @@ def get_keyboard(user_id: int):
                        callback_data=NotificationsFab(action="pressed_current_week_change"))
 
     if notifications[1]:
-        builder.button(text="🔔 Расписание на след. неделю [вкл]",
+        builder.button(text="🔔 Появилось новое расписание [вкл]",
                        callback_data=NotificationsFab(action="pressed_sch_next_week"))
     else:
-        builder.button(text="🔕 Расписание на след. неделю [выкл]",
+        builder.button(text="🔕 Появилось новое расписание [выкл]",
                        callback_data=NotificationsFab(action="pressed_sch_next_week"))
-
-    if notifications[2]:
-        builder.button(text="🔔 Пары на сегодня [вкл]",
-                       callback_data=NotificationsFab(action="pressed_get_sch_today"))
-    else:
-        builder.button(text="🔕 Пары на сегодня [выкл]",
-                       callback_data=NotificationsFab(action="pressed_get_sch_today"))
 
     builder.button(text="↩ Вернуться в меню",
                    callback_data=NotificationsFab(action="pressed_back"))

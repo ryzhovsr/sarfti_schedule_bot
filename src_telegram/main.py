@@ -37,12 +37,17 @@ async def main():
     await dp.start_polling(bot)
 
 
-def send_note(tb, users_id: list):
+def send_note(tb, users_id: list, is_one: bool):
     """Обработчик кнопки уведомлений"""
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton("Закрыть уведомление", callback_data="pressed_close"))
-    for user_id in users_id:
-        tb.send_message(user_id, 'Произошли изменения в расписании!', reply_markup=markup)
+
+    if is_one:
+        for user_id in users_id:
+            tb.send_message(user_id, 'Произошли изменения в расписании \n на текущую неделю!', reply_markup=markup)
+    else:
+        for user_id in users_id:
+            tb.send_message(user_id, 'Появилось расписание\nна другие недели!', reply_markup=markup)
 
 
 def timecheck():
@@ -88,7 +93,7 @@ def timecheck():
                     tmp_list = db.get_users_by_current_selection_changes(current_selection)
                     for item in tmp_list:
                         user_notification_one.append(item[0])
-                send_note(tb, user_notification_one)
+                send_note(tb, user_notification_one, True)
             except TypeError:
                 pass
 
@@ -99,7 +104,7 @@ def timecheck():
                     tmp_list = db.get_users_by_current_selection_adding(current_selection)
                     for item in tmp_list:
                         user_notification_two.append(item[0])
-                print(user_notification_two)
+                send_note(tb, user_notification_two, False)
             except TypeError:
                 pass
 
