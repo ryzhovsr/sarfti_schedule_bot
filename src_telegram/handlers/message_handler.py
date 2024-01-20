@@ -35,7 +35,7 @@ async def message_handler(message: types.Message):
         return
 
     # Сообщение пользователя
-    text = message.text
+    text = message.text.lower()
 
     if not is_teacher(message.text):
         text = add_dash_in_group(text)
