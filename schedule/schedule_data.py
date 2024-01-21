@@ -354,7 +354,7 @@ class ScheduleData:
     def __get_line_schedule_group(self, num_lesson, place, teacher, lesson, lesson_type, special_slash):
         """Возвращает формализованную строку для группы"""
         return '{}{}{} {}[{}] {}, {}\n'.format(self.__get_num_lesson(num_lesson),
-                                               self.__get_emoji(lesson_type),
+                                               self.__get_emoji(lesson_type, special_slash),
                                                lesson_type,
                                                special_slash,
                                                self.__get_place(place),
@@ -441,7 +441,8 @@ class ScheduleData:
                                                                list_groups,
                                                                prev_row['Предмет'],
                                                                prev_row['Тип'],
-                                                               special_slash)
+                                                               special_slash,
+                                                               prev_row['Подгруппа'])
         return out_text
 
     def __form_schedule_group(self, table, target, special_star, special_slash):
