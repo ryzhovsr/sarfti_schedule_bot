@@ -1,11 +1,11 @@
 from asyncio import run
-from create import dp, bot, sch
+from create import dp, bot, sch, user_db
 from handlers import (message_handler, selection_kb_handler, main_kb_handler,
                       schedule_kb_handler, notification_kb_handler, other_weeks_kb_handler)
 from logging import basicConfig, INFO
 from threading import Thread
 import time
-from telebot import types, TeleBot
+from telebot import TeleBot
 import telebot
 import asyncio
 from src_telegram.scripts.user_db import UserDatabase
@@ -37,7 +37,8 @@ async def main():
     await dp.start_polling(bot)
 
 
-def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, user_ids_second_notification: list):
+def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, user_ids_second_notification: list,
+              db: UserDatabase):
     """Обработчик кнопки уведомлений"""
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton("Закрыть уведомление", callback_data="pressed_close"))
@@ -47,11 +48,13 @@ def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, us
         tb.send_message(user_id, 'Произошли изменения в расписании на текущей недели!\n'
                                  'Появилось расписание на новую неделю!', reply_markup=markup)
 
-    # Отправка пользователям первое уведомление
+    # Отправляем пользователям первое уведомление
     for user_id in user_ids_first_notification:
-        tb.send_message(user_id, 'Произошли изменения в расписании\n на текущей недели!', reply_markup=markup)
+        note_id = tb.send_message(chat_id=user_id, text='Произошли изменения в расписании\n'
+                                                        'на текущей неделе!').message_id
+        db.update_id_note_current_week(note_id=note_id, user_id=user_id)
 
-    # Отправка пользователям второе уведомление
+    # Отправляем пользователям второе уведомление
     for user_id in user_ids_second_notification:
         tb.send_message(user_id, 'Появилось расписание\nна другие недели!', reply_markup=markup)
 
@@ -63,18 +66,17 @@ def timecheck():
 
     while True:
         time.sleep(10)
-        if time.time() - time_init > 300:
+        if time.time() - time_init > 10:
             time_init = time.time()
-
 
             # для проверки работоспособности удаляет файл 327 и переименовывает 328 в 327
             # Необходимо для искусственного создания изменения в расписании
-            # directory = os.getcwd()
-            # old_filepath = os.path.join(directory, 'src_telegram\\data\\schedule_week_328.pkl')
+            directory = os.getcwd()
+            old_filepath = os.path.join(directory, 'src_telegram\\data\\schedule_week_329.pkl')
             #
-            # new_filepath = os.path.join(directory, 'src_telegram\\data\\schedule_week_327.pkl')
-            # os.remove(new_filepath)
-            # os.rename(old_filepath, new_filepath)
+            new_filepath = os.path.join(directory, 'src_telegram\\data\\schedule_week_328.pkl')
+            os.remove(new_filepath)
+            os.rename(old_filepath, new_filepath)
             # конец
 
             # Список выбранных групп/ФИО у людей, кто включил уведомления
@@ -83,9 +85,9 @@ def timecheck():
             unique_set = set(item for tuple_item in user_selection_list_note_one for item in tuple_item)
             user_selection_list_note_one = list(unique_set)
             # Второе уведомление
-            # user_selection_list_note_two = db.get_all_note_new_schedule()
-            # unique_set = set(item for tuple_item in user_selection_list_note_two for item in tuple_item)
-            # user_selection_list_note_two = list(unique_set)
+            user_selection_list_note_two = db.get_all_note_new_schedule()
+            unique_set = set(item for tuple_item in user_selection_list_note_two for item in tuple_item)
+            user_selection_list_note_two = list(unique_set)
 
             notifications = sch.get_notification(user_selection_list_note_one)
 
@@ -109,10 +111,12 @@ def timecheck():
                 unique_user_notification_one = [x for x in user_notification_one if x not in user_notification_two]
                 unique_user_notification_two = [x for x in user_notification_two if x not in user_notification_one]
                 repeated_user_notification = list(set(user_notification_one) & set(user_notification_two))
-                send_note(tb, repeated_user_notification, unique_user_notification_one, unique_user_notification_two)
+                send_note(tb, repeated_user_notification, unique_user_notification_one, unique_user_notification_two,
+                          db=db)
             else:
-                send_note(tb, [], user_notification_one, user_notification_two)
+                send_note(tb, [], user_notification_one, user_notification_two, db=db)
 
+            time.sleep(10)
 
 
 if __name__ == "__main__":

@@ -6,15 +6,16 @@ from src_telegram.create import bot, user_db, sch
 from src_telegram.scripts.message_editor import modify_message
 from src_telegram.keyboards import schedule_kb, main_kb, notification_kb, other_weeks_kb
 from src_telegram.handlers.selection_kb_handler import pressed_back
+from src_telegram.scripts.message_editor import delete_notes
 
 
 async def pressed_current_week_sch(callback: types.CallbackQuery):
     """Обработчик кнопки расписания на текущую неделю"""
+    # Записываем действие от пользователя
     write_user_action(callback=callback, action="Нажал кнопку 'Расписание на текущую неделю'")
     current_selection = user_db.get_user_current_selection(callback.message.chat.id)
 
     # Определяем группу или преподавателя
-
     if current_selection.endswith("."):
         current_schedule = sch.get_week_schedule_teacher(current_selection, sch.get_current_week_id())
     else:
@@ -29,6 +30,9 @@ async def pressed_current_week_sch(callback: types.CallbackQuery):
         message_from_bot = await callback.message.answer(text=current_schedule, reply_markup=schedule_kb.get_keyboard(),
                                                          parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
+
+    # Удаляем у пользователя уведомления
+    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 async def pressed_other_week_sch(callback: types.CallbackQuery):
@@ -46,6 +50,9 @@ async def pressed_other_week_sch(callback: types.CallbackQuery):
                                                          reply_markup=other_weeks_kb.get_keyboard(upcoming_weeks))
         user_db.update_user_message_id(message_from_bot)
 
+    # Удаляем у пользователя уведомления
+    await delete_notes(bot, callback.message.chat.id, user_db)
+
 
 async def pressed_notifications(callback: types.CallbackQuery):
     """Обработчик кнопки уведомлений"""
@@ -60,11 +67,17 @@ async def pressed_notifications(callback: types.CallbackQuery):
                                                          reply_markup=notification_kb.get_keyboard(user_id))
         user_db.update_user_message_id(message_from_bot)
 
+    # Удаляем у пользователя уведомления
+    await delete_notes(bot, callback.message.chat.id, user_db)
+
 
 async def pressed_back_main(callback: types.CallbackQuery):
     """Обработчик кнопки назад в main клавиатуре"""
     # Вызываем уже написанный колбэк из другой клавиатуры
     await pressed_back(callback)
+
+    # Удаляем у пользователя уведомления
+    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 def register_callbacks_main_kb(dp: Dispatcher):
