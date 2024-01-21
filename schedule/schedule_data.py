@@ -341,10 +341,10 @@ class ScheduleData:
             upcoming_weeks[week_id] = (self.__dates[week_id])
         return upcoming_weeks
 
-    def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type, special_slash):
+    def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type, special_slash, subgroup):
         """Возвращает формализованную строку для преподавателя"""
         return '{}{}{} {}[{}] {} {}\n'.format(self.__get_num_lesson(num_lesson),
-                                              self.__get_emoji(lesson_type),
+                                              self.__get_emoji(lesson_type, subgroup),
                                               lesson_type,
                                               special_slash,
                                               place,
@@ -381,16 +381,21 @@ class ScheduleData:
         return '\n🔹 {}{}:{}\n'.format(special_star, full_days[days.index(user_day)], special_star)
 
     @staticmethod
-    def __get_emoji(lesson_type):
+    def __get_emoji(lesson_type, subgroup):
         # TODO: поменять эмодзи подгрупп
         if lesson_type == 'Лекция':
             return u'💬'
         if lesson_type == 'Практика':
-            return u'📝'
+            if subgroup == '1':
+                return u'📝' + u'➊ '
+            elif subgroup == '2':
+                return u'📝' + u'➋ '
+            else:
+                return u'📝'
         if lesson_type.startswith('Лаб'):
-            if '1' in lesson_type:
+            if '1' in lesson_type or subgroup == '1':
                 return u'🔬' + u'➊ '
-            if '2' in lesson_type:
+            if '2' in lesson_type or subgroup == '2':
                 return u'🔬' + u'➋ '
             return u'🔬'
         return u'🔥'
@@ -418,7 +423,8 @@ class ScheduleData:
                                                                            list_groups,
                                                                            prev_row['Предмет'],
                                                                            prev_row['Тип'],
-                                                                           special_slash)
+                                                                           special_slash,
+                                                                           prev_row['Подгруппа'])
                     if str(row['День']) != prev_day:
                         t = self.__get_full_day_name(row['День'], special_star)
                         out_text = out_text + t
