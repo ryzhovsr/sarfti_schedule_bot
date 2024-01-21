@@ -340,7 +340,7 @@ class ScheduleData:
 
     def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type, special_slash):
         """Возвращает формализованную строку для преподавателя"""
-        return '{}{}{} {}[{}] {} {}\n'.format(self.__get_num_lesson(num_lesson),
+        return '{}{}{} {}[{}] {}.\n{}\n'.format(self.__get_num_lesson(num_lesson),
                                               self.__get_emoji(lesson_type),
                                               lesson_type,
                                               special_slash,

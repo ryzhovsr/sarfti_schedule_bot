@@ -46,9 +46,9 @@ def add_dash_in_group(text: str):
 def add_sign_group_or_teacher(data: str):
     """Добавляет к строке подпись "👥 Преподаватель" или "👥 Группа"."""
     if is_teacher(data):
-        data = f"👥 Преподаватель {data}"
+        data = f"👤 Преподаватель {data}"
     else:
-        data = f"👥 Группа {data}"
+        data = f"👤 Группа {data}"
 
     return data
 
