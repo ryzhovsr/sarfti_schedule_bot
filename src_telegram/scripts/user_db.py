@@ -32,7 +32,8 @@ class UserDatabase:
                               "(user_id INTEGER PRIMARY KEY, "
                               "is_note_current_week_changes BOOL DEFAULT 0, "
                               "is_note_new_schedule BOOL DEFAULT 0, "
-                              "is_note_classes_today BOOL DEFAULT 0, "
+                              "id_note_current_week_changes INTEGER DEFAULT 0, "
+                              "id_note_new_schedule INTEGER DEFAULT 0, "
                               "FOREIGN KEY (user_id) REFERENCES users (user_id));")
 
         self.__connect.commit()
@@ -81,16 +82,16 @@ class UserDatabase:
         return self.__cursor.fetchone()[0]
 
     def get_user_notification(self, user_id: int):
-        """Возвращает выбранные уведомления пользователя"""
+        """Возвращает уведомления пользователя"""
         self.__cursor.execute(f"SELECT * FROM notifications WHERE user_id = {user_id}")
         user_notifications_data = self.__cursor.fetchone()
-        return [user_notifications_data[1], user_notifications_data[2], user_notifications_data[3]]
+        return [user_notifications_data[1], user_notifications_data[2]]
 
     def is_user_notification_enabled(self, user_id: int):
         """Возвращает true, если у пользователя включено хотя бы 1 уведомление"""
         self.__cursor.execute(f"SELECT * FROM notifications WHERE user_id = {user_id}")
         user_notifications_data = self.__cursor.fetchone()
-        return user_notifications_data[1] == 1 or user_notifications_data[2] == 1 or user_notifications_data[3] == 1
+        return user_notifications_data[1] == 1 or user_notifications_data[2] == 1
 
     def update_is_note_current_week_changes(self, user_id: int, notification: bool):
         self.__cursor.execute("UPDATE notifications SET is_note_current_week_changes = ? "
@@ -99,11 +100,6 @@ class UserDatabase:
 
     def update_is_note_new_schedule(self, user_id: int, notification: bool):
         self.__cursor.execute("UPDATE notifications SET is_note_new_schedule = ? "
-                              "WHERE user_id = ?", (notification, user_id))
-        self.__connect.commit()
-
-    def update_is_note_classes_today(self, user_id: int, notification: bool):
-        self.__cursor.execute("UPDATE notifications SET is_note_classes_today = ? "
                               "WHERE user_id = ?", (notification, user_id))
         self.__connect.commit()
 
@@ -143,3 +139,27 @@ class UserDatabase:
     #                           'WHERE notifications.is_note_current_week_changes = 1;')
     #     row = self.__cursor.fetchall()
     #     print(row)
+
+    def update_id_note_current_week(self, user_id: int, note_id: int):
+        self.__cursor.execute("UPDATE notifications SET id_note_current_week_changes = ? "
+                              "WHERE user_id = ?", (note_id, user_id))
+        self.__connect.commit()
+
+    def update_id_note_new_schedule(self, user_id: int, note_id: int):
+        self.__cursor.execute("UPDATE notifications SET id_note_new_schedule = ? "
+                              "WHERE user_id = ?", (note_id, user_id))
+        self.__connect.commit()
+
+    def get_id_notes_one(self, user_id: int):
+        """Возвращает id первого уведомления у пользователя"""
+        self.__cursor.execute(f"SELECT user_id, id_note_current_week_changes FROM notifications "
+                              f"WHERE user_id = {user_id};")
+        id_notes = self.__cursor.fetchone()
+        return id_notes
+
+    def get_id_notes_two(self, user_id: int):
+        """Возвращает id второго уведомления у пользователя"""
+        self.__cursor.execute(f"SELECT user_id, id_note_new_schedule FROM notifications "
+                              f"WHERE user_id = {user_id};")
+        id_notes = self.__cursor.fetchone()
+        return id_notes

@@ -16,7 +16,7 @@ def get_keyboard(selected_week: int = None):
     builder.button(text="🕘 Пары", callback_data=ScheduleFab(action="pressed_time", selected_week=selected_week))
 
     if selected_week is not None:
-        builder.button(text="↩ Назад", callback_data=ScheduleFab(action="pressed_back", selected_week=selected_week))
+        builder.button(text="⬅️ Назад", callback_data=ScheduleFab(action="pressed_back", selected_week=selected_week))
 
     builder.button(text="↩ Вернуться в меню", callback_data=ScheduleFab(action="pressed_back_to_main"))
 
@@ -33,7 +33,7 @@ def get_keyboard_after_press_time(selected_week: int = None):
     if selected_week is not None:
         builder.button(text="🔼 Расписание", callback_data=ScheduleFab(action="pressed_other_schedule",
                                                                       selected_week=selected_week))
-        builder.button(text="↩ Назад", callback_data=ScheduleFab(action="pressed_back", selected_week=selected_week))
+        builder.button(text="⬅️ Назад", callback_data=ScheduleFab(action="pressed_back", selected_week=selected_week))
     else:
         builder.button(text="🔼 Расписание",
                        callback_data=ScheduleFab(action="pressed_schedule", selected_week=selected_week))
@@ -60,7 +60,7 @@ def get_keyboard_after_press_info(selected_week: int = None):
     builder.button(text="🕘 Пары", callback_data=ScheduleFab(action="pressed_time", selected_week=selected_week))
 
     if selected_week is not None:
-        builder.button(text="↩ Назад", callback_data=ScheduleFab(action="pressed_back", selected_week=selected_week))
+        builder.button(text="⬅️ Назад", callback_data=ScheduleFab(action="pressed_back", selected_week=selected_week))
 
     builder.button(text="↩ Вернуться в меню", callback_data=ScheduleFab(action="pressed_back_to_main"))
 

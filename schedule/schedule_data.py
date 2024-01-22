@@ -9,7 +9,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-import locale
 
 # требуется наличие библиотеки lxml
 
@@ -42,8 +41,6 @@ class ScheduleData:
 
         self.schedule_management_html = None  # Страница для использования хэш данных
 
-        locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')  # устанавливается русский язык
-
         # Смотрим под чем исполняется скрипт, и указываем правильный путь
         if os.name == 'nt':
             self.__schedule_week_dir = os.path.join(os.getcwd(), directory + '\\', 'data\\')
@@ -65,7 +62,6 @@ class ScheduleData:
         # сохраняем данные в переменные для сравнения
         old_current_week_id = self.__current_week_id
         old_last_weeks_id = self.__week_ids
-        old_current_schedule = ''
 
         with (open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + old_current_week_id + '.pkl', "rb")
               as file):
@@ -112,7 +108,8 @@ class ScheduleData:
     def __check_changes(self, old_current_schedule, selects_users):
         """Возвращает список групп и преподавателей кого нужно уведомить по первому уведомлению"""
         # проверка на различия двух расписаний
-        difference_schedule = pd.concat([self.__schedule_current_week, old_current_schedule]).drop_duplicates(keep=False)
+        difference_schedule = (pd.concat([self.__schedule_current_week, old_current_schedule]).
+                               drop_duplicates(keep=False))
 
         list_notification = []
         for column in ['Группа', 'Преподаватель']:
@@ -348,17 +345,17 @@ class ScheduleData:
 
     def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type, special_slash, subgroup):
         """Возвращает формализованную строку для преподавателя"""
-        return '{}{}{} {}[{}] {} {}\n'.format(self.__get_num_lesson(num_lesson),
-                                              self.__get_emoji(lesson_type, subgroup),
-                                              lesson_type,
-                                              special_slash,
-                                              place,
-                                              groups,
-                                              lesson)
+        return '{}{}{} {}[{}] {}.\n{}\n'.format(self.__get_num_lesson(num_lesson),
+                                                self.__get_emoji(lesson_type, subgroup),
+                                                lesson_type,
+                                                special_slash,
+                                                place,
+                                                groups,
+                                                lesson)
 
     def __get_line_schedule_group(self, num_lesson, place, teacher, lesson, lesson_type, special_slash):
         """Возвращает формализованную строку для группы"""
-        return '{}{}{} {}[{}] {}, {}\n'.format(self.__get_num_lesson(num_lesson),
+        return '{}{}{} {}[{}] {}.\n{}\n'.format(self.__get_num_lesson(num_lesson),
                                                self.__get_emoji(lesson_type, special_slash),
                                                lesson_type,
                                                special_slash,
@@ -403,7 +400,7 @@ class ScheduleData:
             if '2' in lesson_type or subgroup == '2':
                 return u'🔬' + u'➋ '
             return u'🔬'
-        return u'🔥'
+        return u' '
 
     def __form_schedule_teacher(self, table, target, special_star, special_slash):
         """Возвращает текст расписания для преподавателя"""

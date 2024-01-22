@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from src_telegram.create import bot, user_db, sch
 from src_telegram.scripts.message_editor import (delete_last_message_from_db,
                                                  delete_current_message_from_user,
-                                                 modify_message)
+                                                 modify_message, delete_notes)
 from schedule.utils import add_sign_group_or_teacher, find_coincidence_group_teacher
 from src_telegram.keyboards import selection_kb, main_kb
 from schedule.utils import is_teacher, add_dash_in_group, write_user_action, check_key
@@ -13,6 +13,9 @@ from src_telegram import config
 async def start_handler(message: types.Message):
     """Обработчик команды /start"""
     # Если пользователь отправил команду /start не в первый раз и он существует в БД, то удаляем его сообщение
+    # Удаляем у пользователя уведомления
+    await delete_notes(bot, message.chat.id, user_db)
+
     if user_db.is_user_exists(message.chat.id) is not None:
         await delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
 
@@ -30,6 +33,9 @@ async def start_handler(message: types.Message):
 async def message_handler(message: types.Message):
     """Обработчик всех сообщений"""
     write_user_action(message=message, action=f"Отправил {message.text}")
+
+    # Удаляем у пользователя уведомления
+    await delete_notes(bot, message.chat.id, user_db)
 
     # Проверка по ключу на получение журнала действий пользователей
     if config.key == message.text:

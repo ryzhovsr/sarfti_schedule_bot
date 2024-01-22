@@ -3,7 +3,7 @@ import re
 from aiogram import types, Dispatcher
 from magic_filter import F
 from src_telegram.create import bot, user_db, sch
-from src_telegram.scripts.message_editor import modify_message
+from src_telegram.scripts.message_editor import modify_message, delete_notes
 from schedule.utils import add_sign_group_or_teacher, write_user_action
 from src_telegram.keyboards import schedule_kb, main_kb
 from src_telegram.handlers.main_kb_handler import pressed_current_week_sch, pressed_other_week_sch
@@ -24,9 +24,12 @@ async def pressed_back_to_main(callback: types.CallbackQuery):
                                                          reply_markup=main_kb.get_keyboard(callback.message.chat.id))
         user_db.update_user_message_id(message_from_bot)
 
+    await delete_notes(bot, callback.message.chat.id, user_db)
+
 
 async def pressed_back(callback: types.CallbackQuery):
     """Обработчик кнопки назад в клавиатуре с расписанием"""
+    await delete_notes(bot, callback.message.chat.id, user_db)
     await pressed_other_week_sch(callback)
 
 
@@ -91,6 +94,8 @@ async def pressed_time(callback: types.CallbackQuery):
                                                          parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
 
+    await delete_notes(bot, callback.message.chat.id, user_db)
+
 
 async def pressed_info(callback: types.CallbackQuery):
     """Обработчик кнопки "Информация" в клавиатуре с расписанием"""
@@ -98,10 +103,11 @@ async def pressed_info(callback: types.CallbackQuery):
     text_out = "Что означают значки в расписании занятий:\n\n" + \
                u"\u0031\ufe0f\u20e3 - номер пары\n" + \
                "💬 - лекция\n" + \
-               "🔥 - практика, лаб. работа\n" + \
+               "📝 - практика\n" + \
+               "🔬 - лабораторная работа\n" + \
                "📡 - онлайн\n" + \
-               "🅰 - подгруппа 1\n" + \
-               "🅱 - подгруппа 2"
+               "➊ - подгруппа 1\n" + \
+               "➋ - подгруппа 2"
 
     selected_week = None
 
@@ -126,8 +132,11 @@ async def pressed_info(callback: types.CallbackQuery):
                                                          get_keyboard_after_press_info(selected_week=selected_week))
         user_db.update_user_message_id(message_from_bot)
 
+    await delete_notes(bot, callback.message.chat.id, user_db)
+
 
 async def pressed_schedule(callback: types.CallbackQuery):
+    await delete_notes(bot, callback.message.chat.id, user_db)
     await pressed_current_week_sch(callback)
 
 
@@ -161,6 +170,8 @@ async def pressed_other_schedule(callback: types.CallbackQuery):
                                                          reply_markup=schedule_kb.get_keyboard(selected_week_id),
                                                          parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
+
+    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 def register_callbacks_schedule_kb(dp: Dispatcher):

@@ -2,10 +2,11 @@ from aiogram import types, Dispatcher
 from magic_filter import F
 
 from schedule.utils import write_user_action
-from src_telegram.create import user_db
+from src_telegram.create import user_db, bot
 from src_telegram.handlers.main_kb_handler import pressed_notifications
 from src_telegram.keyboards import notification_kb
 from src_telegram.handlers.schedule_kb_handler import pressed_back_to_main
+from src_telegram.scripts.message_editor import delete_notes
 
 
 async def pressed_current_week_change(callback: types.CallbackQuery):
@@ -18,6 +19,7 @@ async def pressed_current_week_change(callback: types.CallbackQuery):
         write_user_action(callback=callback, action="Включил уведомление №1")
 
     await pressed_notifications(callback)
+    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 async def pressed_sch_next_week(callback: types.CallbackQuery):
@@ -30,11 +32,13 @@ async def pressed_sch_next_week(callback: types.CallbackQuery):
         write_user_action(callback=callback, action="Включил уведомление №2")
 
     await pressed_notifications(callback)
+    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 async def pressed_back(callback: types.CallbackQuery):
     """Обработчик кнопки назад на клавиатуре с уведомлениями"""
     await pressed_back_to_main(callback)
+    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 def register_callbacks_schedule_kb(dp: Dispatcher):
