@@ -77,9 +77,14 @@ class ScheduleData:
         # Проверка на необходимость сопоставление расписаний
         list_notification = [None, False]
 
-        # FOR TEST для проверки появления новой недели
+        # # FOR TEST для проверки появления новой недели
+        # # для проверки на появление новой недели
+        # self.__current_week_id = str(int(old_current_week_id) + 1)
         # del old_last_weeks_id[1]
-        # END TEST
+        # # для проверки окончания учебы с удалением расписания всех недель
+        # self.__current_week_id = str(int(old_current_week_id) + 1)
+        # self.__week_ids = []
+        # # END TEST
 
         # Проверка, что изменения произошли на текущей неделе
         if old_current_week_id == self.__current_week_id:
