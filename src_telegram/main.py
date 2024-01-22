@@ -1,5 +1,10 @@
 from asyncio import run
+
+from aiogram import F
 from create import dp, bot, sch, user_db
+from aiogram import types
+from src_telegram.scripts.message_editor import delete_notes
+
 from handlers import (message_handler, selection_kb_handler, main_kb_handler,
                       schedule_kb_handler, notification_kb_handler, other_weeks_kb_handler)
 from logging import basicConfig, INFO
@@ -9,6 +14,7 @@ from telebot import TeleBot
 import telebot
 import asyncio
 from src_telegram.scripts.user_db import UserDatabase
+from schedule.utils import restore_user_action
 import config
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -37,11 +43,16 @@ async def main():
     await dp.start_polling(bot)
 
 
+@dp.callback_query(F.data == "delete_note")
+async def send_random_value(callback: types.CallbackQuery):
+    await delete_notes(bot=bot, user_db=user_db, chat_id=callback.message.chat.id)
+
+
 def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, user_ids_second_notification: list,
               db: UserDatabase):
     """Обработчик кнопки уведомлений"""
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("Закрыть уведомление", callback_data="pressed_close"))
+    markup.add(InlineKeyboardButton("Закрыть уведомление", callback_data="delete_note"))
 
     # Отправка пользователям оба уведомления
     for user_id in repeated_user_ids:
@@ -50,8 +61,9 @@ def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, us
 
     # Отправляем пользователям первое уведомление
     for user_id in user_ids_first_notification:
-        note_id = tb.send_message(chat_id=user_id, text='Произошли изменения в расписании\n'
-                                                        'на текущей неделе!').message_id
+        note_id = tb.send_message(chat_id=user_id, text='Произошли изменения в\n'
+                                                        'расписании на текущей неделе!',
+                                  reply_markup=markup).message_id
         db.update_id_note_current_week(note_id=note_id, user_id=user_id)
 
     # Отправляем пользователям второе уведомление
@@ -63,11 +75,20 @@ def timecheck():
     db = UserDatabase()
     time_init = time.time()
     tb: TeleBot = telebot.TeleBot(token=config.bot_token)
+    time_restore_user_actions = time.time()
 
     while True:
-        time.sleep(10)
-        if time.time() - time_init > 10:
+
+        time.sleep(3)
+
+        if time.time() - time_init > 15:
             time_init = time.time()
+
+            # Удаляем журнал действий пользователей 1 раз в неделю
+            if time_init - time_restore_user_actions > 60 * 60 * 24 * 7:
+                print(1)
+                time_restore_user_actions = time_init
+                restore_user_action()
 
             # для проверки работоспособности удаляет файл 327 и переименовывает 328 в 327
             # Необходимо для искусственного создания изменения в расписании
@@ -115,8 +136,6 @@ def timecheck():
                           db=db)
             else:
                 send_note(tb, [], user_notification_one, user_notification_two, db=db)
-
-            time.sleep(10)
 
 
 if __name__ == "__main__":

@@ -13,8 +13,6 @@ from src_telegram import config
 async def start_handler(message: types.Message):
     """Обработчик команды /start"""
     # Если пользователь отправил команду /start не в первый раз и он существует в БД, то удаляем его сообщение
-    # Удаляем у пользователя уведомления
-    await delete_notes(bot, message.chat.id, user_db)
 
     if user_db.is_user_exists(message.chat.id) is not None:
         await delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
@@ -33,9 +31,6 @@ async def start_handler(message: types.Message):
 async def message_handler(message: types.Message):
     """Обработчик всех сообщений"""
     write_user_action(message=message, action=f"Отправил {message.text}")
-
-    # Удаляем у пользователя уведомления
-    await delete_notes(bot, message.chat.id, user_db)
 
     # Проверка по ключу на получение журнала действий пользователей
     if config.key == message.text:

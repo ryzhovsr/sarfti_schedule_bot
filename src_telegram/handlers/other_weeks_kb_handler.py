@@ -12,7 +12,6 @@ from src_telegram.keyboards import schedule_kb, other_weeks_kb
 
 async def pressed_back(callback: types.CallbackQuery):
     """Обработчик кнопки назад в клавиатуре с другими неделями"""
-    await delete_notes(bot, callback.message.chat.id, user_db)
     await pressed_back_to_main(callback)
 
 
@@ -50,7 +49,6 @@ async def pressed_week(callback: types.CallbackQuery):
                                                          get_keyboard(selected_week=selected_week),
                                                          parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
-    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 def register_callbacks_other_weeks_kb(dp: Dispatcher):

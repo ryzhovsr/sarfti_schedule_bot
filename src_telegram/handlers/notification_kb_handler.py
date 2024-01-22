@@ -19,7 +19,6 @@ async def pressed_current_week_change(callback: types.CallbackQuery):
         write_user_action(callback=callback, action="Включил уведомление №1")
 
     await pressed_notifications(callback)
-    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 async def pressed_sch_next_week(callback: types.CallbackQuery):
@@ -32,13 +31,11 @@ async def pressed_sch_next_week(callback: types.CallbackQuery):
         write_user_action(callback=callback, action="Включил уведомление №2")
 
     await pressed_notifications(callback)
-    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 async def pressed_back(callback: types.CallbackQuery):
     """Обработчик кнопки назад на клавиатуре с уведомлениями"""
     await pressed_back_to_main(callback)
-    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 def register_callbacks_schedule_kb(dp: Dispatcher):
