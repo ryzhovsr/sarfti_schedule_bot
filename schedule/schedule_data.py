@@ -1,7 +1,6 @@
 import contextlib
 import os
 import pickle
-import time
 from datetime import datetime, timedelta
 from io import StringIO
 
@@ -10,9 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-# требуется наличие библиотеки lxml
-
-# TODO: реализовать работоспособность при отсутствии расписания
+# ВНИМАНИЕ: требуется наличие библиотеки lxml
 
 
 class ScheduleData:
@@ -29,7 +26,9 @@ class ScheduleData:
 
         self.__current_week_id = ''  # id текущей (рабочей) недели
         self.__week_ids = []  # id всех доступные недель
+        self.__temp_week_ids = []  # временная переменная для последующей замены основной
         self.__schedule_current_week = {}  # Расписание текущей (рабочей) недели
+        self.__temp_schedule_current_week = {}  # временная переменная для последующей замены основной
         self.__schedule_week_dir = ''  # Путь к директории для файла с расписанием
         self.__schedule_week_file_name = 'schedule_week'
 
@@ -86,12 +85,12 @@ class ScheduleData:
         if old_current_week_id == self.__current_week_id:
             if (len(old_last_weeks_id) == len(self.__week_ids)) and (len(self.__week_ids) != 0):
                 # проверка на одинаковое ли расписание на текущей неделе
-                if not old_current_schedule.equals(self.__schedule_current_week):
+                if not old_current_schedule.equals(self.__schedule_current_week[self.__current_week_id]):
                     list_notification[0] = self.__check_changes(old_current_schedule, user_selection_list_note_one)
 
             elif len(old_last_weeks_id) < len(self.__week_ids):
                 # проверка на одинаковое ли расписание на текущей неделе
-                if not old_current_schedule.equals(self.__schedule_current_week):
+                if not old_current_schedule.equals(self.__schedule_current_week[self.__current_week_id]):
                     list_notification[0] = self.__check_changes(old_current_schedule, user_selection_list_note_one)
 
                 list_notification[1] = True
@@ -108,7 +107,7 @@ class ScheduleData:
     def __check_changes(self, old_current_schedule, selects_users):
         """Возвращает список групп и преподавателей кого нужно уведомить по первому уведомлению"""
         # проверка на различия двух расписаний
-        difference_schedule = (pd.concat([self.__schedule_current_week, old_current_schedule]).
+        difference_schedule = (pd.concat([self.__schedule_current_week[self.__current_week_id], old_current_schedule]).
                                drop_duplicates(keep=False))
 
         list_notification = []
@@ -188,9 +187,9 @@ class ScheduleData:
     def __cal_current_week(self):
         """Вычисляет текущую неделю"""
         time_now = datetime.now()
-        self.__week_ids = []
+        self.__temp_week_ids = []
         for week_id in list(self.__dates):
-            self.__week_ids.append(week_id)
+            self.__temp_week_ids.append(week_id)
             if (pd.to_datetime(self.__dates[week_id]) - timedelta(days=1) <= time_now <
                     pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)):
                 self.__current_week_id = week_id
@@ -211,7 +210,7 @@ class ScheduleData:
                 with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + week_id + '.pkl',
                           "wb") as file:
                     pickle.dump(item, file)
-                self.__schedule_current_week = item
+                self.__temp_schedule_current_week[week_id] = item
                 break
 
     def update_schedule(self):
@@ -219,6 +218,12 @@ class ScheduleData:
         self.__load_main_data()
         self.__cal_current_week()
         self.__load_schedule()
+
+        # Замена основных данных на новые
+        self.__week_ids = self.__temp_week_ids
+        self.__schedule_current_week = self.__temp_schedule_current_week
+        self.__temp_week_ids = []
+        self.__temp_schedule_current_week = {}
 
     def __del_store(self):
         """Удаление всех старых файлов с расписанием"""
@@ -236,32 +241,16 @@ class ScheduleData:
         self.schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
                                                       data={'login': '', 'password': '',
                                                             'guest': 'Войти+как+Гость'})
-        for week in self.__week_ids:
+        for week in self.__temp_week_ids:
             self.__parse_schedule_week(week)
         self.schedule_management_html = None
 
-    def run_updates(self, iterations_between_updates=30, sleep_time=120):
-        """Запускает обновление основных данных и парсер расписания
-        iterations_between_updates=30 и sleep_time=120 - будет обновляться база каждый день, а расписание каждые 2 мин
-        """
-        while True:
-            self.__load_main_data()
-            time.sleep(sleep_time)
-            # Данные сайта по управлению расписанием
-            self.schedule_management_html = requests.post('http://scs.sarfti.ru/login/index',
-                                                          data={'login': '', 'password': '',
-                                                                'guest': 'Войти+как+Гость'})
-            for i in range(iterations_between_updates):
-                self.__parse_schedule_week(self.__load_schedule())
-                time.sleep(sleep_time)
-            self.schedule_management_html = None
-
     def __get_week_schedule_all(self, week_id):
         """Возвращает расписание на заданную неделю"""
-        with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + str(week_id) + '.pkl',
-                  "rb") as file:
-            loaded_table = pickle.load(file)
-        return loaded_table
+        # with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + str(week_id) + '.pkl',
+        #           "rb") as file:
+        #     loaded_table = pickle.load(file)
+        return self.__schedule_current_week[str(week_id)]
 
     def get_week_schedule(self, output_type, target, week_id):
         """Возвращает расписание в зависимости от типа расписания и по чему выводить (например, название группы)"""
@@ -356,12 +345,12 @@ class ScheduleData:
     def __get_line_schedule_group(self, num_lesson, place, teacher, lesson, lesson_type, special_slash):
         """Возвращает формализованную строку для группы"""
         return '{}{}{} {}[{}] {}.\n{}\n'.format(self.__get_num_lesson(num_lesson),
-                                               self.__get_emoji(lesson_type, special_slash),
-                                               lesson_type,
-                                               special_slash,
-                                               self.__get_place(place),
-                                               lesson,
-                                               teacher)
+                                                self.__get_emoji(lesson_type, special_slash),
+                                                lesson_type,
+                                                special_slash,
+                                                self.__get_place(place),
+                                                lesson,
+                                                teacher)
 
     @staticmethod
     def __get_place(place):
