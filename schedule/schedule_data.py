@@ -48,14 +48,6 @@ class ScheduleData:
 
         self.update_schedule()
 
-        # from src_telegram.create import user_db
-        # user = user_db.get_all_note_current_week()
-        # list_user = []
-        # for item in user:
-        #     list_user.append(item[0])
-        # print(list_user)
-        # self.get_notification(list_user)
-
     def get_notification(self, user_selection_list_note_one: list):
         """Возвращает сформированный список уведомлений, в формате"""
         # сохраняем данные в переменные для сравнения
@@ -222,6 +214,7 @@ class ScheduleData:
         # Замена основных данных на новые
         self.__week_ids = self.__temp_week_ids
         self.__schedule_current_week = self.__temp_schedule_current_week
+        # Очистка временных файлов
         self.__temp_week_ids = []
         self.__temp_schedule_current_week = {}
 
@@ -247,9 +240,6 @@ class ScheduleData:
 
     def __get_week_schedule_all(self, week_id):
         """Возвращает расписание на заданную неделю"""
-        # with open(self.__schedule_week_dir + self.__schedule_week_file_name + '_' + str(week_id) + '.pkl',
-        #           "rb") as file:
-        #     loaded_table = pickle.load(file)
         return self.__schedule_current_week[str(week_id)]
 
     def get_week_schedule(self, output_type, target, week_id):
@@ -275,13 +265,13 @@ class ScheduleData:
             if lesson.empty:
                 return out_text + '\n' + 'Пар на этой неделе нет!'
             else:
-                lessons = self.__form_schedule_teacher(lesson.iterrows(), target, special_star, special_slash)
+                lessons = self.__form_schedule_teacher(lesson.iterrows(), special_star, special_slash)
         elif output_type == 'Группа':
             lesson = loaded_table.query(f'Группа == @target')
             if lesson.empty:
                 return out_text + '\n' + 'Пар на этой неделе нет!'
             else:
-                lessons = self.__form_schedule_group(lesson.iterrows(), target, special_star, special_slash)
+                lessons = self.__form_schedule_group(lesson.iterrows(), special_star, special_slash)
         return out_text + lessons
 
     def get_week_schedule_group(self, group_name, week_id):
@@ -373,7 +363,6 @@ class ScheduleData:
 
     @staticmethod
     def __get_emoji(lesson_type, subgroup):
-        # TODO: поменять эмодзи подгрупп
         if lesson_type == 'Лекция':
             return u'💬'
         elif lesson_type == 'Практика':
@@ -397,7 +386,7 @@ class ScheduleData:
             else:
                 return u' '
 
-    def __form_schedule_teacher(self, table, target, special_star, special_slash):
+    def __form_schedule_teacher(self, table, special_star, special_slash):
         """Возвращает текст расписания для преподавателя"""
         index, prev_row = next(table)
         prev_day = str(prev_row['День'])
@@ -414,7 +403,7 @@ class ScheduleData:
                 else:
                     if not repeat:
                         list_groups = prev_row['Группа']
-                        # repeat = False
+
                     out_text = out_text + self.__get_line_schedule_teacher(prev_row['Пара'],
                                                                            prev_row['Аудитория'],
                                                                            list_groups,
@@ -442,47 +431,35 @@ class ScheduleData:
                                                                prev_row['Подгруппа'])
         return out_text
 
-    def __form_schedule_group(self, table, target, special_star, special_slash):
+    def __form_schedule_group(self, table, special_star, special_slash):
         """Возвращает текст расписания для группы"""
-
         index, prev_row = next(table)
         prev_day = str(prev_row['День'])
-        list_groups = prev_row['Группа']
 
         out_text = self.__get_full_day_name(prev_row['День'], special_star)
-        repeat = False
+        # repeat = False
         while True:
             try:
                 index, row = next(table)
-                if (row['Пара'] == prev_row['Пара']) and (str(row['День']) == prev_day):
-                    # 1
-                    out_text = out_text + self.__get_line_schedule_group(prev_row['Пара'],
-                                                                         prev_row['Аудитория'],
-                                                                         prev_row['Преподаватель'],
-                                                                         prev_row['Предмет'],
-                                                                         prev_row['Тип'],
-                                                                         special_slash,
-                                                                         prev_row['Подгруппа'])
-                    repeat = True
-                elif repeat:
-                    # 2
-                    out_text = out_text + self.__get_line_schedule_group(prev_row['Пара'],
-                                                                         prev_row['Аудитория'],
-                                                                         prev_row['Преподаватель'],
-                                                                         prev_row['Предмет'],
-                                                                         prev_row['Тип'],
-                                                                         special_slash,
-                                                                         prev_row['Подгруппа'])
-                    repeat = False
-                else:
-                    # без
-                    out_text = out_text + self.__get_line_schedule_group(prev_row['Пара'],
-                                                                         prev_row['Аудитория'],
-                                                                         prev_row['Преподаватель'],
-                                                                         prev_row['Предмет'],
-                                                                         prev_row['Тип'],
-                                                                         special_slash,
-                                                                         prev_row['Подгруппа'])
+                out_text = out_text + self.__get_line_schedule_group(prev_row['Пара'],
+                                                                     prev_row['Аудитория'],
+                                                                     prev_row['Преподаватель'],
+                                                                     prev_row['Предмет'],
+                                                                     prev_row['Тип'],
+                                                                     special_slash,
+                                                                     prev_row['Подгруппа'])
+
+                # # Заготовка на случай изменение политики нумерации подгрупп
+                # if (row['Пара'] == prev_row['Пара']) and (str(row['День']) == prev_day):
+                #     # Запись пары как первой подгруппы
+                #     repeat = True
+                # elif repeat:
+                #     # Запись пары как второй подгруппы
+                #     repeat = False
+                # else:
+                #     # Запись пары без подгруппы
+                #     pass
+
                 if str(row['День']) != prev_day:
                     out_text = out_text + self.__get_full_day_name(row['День'], special_star)
 
@@ -498,19 +475,6 @@ class ScheduleData:
                                                              prev_row['Тип'],
                                                              special_slash,
                                                              prev_row['Подгруппа'])
-
-        # prev_row = ''
-        # out_text = ''
-        # for index, row in table.query('Группа == @target').iterrows():
-        #     if prev_row != row['День']:
-        #         out_text = out_text + self.__get_full_day_name(row['День'], special_star)
-        #     out_text = out_text + self.__get_line_schedule_group(row['Пара'],
-        #                                                          row['Аудитория'],
-        #                                                          row['Преподаватель'],
-        #                                                          row['Предмет'],
-        #                                                          row['Тип'],
-        #                                                          special_slash)
-        #     prev_row = row['День']
         return out_text
 
 
