@@ -24,12 +24,9 @@ async def pressed_back_to_main(callback: types.CallbackQuery):
                                                          reply_markup=main_kb.get_keyboard(callback.message.chat.id))
         user_db.update_user_message_id(message_from_bot)
 
-    await delete_notes(bot, callback.message.chat.id, user_db)
-
 
 async def pressed_back(callback: types.CallbackQuery):
     """Обработчик кнопки назад в клавиатуре с расписанием"""
-    await delete_notes(bot, callback.message.chat.id, user_db)
     await pressed_other_week_sch(callback)
 
 
@@ -94,8 +91,6 @@ async def pressed_time(callback: types.CallbackQuery):
                                                          parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
 
-    await delete_notes(bot, callback.message.chat.id, user_db)
-
 
 async def pressed_info(callback: types.CallbackQuery):
     """Обработчик кнопки "Информация" в клавиатуре с расписанием"""
@@ -132,11 +127,8 @@ async def pressed_info(callback: types.CallbackQuery):
                                                          get_keyboard_after_press_info(selected_week=selected_week))
         user_db.update_user_message_id(message_from_bot)
 
-    await delete_notes(bot, callback.message.chat.id, user_db)
-
 
 async def pressed_schedule(callback: types.CallbackQuery):
-    await delete_notes(bot, callback.message.chat.id, user_db)
     await pressed_current_week_sch(callback)
 
 
@@ -170,8 +162,6 @@ async def pressed_other_schedule(callback: types.CallbackQuery):
                                                          reply_markup=schedule_kb.get_keyboard(selected_week_id),
                                                          parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
-
-    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 def register_callbacks_schedule_kb(dp: Dispatcher):

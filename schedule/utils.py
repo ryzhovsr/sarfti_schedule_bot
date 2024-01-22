@@ -98,3 +98,14 @@ async def check_key(message: types.Message, directory: str = "src_telegram"):
             return True
 
     return False
+
+
+def restore_user_action(directory: str = "src_telegram"):
+    if os.name == 'nt':
+        journal_dir = os.path.join(os.getcwd(), directory + "\\data\\user_actions.txt")
+    else:
+        journal_dir = os.path.join(os.getcwd(), directory + "/data/user_actions.txt")
+
+    open(journal_dir, 'w').close()
+
+    return False

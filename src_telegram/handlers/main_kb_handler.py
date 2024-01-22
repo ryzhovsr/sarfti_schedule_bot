@@ -31,9 +31,6 @@ async def pressed_current_week_sch(callback: types.CallbackQuery):
                                                          parse_mode="Markdown")
         user_db.update_user_message_id(message_from_bot)
 
-    # Удаляем у пользователя уведомления
-    await delete_notes(bot, callback.message.chat.id, user_db)
-
 
 async def pressed_other_week_sch(callback: types.CallbackQuery):
     """Обработчик кнопки расписания на другие недели"""
@@ -50,9 +47,6 @@ async def pressed_other_week_sch(callback: types.CallbackQuery):
                                                          reply_markup=other_weeks_kb.get_keyboard(upcoming_weeks))
         user_db.update_user_message_id(message_from_bot)
 
-    # Удаляем у пользователя уведомления
-    await delete_notes(bot, callback.message.chat.id, user_db)
-
 
 async def pressed_notifications(callback: types.CallbackQuery):
     """Обработчик кнопки уведомлений"""
@@ -67,17 +61,11 @@ async def pressed_notifications(callback: types.CallbackQuery):
                                                          reply_markup=notification_kb.get_keyboard(user_id))
         user_db.update_user_message_id(message_from_bot)
 
-    # Удаляем у пользователя уведомления
-    await delete_notes(bot, callback.message.chat.id, user_db)
-
 
 async def pressed_back_main(callback: types.CallbackQuery):
     """Обработчик кнопки назад в main клавиатуре"""
     # Вызываем уже написанный колбэк из другой клавиатуры
     await pressed_back(callback)
-
-    # Удаляем у пользователя уведомления
-    await delete_notes(bot, callback.message.chat.id, user_db)
 
 
 def register_callbacks_main_kb(dp: Dispatcher):

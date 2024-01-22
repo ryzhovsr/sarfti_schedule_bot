@@ -19,6 +19,6 @@ def get_keyboard(upcoming_weeks: dict):
     builder.button(text="↩ Вернуться в меню", callback_data=OtherWeeksFab(action="pressed_back"))
 
     # Выравниваем кнопки по 2 в ряд
-    builder.adjust(2)
+    builder.adjust(1)
 
     return builder.as_markup()
