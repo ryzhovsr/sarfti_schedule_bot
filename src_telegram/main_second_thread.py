@@ -24,7 +24,7 @@ def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, us
         db.update_id_note_current_week(note_id=note_id, user_id=user_id)
 
         note_id = tb.send_message(chat_id=user_id, text='Появилось расписание\n'
-                                                        'на другие недели!',
+                                                        'на новую неделю!',
                                   reply_markup=markup).message_id
         db.update_id_note_new_schedule(note_id=note_id, user_id=user_id)
 
@@ -38,7 +38,7 @@ def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, us
     # Отправляем пользователям второе уведомление
     for user_id in user_ids_second_notification:
         note_id = tb.send_message(chat_id=user_id, text='Появилось расписание\n'
-                                                        'на другие недели!',
+                                                        'на новую неделю!',
                                   reply_markup=markup).message_id
         db.update_id_note_new_schedule(note_id=note_id, user_id=user_id)
 
