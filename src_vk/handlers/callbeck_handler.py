@@ -1,7 +1,7 @@
 from vkbottle.bot import MessageEvent, BotLabeler
 from vkbottle_types.events import GroupEventType
 from src_vk.create import user_db, search_kb, sch
-from src_vk.keyboards import start_kb, back_kb, main_kb, schedule_kb
+from src_vk.keyboards import start_kb, back_kb, main_kb, schedule_kb, notification_kb
 from src_vk.scripts import message_editor
 
 labeler = BotLabeler()
@@ -42,7 +42,36 @@ async def message_event_handler(event: MessageEvent):
 
         # Если нажата кнопка "Уведомления"
         if event.payload[callback] == "notifications":
-            await event.show_snackbar("Эта функция еще не реализована 😕")
+            await message_editor.edit_message(event, message_id,
+                                              "Выберете уведомления",
+                                              notification_kb.get_keyboard(peer_id))
+
+    # Кнопки меню уведомлений
+    if callback == "notifications_menu":
+        # Если нажата кнопка "Изменения на текущей неделе"
+        if event.payload[callback] == "current_week_change":
+            user_db.update_is_note_current_week_changes(peer_id, not user_db.get_user_notification(peer_id)[0])
+            await message_editor.edit_message(event, message_id,
+                                              "Выберете уведомления",
+                                              notification_kb.get_keyboard(peer_id))
+
+        # Если нажата кнопка "Появилось новое расписание"
+        if event.payload[callback] == "sch_next_week":
+            user_db.update_is_note_new_schedule(peer_id, not user_db.get_user_notification(peer_id)[1])
+            await message_editor.edit_message(event, message_id,
+                                              "Выберете уведомления",
+                                              notification_kb.get_keyboard(peer_id))
+
+        # Если нажата кнопка "Закрыть уведомление"
+        if event.payload[callback] == "close":
+            if current_selection != "NULL":
+                await message_editor.edit_message(event, message_id,
+                                                  main_kb.get_text(is_teacher, current_selection),
+                                                  main_kb.get_keyboard(peer_id))
+            else:
+                await message_editor.edit_message(event, message_id,
+                                                  await start_kb.get_text(event),
+                                                  start_kb.get_keyboard())
 
     # Кнопки подменю расписания
     if callback == "schedule":
@@ -83,7 +112,7 @@ async def message_event_handler(event: MessageEvent):
         # Если нажата кнопка "Преподаватель"
         if event.payload[callback] == "teacher":
             await message_editor.edit_message(event, message_id,
-                                              "👩‍🏫 Введите ФИО преподавателя:",
+                                              "👤 Введите ФИО преподавателя:",
                                               back_kb.get_keyboard())
 
             user_db.update_user_is_teacher(peer_id, 1)
@@ -91,7 +120,7 @@ async def message_event_handler(event: MessageEvent):
         # Если нажата кнопка "Студент"
         if event.payload[callback] == "student":
             await message_editor.edit_message(event, message_id,
-                                              "👨‍🎓 Введите название группы:",
+                                              "👥 Введите название группы:",
                                               back_kb.get_keyboard())
 
             user_db.update_user_is_teacher(peer_id, 0)

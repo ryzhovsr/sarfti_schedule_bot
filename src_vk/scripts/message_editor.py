@@ -27,11 +27,19 @@ async def delete_message(message_event: Message | MessageEvent, message_id: int)
                                                     delete_for_all=True)
     except VKAPIError as e:
         print("Возникла ошибка:", e.code)
+        await delete_by_edit_message(message_event, message_id)
+
+
+async def delete_by_edit_message(message_event: Message | MessageEvent, message_id: int):
+    """Редактирует сообщение, оставляя пустоту"""
+    try:
+        await edit_message(message_event, message_id, "ㅤ")
+    except VKAPIError as e:
+        print("Возникла ошибка:", e.code)
 
 
 async def turn_page(message_event: Message | MessageEvent, search_kb, message_id, page_number):
     """Переворачивает страницу книжки поиска"""
-    keyboard = search_kb.get_list_pages(message_event.peer_id)[page_number]
     await edit_message(message_event, message_id,
                        "Были найдены следующие совпадения 🔎",
-                       keyboard)
+                       search_kb.get_list_pages(message_event.peer_id)[page_number])

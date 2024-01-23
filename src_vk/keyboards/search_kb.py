@@ -59,17 +59,17 @@ class SearchKeyboard:
                     keyboard.row()
 
                 if i == 0:
-                    keyboard.add(Callback("Следующая ➡️", {"search_menu": "following"})).row()
+                    keyboard.add(Callback("Далее ➡️", {"search_menu": "following"})).row()
 
                 elif i == count:
-                    keyboard.add(Callback("⬅️ Предыдущая", {"search_menu": "previous"})).row()
+                    keyboard.add(Callback("⬅️ Назад", {"search_menu": "previous"})).row()
 
                 elif modul == 0 and i == count - 1:
-                    keyboard.add(Callback("⬅️ Предыдущая", {"search_menu": "previous"})).row()
+                    keyboard.add(Callback("⬅️ Назад", {"search_menu": "previous"})).row()
 
                 else:
-                    keyboard.add(Callback("⬅️ Предыдущая", {"search_menu": "previous"}))
-                    keyboard.add(Callback("Следующая ➡️", {"search_menu": "following"})).row()
+                    keyboard.add(Callback("⬅️ Назад", {"search_menu": "previous"}))
+                    keyboard.add(Callback("Далее ➡️", {"search_menu": "following"})).row()
 
                 keyboard.add(
                     Callback("↩ Вернутся к выбору", {"start_menu": "back"})).get_json()

@@ -35,7 +35,7 @@ def get_keyboard_next_week(dict_weeks: dict) -> str:
     keyboard = Keyboard(inline=True)
 
     for i in range(len(dict_weeks)):
-        keyboard.add(Callback(f"📅 {list(dict_weeks.values())[i]}",
+        keyboard.add(Callback(f"{list(dict_weeks.values())[i]}",
                               {"week_selection": f"{list(dict_weeks.keys())[i]}"}))
 
         if (i + 1) % 2 == 0:

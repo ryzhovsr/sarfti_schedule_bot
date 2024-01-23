@@ -77,10 +77,6 @@ def timecheck():
             user_selection_list_note_one = db.get_all_note_current_week()
             unique_set = set(item for tuple_item in user_selection_list_note_one for item in tuple_item)
             user_selection_list_note_one = list(unique_set)
-            # Второе уведомление
-            user_selection_list_note_two = db.get_all_note_new_schedule()
-            unique_set = set(item for tuple_item in user_selection_list_note_two for item in tuple_item)
-            user_selection_list_note_two = list(unique_set)
 
             notifications = sch.get_notification(user_selection_list_note_one)
 
