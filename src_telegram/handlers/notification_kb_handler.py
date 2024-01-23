@@ -1,6 +1,6 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
-from common_modules.user_actions import write_user_action
+from src_telegram.scripts.user_actions import write_user_action
 from src_telegram.create import user_db
 from src_telegram.handlers.main_kb_handler import pressed_notifications
 from src_telegram.keyboards import notification_kb

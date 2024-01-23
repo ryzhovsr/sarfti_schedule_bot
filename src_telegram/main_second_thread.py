@@ -57,7 +57,7 @@ def timecheck():
             time_init = time.time()
 
             # Удаляем журнал действий пользователей 1 раз в неделю
-            if time_init - time_restore_user_actions > 60 * 60 * 24 * 7:
+            if time_init - time_restore_user_actions > 604800:
                 print(1)
                 time_restore_user_actions = time_init
                 restore_user_action()

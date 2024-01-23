@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
 
-from common_modules.user_actions import write_user_action
+from src_telegram.scripts.user_actions import write_user_action
 from src_telegram.create import bot, user_db, sch
 from src_telegram.scripts.message_editor import modify_message
 from src_telegram.keyboards import schedule_kb, main_kb, notification_kb, other_weeks_kb

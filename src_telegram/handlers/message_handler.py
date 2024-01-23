@@ -7,7 +7,7 @@ from src_telegram.scripts.message_editor import (delete_last_message_from_db,
 from common_modules.utils import (add_sign_group_or_teacher, find_coincidence_group_teacher,
                                   is_teacher, add_dash_in_group)
 from src_telegram.keyboards import selection_kb, main_kb
-from common_modules.user_actions import write_user_action, check_key
+from src_telegram.scripts.user_actions import write_user_action, check_key
 from src_telegram import config
 
 
