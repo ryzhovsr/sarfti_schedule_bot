@@ -3,7 +3,8 @@ import config
 
 from aiogram import Dispatcher
 from scripts.user_db import UserDatabase
-from schedule.schedule_data import ScheduleData
+from common_modules.schedule_data import ScheduleData
+
 
 dp = Dispatcher()
 bot = aiogram.Bot(token=config.bot_token)

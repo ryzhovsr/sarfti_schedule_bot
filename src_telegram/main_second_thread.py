@@ -3,7 +3,7 @@ import time
 import telebot
 from telebot import TeleBot
 
-from schedule.utils import restore_user_action
+from common_modules.utils import restore_user_action
 from src_telegram.create import sch
 from src_telegram import config
 from src_telegram.scripts.user_db import UserDatabase

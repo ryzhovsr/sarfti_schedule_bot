@@ -3,8 +3,9 @@ import re
 from aiogram import types, Dispatcher
 from magic_filter import F
 from src_telegram.create import bot, user_db, sch
-from src_telegram.scripts.message_editor import modify_message, delete_notes
-from schedule.utils import add_sign_group_or_teacher, write_user_action
+from src_telegram.scripts.message_editor import modify_message
+from common_modules.utils import add_sign_group_or_teacher
+from common_modules.user_actions import write_user_action
 from src_telegram.keyboards import schedule_kb, main_kb
 from src_telegram.handlers.main_kb_handler import pressed_current_week_sch, pressed_other_week_sch
 
