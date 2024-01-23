@@ -1,4 +1,4 @@
-from schedule.schedule_data import ScheduleData
+from common_modules.schedule_data import ScheduleData
 from src_vk.keyboards.search_kb import SearchKeyboard
 from src_vk.scripts.user_db import UserDatabase
 

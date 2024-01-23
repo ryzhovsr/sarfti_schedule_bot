@@ -1,6 +1,6 @@
 from vkbottle.bot import Message, BotLabeler
 
-from schedule.utils import find_coincidence_group_teacher, add_dash_in_group
+from common_modules.utils import find_coincidence_group_teacher, add_dash_in_group
 from src_vk.create import user_db, sch, search_kb
 from src_vk.keyboards import start_kb, back_kb, main_kb
 from src_vk.scripts import message_editor
