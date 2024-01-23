@@ -160,6 +160,7 @@ class UserDatabase:
         self.__cursor.execute("SELECT users.user_id "
                               "FROM users, notifications "
                               "WHERE users.user_id = notifications.user_id AND "
-                              "notifications.is_note_new_schedule='1'")
+                              "notifications.is_note_new_schedule='1' AND "
+                              "users.current_selection!='NULL';")
 
         return self.__cursor.fetchall()
