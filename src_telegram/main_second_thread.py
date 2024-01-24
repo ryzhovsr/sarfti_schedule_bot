@@ -45,7 +45,7 @@ def send_note(tb, repeated_user_ids: list, user_ids_first_notification: list, us
 def timecheck():
     db = UserDatabase()
     time_init = time.time()
-    tb: TeleBot = telebot.TeleBot(token=config.bot_token)
+    tb: TeleBot = telebot.TeleBot(token=config.bot_token_tg)
     time_restore_user_actions = time.time()
 
     while True:
