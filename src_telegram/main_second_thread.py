@@ -1,8 +1,7 @@
 import time
-
 import telebot
-from telebot import TeleBot
 
+from telebot import TeleBot
 from common_modules.utils import restore_user_action
 from src_telegram.create import sch
 from src_telegram import config

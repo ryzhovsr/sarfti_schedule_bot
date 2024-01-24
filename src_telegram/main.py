@@ -1,9 +1,7 @@
 import asyncio
 
 from asyncio import run
-
 from aiogram import F, types
-
 from create import dp, bot, user_db
 from handlers import (message_handler, selection_kb_handler, main_kb_handler,
                       schedule_kb_handler, notification_kb_handler, other_weeks_kb_handler)

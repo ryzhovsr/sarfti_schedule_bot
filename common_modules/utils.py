@@ -42,7 +42,7 @@ def add_sign_group_or_teacher(data: str):
     if is_teacher(data):
         data = f"👤 Преподаватель {data}"
     else:
-        data = f"👤 Группа {data}"
+        data = f"👥 Группа {data}"
 
     return data
 

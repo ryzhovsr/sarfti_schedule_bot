@@ -112,7 +112,7 @@ async def message_event_handler(event: MessageEvent):
         # Если нажата кнопка "Преподаватель"
         if event.payload[callback] == "teacher":
             await message_editor.edit_message(event, message_id,
-                                              "👤 Введите ФИО преподавателя:",
+                                              "👤 Введите фамилию преподавателя:",
                                               back_kb.get_keyboard())
 
             user_db.update_user_is_teacher(peer_id, 1)

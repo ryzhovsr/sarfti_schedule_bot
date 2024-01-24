@@ -3,11 +3,11 @@ from asyncio import run
 from threading import Thread
 
 from vkbottle import Bot
-from config import bot_token
+from config import bot_token_vk
 from handlers import labelers
 from src_vk.main_second_thread import timecheck
 
-bot = Bot(bot_token)
+bot = Bot(bot_token_vk)
 
 for labeler in labelers:
     bot.labeler.load(labeler)

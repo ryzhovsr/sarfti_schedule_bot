@@ -3,6 +3,6 @@ from src_vk.keyboards.search_kb import SearchKeyboard
 from src_vk.scripts.user_db import UserDatabase
 
 # Инициализируем расписание, базу данных и книжку поиска
-sch = ScheduleData("src_vk")
 user_db = UserDatabase()
+sch = ScheduleData("src_vk")
 search_kb = SearchKeyboard()

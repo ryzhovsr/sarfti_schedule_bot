@@ -5,7 +5,7 @@ import vk_api
 from vk_api import VkApiError
 from vk_api.vk_api import VkApiMethod
 
-from src_vk.config import bot_token
+from src_vk.config import bot_token_vk
 from src_vk.create import sch
 from src_vk.keyboards import notification_kb
 from src_vk.scripts.user_db import UserDatabase
@@ -57,7 +57,7 @@ def send_note(vk: VkApiMethod, repeated_user_ids: list, user_ids_first_notificat
 def timecheck():
     db = UserDatabase()
     time_init = time.time()
-    vk_session = vk_api.VkApi(token=bot_token)
+    vk_session = vk_api.VkApi(token=bot_token_vk)
     vk = vk_session.get_api()
 
     while True:

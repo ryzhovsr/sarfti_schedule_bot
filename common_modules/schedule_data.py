@@ -1,11 +1,11 @@
 import contextlib
 import os
 import pickle
-from datetime import datetime, timedelta
-from io import StringIO
-
 import pandas as pd
 import requests
+
+from datetime import datetime, timedelta
+from io import StringIO
 from bs4 import BeautifulSoup
 
 
