@@ -38,7 +38,8 @@ async def pressed_back(callback: types.CallbackQuery):
     """Обработчик кнопки назад в клавиатуре выбора группы/ФИО преподавателя"""
     # Получаем id последнего сообщения у пользователя
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
-    text = f"Введите название группы / фамилию преподавателя."
+    text = (f"Введите название группы / фамилию преподавателя.\n"
+            f"Можно ввести первые символы.")
 
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text)
