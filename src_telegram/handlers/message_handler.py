@@ -19,7 +19,8 @@ async def start_handler(message: types.Message):
         await delete_last_message_from_db(message.bot, message.chat.id, user_db.get_cursor())
 
     message_from_bot = await message.answer(text=f"Привет, {message.from_user.first_name}! 👋 \n"
-                                                 f"Введите название группы / фамилию преподавателя.")
+                                                 f"Введите название группы / фамилию преподавателя.\n"
+                                                 f"Можно ввести первые символы.")
 
     # Удаляем отправленную команду /start у пользователя
     await delete_current_message_from_user(message)

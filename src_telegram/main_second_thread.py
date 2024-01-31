@@ -52,7 +52,7 @@ def timecheck():
 
         time.sleep(3)
 
-        if time.time() - time_init > 5:
+        if time.time() - time_init > 300:
             time_init = time.time()
 
             # Удаляем журнал действий пользователей 1 раз в неделю
