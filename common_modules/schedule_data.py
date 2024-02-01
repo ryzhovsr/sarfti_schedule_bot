@@ -156,11 +156,14 @@ class ScheduleData:
                 self.__groups[groups_raw_data[0][i].attrs['value']] = groups_raw_data[0][i].text
             for i in range(1, places_raw_data[0].__len__()):
                 self.__places[places_raw_data[0][i].attrs['value']] = places_raw_data[0][i].text
-            for i in range(0, dates_raw_data[0].__len__()):
-                self.__dates[dates_raw_data[0][i].attrs['value']] = dates_raw_data[0][i].text
             for i in range(1, teachers_raw_data[0].__len__()):
                 if (not teachers_raw_data[0][i].text.startswith('Аа')) and (teachers_raw_data[0][i].text[-6] != '-'):
                     self.__teachers[teachers_raw_data[0][i].attrs['value']] = teachers_raw_data[0][i].text
+
+            temp_dates = {}  # Временная переменная для хранения всех недель, необходима для сортированного списка
+            for i in range(0, dates_raw_data[0].__len__()):
+                temp_dates[dates_raw_data[0][i].attrs['value']] = dates_raw_data[0][i].text
+            self.__dates = temp_dates
 
             # Прогоняем цикл по всем сырым данным групп, преподавателей, мест (аудиторий) и дат
             # for item in [groups_raw_data, teachers_raw_data, places_raw_data, dates_raw_data]:
