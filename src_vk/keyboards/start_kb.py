@@ -1,11 +1,11 @@
-from vkbottle import Keyboard, Callback, KeyboardButtonColor
+from vkbottle import Keyboard, Callback
 from vkbottle.bot import Message, MessageEvent
 
 
 def get_keyboard() -> str:
     """Возвращает клавиатуру начального меню"""
     return (Keyboard(inline=True)
-            .add(Callback("👤 Преподавателя", {"start_menu": "teacher"}))
+            .add(Callback("👤 Преподавателя", {"start_menu": "teacher"})).row()
             .add(Callback("👥 Группы", {"start_menu": "student"}))
             ).get_json()
 
