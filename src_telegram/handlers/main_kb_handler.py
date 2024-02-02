@@ -38,6 +38,18 @@ async def pressed_other_week_sch(callback: types.CallbackQuery):
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
     upcoming_weeks = sch.get_upcoming_weeks_list()
 
+    # Если список будущих недель пустой
+    if not bool(upcoming_weeks):
+        try:
+            await modify_message(bot, callback.message.chat.id, last_message_id, text="Расписание на другие "
+                                                                                      "недели ещё не готово!",
+                                 reply_markup=other_weeks_kb.get_keyboard(upcoming_weeks))
+        except RuntimeError:
+            message_from_bot = await callback.message.answer(text="Расписание на другие недели ещё не готово!",
+                                                             reply_markup=other_weeks_kb.get_keyboard(upcoming_weeks))
+            user_db.update_user_message_id(message_from_bot)
+        return
+
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text="Доступны след. недели",
                              reply_markup=other_weeks_kb.get_keyboard(upcoming_weeks))
