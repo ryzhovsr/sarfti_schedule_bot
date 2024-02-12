@@ -34,6 +34,9 @@ async def message_handler(message: Message):
     peer_id = message.peer_id
     is_teacher = user_db.get_user_is_teacher(peer_id)
     message_id = user_db.get_last_message_id(peer_id)
+    # Если пользователь отправит фото, стикер либо какое-то другой спам, то игнорируем его
+    if message.text == '':
+        return
     # Если пользователь написал группу слитно, то образуем текст
     text = message.text if is_teacher else add_dash_in_group(message.text)
 

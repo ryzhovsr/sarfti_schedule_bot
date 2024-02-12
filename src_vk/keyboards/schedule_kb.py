@@ -6,7 +6,7 @@ from src_vk.create import sch
 def get_keyboard() -> str:
     """Возвращает клавиатуру для расписания"""
     return (Keyboard(inline=True)
-            .add(Callback("❓ Информация", {"schedule": "info"}))
+            .add(Callback("❓ Инфо", {"schedule": "info"}))
             .add(Callback("🕘 Пары", {"schedule": "time"})).row()
             .add(Callback("↩ Вернуться в меню", {"schedule": "back"}))
             ).get_json()
@@ -15,7 +15,7 @@ def get_keyboard() -> str:
 def get_keyboard_after_press_time() -> str:
     """Возвращает клавиатуру для пар"""
     return (Keyboard(inline=True)
-            .add(Callback("❓ Информация", {"schedule": "info"}))
+            .add(Callback("❓ Инфо", {"schedule": "info"}))
             .add(Callback("🔼 Расписание", {"main_menu": "current_week"})).row()
             .add(Callback("↩ Вернуться в меню", {"schedule": "back"}))
             ).get_json()
