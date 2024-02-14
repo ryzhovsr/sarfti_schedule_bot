@@ -7,6 +7,7 @@ import requests
 from datetime import datetime, timedelta
 from io import StringIO
 from bs4 import BeautifulSoup
+import math
 
 
 # ВНИМАНИЕ: требуется наличие библиотеки lxml
@@ -331,7 +332,7 @@ class ScheduleData:
                                                 self.__get_emoji(lesson_type, subgroup),
                                                 lesson_type,
                                                 special_slash,
-                                                place,
+                                                self.__get_place(place),
                                                 groups,
                                                 lesson)
 
@@ -346,16 +347,25 @@ class ScheduleData:
                                                 teacher)
 
     @staticmethod
-    def __get_place(place):
-        if 'онлайн' in place.lower():
-            return u'📡 ' + place
-        else:
-            return place
+    def is_nan(value):
+        try:
+            return math.isnan(float(value))
+        except ValueError:
+            return False
 
     @staticmethod
     def __get_num_lesson(num_lesson):
         """Возвращает номер пары в виде эмодзи"""
         return chr(0x0030 + num_lesson) + '\uFE0F' + chr(0x20E3)
+
+    def __get_place(self, place):
+        if self.is_nan(place):
+            return 'неизвестно'
+        else:
+            if 'онлайн' in place.lower():
+                return u'📡 ' + place
+            else:
+                return place
 
     @staticmethod
     def __get_full_day_name(user_day, special_star):
