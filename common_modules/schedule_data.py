@@ -328,17 +328,17 @@ class ScheduleData:
 
     def __get_line_schedule_teacher(self, num_lesson, place, groups, lesson, lesson_type, special_slash, subgroup):
         """Возвращает формализованную строку для преподавателя"""
-        return '{}{}{} {}[{}] {}.\n{}\n'.format(self.__get_num_lesson(num_lesson),
+        return '{}{}{} {}[{}]\n{}.\n{}.\n'.format(self.__get_num_lesson(num_lesson),
                                                 self.__get_emoji(lesson_type, subgroup),
                                                 lesson_type,
                                                 special_slash,
                                                 self.__get_place(place),
-                                                groups,
-                                                lesson)
+                                                lesson,
+                                                groups)
 
     def __get_line_schedule_group(self, num_lesson, place, teacher, lesson, lesson_type, special_slash, subgroup):
         """Возвращает формализованную строку для группы"""
-        return '{}{}{} {}[{}] {}.\n{}\n'.format(self.__get_num_lesson(num_lesson),
+        return '{}{}{} {}[{}]\n{}.\n{}\n'.format(self.__get_num_lesson(num_lesson),
                                                 self.__get_emoji(lesson_type, subgroup),
                                                 lesson_type,
                                                 special_slash,
