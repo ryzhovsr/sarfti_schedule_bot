@@ -63,7 +63,7 @@ def get_text_time() -> str:
     seven = u"\u0037\ufe0f\u20e3"
 
     for item in sch.get_class_time_weekdays().items():
-        match item[0]:
+        match item[0][0]:
             case "1":
                 text_out += one
             case "2":
@@ -84,7 +84,7 @@ def get_text_time() -> str:
     text_out += "\n🔹 СУББОТА:\n"
 
     for item in sch.get_class_time_saturday().items():
-        match item[0]:
+        match item[0][0]:
             case "1":
                 text_out += one
             case "2":
