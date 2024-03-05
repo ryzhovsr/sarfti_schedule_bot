@@ -46,7 +46,7 @@ async def pressed_time(callback: types.CallbackQuery):
     seven = u"\u0037\ufe0f\u20e3"
 
     for item in sch.get_class_time_weekdays().items():
-        match item[0]:
+        match item[0][0]:
             case "1": text_out += one
             case "2": text_out += two
             case "3": text_out += three
@@ -60,7 +60,7 @@ async def pressed_time(callback: types.CallbackQuery):
     text_out += "\n🔹 *СУББОТА:*\n"
 
     for item in sch.get_class_time_saturday().items():
-        match item[0]:
+        match item[0][0]:
             case "1": text_out += one
             case "2": text_out += two
             case "3": text_out += three
