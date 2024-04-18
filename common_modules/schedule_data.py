@@ -360,7 +360,7 @@ class ScheduleData:
             text_subgroup = f"{special_slash}[2 пг.] "
 
         lesson = self.__reduction_lesson(lesson)
-        place = self.__reduction_place(place)
+        place = self.__reduction_place(str(place))
 
         return (f"{self.__get_num_lesson(num_lesson)} {self.__get_emoji(lesson_type)} {lesson}\n"
                 f"\u2002\u2002\u2002{special_slash}[{self.__get_place(place)}] {text_subgroup}{teacher}\n")
