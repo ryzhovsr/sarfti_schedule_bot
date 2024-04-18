@@ -348,7 +348,7 @@ class ScheduleData:
         lesson = self.__reduction_lesson(lesson)
 
         return (f"{self.__get_num_lesson(num_lesson)} {self.__get_emoji(lesson_type)} {lesson}\n"
-                f"\u2002\u2002\u2002{special_slash}[{self.__get_place(place)}] {text_subgroup}{groups}\n")
+                f"\u0020\u0020\u0020\u0020\u0020\u0020{special_slash}[{self.__get_place(place)}] {text_subgroup}{groups}\n")
 
     def __get_line_schedule_group(self, num_lesson, place, teacher, lesson, lesson_type, special_slash, subgroup):
         """Возвращает формализованную строку для группы"""
@@ -363,7 +363,7 @@ class ScheduleData:
         place = self.__reduction_place(str(place))
 
         return (f"{self.__get_num_lesson(num_lesson)} {self.__get_emoji(lesson_type)} {lesson}\n"
-                f"\u2002\u2002\u2002{special_slash}[{self.__get_place(place)}] {text_subgroup}{teacher}\n")
+                f"\u0020\u0020\u0020\u0020\u0020\u0020{special_slash}[{self.__get_place(place)}] {text_subgroup}{teacher}\n")
 
     @staticmethod
     def __reduction_place(place: str) -> str:
@@ -375,7 +375,7 @@ class ScheduleData:
     @staticmethod
     def __reduction_lesson(lesson: str) -> str:
         """Возвращает сокращенную строку предмета"""
-        step = "\u2002\u2002\u2002"
+        step = "\u0020\u0020\u0020\u0020\u0020\u0020"
         match lesson:
             case "Элективные курсы по физической культуре":
                 return "Эл. курсы по физ. культуре"
@@ -450,7 +450,7 @@ class ScheduleData:
                     # return "\n      Электронного документооборота" 29
                     result_text = ""
                     line = ""
-                    step = "\u2002\u2002\u2002"
+                    step = "\u0020\u0020\u0020\u0020\u0020\u0020"
                     words = lesson.split()
                     limit = 25
 
