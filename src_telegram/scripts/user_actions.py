@@ -5,6 +5,7 @@ from datetime import datetime
 
 import codecs
 import os
+import sys
 
 
 def write_user_action(message: types.Message = None, callback: types.CallbackQuery = None,
@@ -46,3 +47,8 @@ async def check_key(message: types.Message, directory: str = "src_telegram"):
             return True
 
     return False
+
+
+def restart():
+    print("Обновление потока")
+    os.execv(sys.executable, ['python'] + sys.argv)

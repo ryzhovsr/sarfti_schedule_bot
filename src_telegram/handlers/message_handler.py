@@ -7,7 +7,7 @@ from src_telegram.scripts.message_editor import (delete_last_message_from_db,
 from common_modules.utils import (add_sign_group_or_teacher, find_coincidence_group_teacher,
                                   is_teacher, add_dash_in_group)
 from src_telegram.keyboards import selection_kb, main_kb
-from src_telegram.scripts.user_actions import write_user_action, check_key
+from src_telegram.scripts.user_actions import write_user_action, check_key, restart
 from src_telegram import config
 
 
@@ -35,8 +35,13 @@ async def message_handler(message: types.Message):
     write_user_action(message=message, action=f"Отправил {message.text}")
 
     # Проверка по ключу на получение журнала действий пользователей
-    if config.key == message.text:
+    if config.keys[0] == message.text:
         if await check_key(message):
+            return
+
+    # Проверка по ключу на обновление потоков
+    if config.keys[1] == message.text:
+        if await restart():
             return
 
     # Удаляем полученное сообщение у пользователя
