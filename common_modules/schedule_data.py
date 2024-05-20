@@ -511,6 +511,10 @@ class ScheduleData:
             return u'📝'
         elif lesson_type.startswith('Лаб'):
             return u'🔬'
+        elif lesson_type == 'Экзамен':
+            return 'Экзамен.'
+        elif lesson_type == 'Консультация':
+            return 'Консультация.'
 
     def __form_schedule_teacher(self, table, special_star, special_slash):
         """Возвращает текст расписания для преподавателя"""
