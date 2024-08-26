@@ -1,10 +1,11 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
 
-from src_telegram.create import bot, user_db
-from src_telegram.scripts.message_editor import modify_message
+from create import bot, user_db
+from message_editor import modify_message
 from common_modules.utils import add_sign_group_or_teacher
-from src_telegram.keyboards import selection_kb, main_kb
+import selection_kb
+import main_kb
 
 
 async def pressed_select(callback: types.CallbackQuery):

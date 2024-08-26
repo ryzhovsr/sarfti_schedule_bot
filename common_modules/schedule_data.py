@@ -112,7 +112,7 @@ class ScheduleData:
         return list_notification
 
     def __load_main_data(self):
-        """Парсит списки групп, преподавателей, аудиторий и недель c сайта СарФТИ"""
+        """Парсит списки групп, преподавателей, аудиторий и недель с сайта СарФТИ"""
         with contextlib.suppress(Exception):
             # Берём страницу с расписанием СарФТИ
             self.__html_data_sarfti_schedule = requests.post('https://sarfti.ru/?page_id=20',
@@ -184,12 +184,17 @@ class ScheduleData:
         """Вычисляет текущую неделю"""
         time_now = datetime.now()
         self.__temp_week_ids = []
+
         for week_id in list(self.__dates):
-            self.__temp_week_ids.append(week_id)
-            if (pd.to_datetime(self.__dates[week_id]) - timedelta(days=1) <= time_now <
-                    pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)):
-                self.__current_week_id = week_id
-                break
+            if week_id == '':
+                continue
+            else:
+                self.__temp_week_ids.append(week_id)
+
+                if (pd.to_datetime(self.__dates[week_id]) - timedelta(days=1) <= time_now <
+                        pd.to_datetime(self.__dates[week_id]) + timedelta(days=7)):
+                    self.__current_week_id = week_id
+                    break
 
     def __parse_schedule_week(self, week_id):
         """Парсит расписание по заданному id недели"""
@@ -254,6 +259,10 @@ class ScheduleData:
         else:
             special_star = special_slash = ''
 
+        # Если id текущей недели пустой
+        if not week_id:
+            return None
+
         loaded_table = self.__get_week_schedule_all(week_id)
         months = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля',
                   'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря']
@@ -263,13 +272,11 @@ class ScheduleData:
         end_week = end_date.strftime('%d ') + months[int(end_date.strftime('%m')) - 1] + end_date.strftime(' %Y г.')
         out_text = '{}{} - {}{}\n'.format(special_star, beginning_week, end_week, special_star)
         out_text += "{}{} {}{}\n".format(special_star, output_type, target, special_star)
-        lessons = ''
+
         if output_type == 'Преподаватель':
             lesson = loaded_table.query(f'Преподаватель == @target')
             if lesson.empty:
                 return out_text + '\n' + 'Пар на этой неделе нет!'
-            else:
-                lessons = self.__form_schedule_teacher(lesson.iterrows(), special_star, special_slash)
         elif output_type == 'Группа':
             lesson = loaded_table.query(f'Группа == @target')
             if lesson.empty:

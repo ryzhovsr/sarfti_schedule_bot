@@ -1,6 +1,6 @@
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from src_telegram.create import user_db
+from create import user_db
 
 
 class NotificationsFab(CallbackData, prefix="noteFab"):

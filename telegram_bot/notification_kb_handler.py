@@ -1,10 +1,10 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
-from src_telegram.scripts.user_actions import write_user_action
-from src_telegram.create import user_db
-from src_telegram.handlers.main_kb_handler import pressed_notifications
-from src_telegram.keyboards import notification_kb
-from src_telegram.handlers.schedule_kb_handler import pressed_back_to_main
+from user_actions import write_user_action
+from create import user_db
+from main_kb_handler import pressed_notifications
+import notification_kb
+from schedule_kb_handler import pressed_back_to_main
 
 
 async def pressed_current_week_change(callback: types.CallbackQuery):

@@ -1,14 +1,13 @@
 from aiogram import types, Dispatcher
 from aiogram.filters import Command
-from src_telegram.create import bot, user_db, sch
-from src_telegram.scripts.message_editor import (delete_last_message_from_db,
-                                                 delete_current_message_from_user,
-                                                 modify_message)
+from create import bot, user_db, sch
+from message_editor import delete_last_message_from_db, delete_current_message_from_user, modify_message
 from common_modules.utils import (add_sign_group_or_teacher, find_coincidence_group_teacher,
                                   is_teacher, add_dash_in_group)
-from src_telegram.keyboards import selection_kb, main_kb
-from src_telegram.scripts.user_actions import write_user_action, check_key, restart
-from src_telegram import config
+import selection_kb
+import main_kb
+from user_actions import write_user_action, check_key, restart
+import config
 
 
 async def start_handler(message: types.Message):

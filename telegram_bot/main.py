@@ -1,15 +1,23 @@
 import asyncio
 
+# Модули с хендлерами
+import message_handler
+import selection_kb_handler
+import main_kb_handler
+import schedule_kb_handler
+import notification_kb_handler
+import other_weeks_kb_handler
+
 from asyncio import run
 from aiogram import F, types
 from create import dp, bot, user_db
-from handlers import (message_handler, selection_kb_handler, main_kb_handler,
-                      schedule_kb_handler, notification_kb_handler, other_weeks_kb_handler)
 from logging import basicConfig, INFO
 from threading import Thread
 from main_second_thread import timecheck
-from src_telegram.scripts.message_editor import delete_notes
+from message_editor import delete_notes
 
+
+# Регистрируем обработчики на хендлеры
 message_handler.register_handlers_message(dp)
 selection_kb_handler.register_callbacks_selection_kb(dp)
 main_kb_handler.register_callbacks_main_kb(dp)

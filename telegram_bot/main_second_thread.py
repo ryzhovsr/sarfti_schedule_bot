@@ -3,9 +3,9 @@ import telebot
 
 from telebot import TeleBot
 from common_modules.utils import restore_user_action
-from src_telegram.create import sch
-from src_telegram import config
-from src_telegram.scripts.user_db import UserDatabase
+from create import sch
+import config
+from user_db import UserDatabase
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 

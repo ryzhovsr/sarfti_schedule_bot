@@ -1,11 +1,16 @@
 from aiogram import types, Dispatcher
 from magic_filter import F
 
-from src_telegram.scripts.user_actions import write_user_action
-from src_telegram.create import bot, user_db, sch
-from src_telegram.scripts.message_editor import modify_message
-from src_telegram.keyboards import schedule_kb, main_kb, notification_kb, other_weeks_kb
-from src_telegram.handlers.selection_kb_handler import pressed_back
+from user_actions import write_user_action
+from create import bot, user_db, sch
+from message_editor import modify_message
+
+import schedule_kb
+import main_kb
+import notification_kb
+import other_weeks_kb
+
+from selection_kb_handler import pressed_back
 
 
 async def pressed_current_week_sch(callback: types.CallbackQuery):
@@ -22,13 +27,25 @@ async def pressed_current_week_sch(callback: types.CallbackQuery):
 
     last_message_id = user_db.get_last_message_id(callback.message.chat.id)
 
-    try:
-        await modify_message(bot, callback.message.chat.id, last_message_id, text=current_schedule,
-                             reply_markup=schedule_kb.get_keyboard(), parse_mode="Markdown")
-    except RuntimeError:
-        message_from_bot = await callback.message.answer(text=current_schedule, reply_markup=schedule_kb.get_keyboard(),
-                                                         parse_mode="Markdown")
-        user_db.update_user_message_id(message_from_bot)
+    if not current_schedule:
+        try:
+            await modify_message(bot, callback.message.chat.id, last_message_id, text="Расписание на текущую неделю "
+                                                                                      "ещё не готово!",
+                                 reply_markup=other_weeks_kb.get_keyboard(current_schedule))
+        except RuntimeError:
+            message_from_bot = await callback.message.answer(text="Расписание на текущую неделю ещё не готово!",
+                                                             reply_markup=other_weeks_kb.get_keyboard(current_schedule))
+            user_db.update_user_message_id(message_from_bot)
+        return
+
+    else:
+        try:
+            await modify_message(bot, callback.message.chat.id, last_message_id, text=current_schedule,
+                                 reply_markup=schedule_kb.get_keyboard(), parse_mode="Markdown")
+        except RuntimeError:
+            message_from_bot = await callback.message.answer(text=current_schedule, reply_markup=schedule_kb.get_keyboard(),
+                                                             parse_mode="Markdown")
+            user_db.update_user_message_id(message_from_bot)
 
 
 async def pressed_other_week_sch(callback: types.CallbackQuery):

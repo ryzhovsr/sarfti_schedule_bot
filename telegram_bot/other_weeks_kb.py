@@ -13,8 +13,9 @@ def get_keyboard(upcoming_weeks: dict):
     """Возвращает клавиатуру с группами и ФИО преподавателей"""
     builder = InlineKeyboardBuilder()
 
-    for item, value in upcoming_weeks.items():
-        builder.button(text=f"{value}", callback_data=OtherWeeksFab(action="pressed_week", value=f"{item}"))
+    if upcoming_weeks is not None:
+        for item, value in upcoming_weeks.items():
+            builder.button(text=f"{value}", callback_data=OtherWeeksFab(action="pressed_week", value=f"{item}"))
 
     builder.button(text="↩ Вернуться в меню", callback_data=OtherWeeksFab(action="pressed_back"))
 

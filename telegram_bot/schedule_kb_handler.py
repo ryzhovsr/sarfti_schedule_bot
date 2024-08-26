@@ -2,12 +2,13 @@ import re
 
 from aiogram import types, Dispatcher
 from magic_filter import F
-from src_telegram.create import bot, user_db, sch
-from src_telegram.scripts.message_editor import modify_message
+from create import bot, user_db, sch
+from message_editor import modify_message
 from common_modules.utils import add_sign_group_or_teacher
-from src_telegram.scripts.user_actions import write_user_action
-from src_telegram.keyboards import schedule_kb, main_kb
-from src_telegram.handlers.main_kb_handler import pressed_current_week_sch, pressed_other_week_sch
+from user_actions import write_user_action
+import schedule_kb
+import main_kb
+from main_kb_handler import pressed_current_week_sch, pressed_other_week_sch
 
 
 async def pressed_back_to_main(callback: types.CallbackQuery):

@@ -1,4 +1,4 @@
-from src_telegram import config
+import config
 from aiogram.types import FSInputFile
 from aiogram import types
 from datetime import datetime
