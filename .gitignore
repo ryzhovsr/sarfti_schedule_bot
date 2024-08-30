@@ -1,12 +1,12 @@
 # Игнорировать директорию .idea
-/.idea/
+.idea/
 
 # Игнорировать директорию .vscode
-/.vscode/
-
-# Игнорировать директорию все директории __pycache__
-**/__pycache__/
+.vscode/
 
 # Игнорировать директорию /src_telegram
-/telegram_bot/src_telegram/
+telegram_bot/src_telegram/
 ./src_vk/data/
+
+# Игнорировать все директории __pycache__
+**/__pycache__/
