@@ -5,7 +5,7 @@ from create import bot, user_db
 from message_editor import modify_message
 from common_modules.utils import add_sign_group_or_teacher
 import selection_kb
-import main_kb
+import main_menu_kb
 
 
 async def pressed_select(callback: types.CallbackQuery):
@@ -27,11 +27,11 @@ async def pressed_select(callback: types.CallbackQuery):
 
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text=text,
-                             reply_markup=main_kb.get_keyboard(callback.message.chat.id))
+                             reply_markup=main_menu_kb.get_keyboard(callback.message.chat.id))
     except RuntimeError:
         # Если не получилось отредактировать - отправляем новое и записываем его в БД
         message_from_bot = await callback.message.answer(text=text,
-                                                         reply_markup=main_kb.get_keyboard(callback.message.chat.id))
+                                                         reply_markup=main_menu_kb.get_keyboard(callback.message.chat.id))
         user_db.update_user_message_id(message_from_bot)
 
 

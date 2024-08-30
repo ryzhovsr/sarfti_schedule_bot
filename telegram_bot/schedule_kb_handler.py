@@ -7,7 +7,7 @@ from message_editor import modify_message
 from common_modules.utils import add_sign_group_or_teacher
 from user_actions import write_user_action
 import schedule_kb
-import main_kb
+import main_menu_kb
 from main_kb_handler import pressed_current_week_sch, pressed_other_week_sch
 
 
@@ -20,10 +20,10 @@ async def pressed_back_to_main(callback: types.CallbackQuery):
 
     try:
         await modify_message(bot, callback.message.chat.id, last_message_id, text=current_selection,
-                             reply_markup=main_kb.get_keyboard(callback.message.chat.id))
+                             reply_markup=main_menu_kb.get_keyboard(callback.message.chat.id))
     except RuntimeError:
         message_from_bot = await callback.message.answer(text=current_selection,
-                                                         reply_markup=main_kb.get_keyboard(callback.message.chat.id))
+                                                         reply_markup=main_menu_kb.get_keyboard(callback.message.chat.id))
         user_db.update_user_message_id(message_from_bot)
 
 

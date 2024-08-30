@@ -5,7 +5,7 @@ from message_editor import delete_last_message_from_db, delete_current_message_f
 from common_modules.utils import (add_sign_group_or_teacher, find_coincidence_group_teacher,
                                   is_teacher, add_dash_in_group)
 import selection_kb
-import main_kb
+import main_menu_kb
 from user_actions import write_user_action, check_key, restart
 import config
 

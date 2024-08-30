@@ -6,7 +6,7 @@ from create import bot, user_db, sch
 from message_editor import modify_message
 
 import schedule_kb
-import main_kb
+import main_menu_kb
 import notification_kb
 import other_weeks_kb
 
@@ -97,7 +97,7 @@ async def pressed_back_main(callback: types.CallbackQuery):
 
 
 def register_callbacks_main_kb(dp: Dispatcher):
-    dp.callback_query.register(pressed_current_week_sch, main_kb.MainFab.filter(F.action == "pressed_current_week_sch"))
-    dp.callback_query.register(pressed_other_week_sch, main_kb.MainFab.filter(F.action == "pressed_other_week_sch"))
-    dp.callback_query.register(pressed_notifications, main_kb.MainFab.filter(F.action == "pressed_notifications"))
-    dp.callback_query.register(pressed_back_main, main_kb.MainFab.filter(F.action == "pressed_back"))
+    dp.callback_query.register(pressed_current_week_sch, main_menu_kb.MainFab.filter(F.action == "pressed_current_week_sch"))
+    dp.callback_query.register(pressed_other_week_sch, main_menu_kb.MainFab.filter(F.action == "pressed_other_week_sch"))
+    dp.callback_query.register(pressed_notifications, main_menu_kb.MainFab.filter(F.action == "pressed_notifications"))
+    dp.callback_query.register(pressed_back_main, main_menu_kb.MainFab.filter(F.action == "pressed_back"))
