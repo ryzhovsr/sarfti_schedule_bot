@@ -3,16 +3,6 @@
 Регистрирует обработчики на хендлеры
 """
 
-import asyncio
-
-# Модули с хендлерами
-import message_handler
-import selection_kb_handler
-import main_kb_handler
-import schedule_kb_handler
-import notification_kb_handler
-import other_weeks_kb_handler
-
 from asyncio import run
 from aiogram import F, types
 from create import dp, bot, user_db
@@ -20,15 +10,24 @@ from logging import basicConfig, INFO
 from threading import Thread
 from main_second_thread import timecheck
 from message_editor import delete_notes
+from asyncio import new_event_loop, set_event_loop
+
+# Импортируем функции для регистрации хендлеров и колбэков
+from main_menu_handlers import register_callbacks_main_menu
+from message_handler import register_message_handlers
+from selection_kb_handler import register_selection_callbacks
+from schedule_kb_handler import register_callbacks_schedule_kb
+from other_weeks_kb_handler import register_callbacks_other_weeks_kb
+from notification_kb_handler import register_notification_callbacks
 
 
 # Регистрируем обработчики на хендлеры
-message_handler.register_handlers_message(dp)
-selection_kb_handler.register_callbacks_selection_kb(dp)
-main_kb_handler.register_callbacks_main_kb(dp)
-schedule_kb_handler.register_callbacks_schedule_kb(dp)
-notification_kb_handler.register_callbacks_schedule_kb(dp)
-other_weeks_kb_handler.register_callbacks_other_weeks_kb(dp)
+register_callbacks_main_menu(dp)
+register_message_handlers(dp)
+register_selection_callbacks(dp)
+register_callbacks_schedule_kb(dp)
+register_callbacks_other_weeks_kb(dp)
+register_notification_callbacks(dp)
 
 
 @dp.callback_query(F.data == "delete_note")
@@ -40,8 +39,8 @@ async def main():
     # Для логов взаимодействия с ботом в консоль
     basicConfig(level=INFO)
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    loop = new_event_loop()
+    set_event_loop(loop)
     my_thread = Thread(target=lambda: loop.run_until_complete(timecheck()))
     my_thread.start()
 

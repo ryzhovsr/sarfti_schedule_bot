@@ -3,9 +3,9 @@
 from config import bot_token_tg
 from aiogram import Dispatcher, Bot
 from user_db import UserDatabase
-from common_modules.schedule_data import ScheduleData
+from schedule_data import ScheduleData
 
-
+# Объект, отвечающий за обработку входящих сообщений и других обновлений, поступающих от телеграма
 dp = Dispatcher()
 
 # Объект телеграм бота

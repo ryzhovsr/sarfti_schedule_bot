@@ -3,7 +3,7 @@ from magic_filter import F
 
 from create import bot, user_db
 from message_editor import modify_message
-from common_modules.utils import add_sign_group_or_teacher
+from utils import add_sign_group_or_teacher
 import selection_kb
 import main_menu_kb
 
@@ -49,6 +49,6 @@ async def pressed_back(callback: types.CallbackQuery):
         user_db.update_user_message_id(message_from_bot)
 
 
-def register_callbacks_selection_kb(dp: Dispatcher):
+def register_selection_callbacks(dp: Dispatcher):
     dp.callback_query.register(pressed_select, selection_kb.SelectionFab.filter(F.action == "pressed_select"))
     dp.callback_query.register(pressed_back, selection_kb.SelectionFab.filter(F.action == "pressed_back"))

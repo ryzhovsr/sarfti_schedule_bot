@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 from magic_filter import F
 from user_actions import write_user_action
 from create import user_db
-from main_kb_handler import pressed_notifications
+from main_menu_handlers import pressed_notifications
 import notification_kb
 from schedule_kb_handler import pressed_back_to_main
 
@@ -36,10 +36,8 @@ async def pressed_back(callback: types.CallbackQuery):
     await pressed_back_to_main(callback)
 
 
-def register_callbacks_schedule_kb(dp: Dispatcher):
-    dp.callback_query.register(pressed_back,
-                               notification_kb.NotificationsFab.filter(F.action == "pressed_back"))
-    dp.callback_query.register(pressed_current_week_change,
-                               notification_kb.NotificationsFab.filter(F.action == "pressed_current_week_change"))
-    dp.callback_query.register(pressed_sch_next_week,
-                               notification_kb.NotificationsFab.filter(F.action == "pressed_sch_next_week"))
+def register_notification_callbacks(dp: Dispatcher):
+
+    dp.callback_query.register(pressed_back, notification_kb.NotificationsFab.filter(F.action == "pressed_back"))
+    dp.callback_query.register(pressed_current_week_change, notification_kb.NotificationsFab.filter(F.action == "pressed_current_week_change"))
+    dp.callback_query.register(pressed_sch_next_week, notification_kb.NotificationsFab.filter(F.action == "pressed_sch_next_week"))

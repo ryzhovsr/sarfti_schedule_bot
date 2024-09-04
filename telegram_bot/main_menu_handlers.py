@@ -96,7 +96,8 @@ async def pressed_back_main(callback: types.CallbackQuery):
     await pressed_back(callback)
 
 
-def register_callbacks_main_kb(dp: Dispatcher):
+def register_callbacks_main_menu(dp: Dispatcher):
+    """Регистрирует обработчики клавиатуры основного меню"""
     dp.callback_query.register(pressed_current_week_sch, main_menu_kb.MainFab.filter(F.action == "pressed_current_week_sch"))
     dp.callback_query.register(pressed_other_week_sch, main_menu_kb.MainFab.filter(F.action == "pressed_other_week_sch"))
     dp.callback_query.register(pressed_notifications, main_menu_kb.MainFab.filter(F.action == "pressed_notifications"))

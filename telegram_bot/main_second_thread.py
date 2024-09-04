@@ -2,7 +2,7 @@ import time
 import telebot
 
 from telebot import TeleBot
-from common_modules.utils import restore_user_action
+from utils import restore_user_action
 from create import sch
 import config
 from user_db import UserDatabase

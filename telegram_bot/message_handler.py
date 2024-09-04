@@ -2,8 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.filters import Command
 from create import bot, user_db, sch
 from message_editor import delete_last_message_from_db, delete_current_message_from_user, modify_message
-from common_modules.utils import (add_sign_group_or_teacher, find_coincidence_group_teacher,
-                                  is_teacher, add_dash_in_group)
+from utils import (add_sign_group_or_teacher, find_coincidence_group_teacher, is_teacher, add_dash_in_group)
 import selection_kb
 import main_menu_kb
 from user_actions import write_user_action, check_key, restart
@@ -75,10 +74,10 @@ async def message_handler(message: types.Message):
 
                 try:
                     await modify_message(bot, message.chat.id, last_message_id, text=text,
-                                         reply_markup=main_kb.get_keyboard(message.chat.id))
+                                         reply_markup=main_menu_kb.get_keyboard(message.chat.id))
                 except RuntimeError:
                     message_from_bot = await message.answer(text=text,
-                                                            reply_markup=main_kb.get_keyboard(message.chat.id))
+                                                            reply_markup=main_menu_kb.get_keyboard(message.chat.id))
                     user_db.update_user_message_id(message_from_bot)
 
                 return
@@ -91,10 +90,10 @@ async def message_handler(message: types.Message):
 
                 try:
                     await modify_message(bot, message.chat.id, last_message_id, text=text,
-                                         reply_markup=main_kb.get_keyboard(message.chat.id))
+                                         reply_markup=main_menu_kb.get_keyboard(message.chat.id))
                 except RuntimeError:
                     message_from_bot = await message.answer(text=text,
-                                                            reply_markup=main_kb.get_keyboard(message.chat.id))
+                                                            reply_markup=main_menu_kb.get_keyboard(message.chat.id))
                     user_db.update_user_message_id(message_from_bot)
 
                 return
@@ -122,14 +121,7 @@ async def message_handler(message: types.Message):
             user_db.update_user_message_id(message_from_bot)
 
 
-def register_handlers_message(dp: Dispatcher):
+def register_message_handlers(dp: Dispatcher):
     """Регистрирует обработчики на команду /start и сообщения от пользователя"""
     dp.message.register(start_handler, Command("start"))
     dp.message.register(message_handler)
-
-
-# TO DO: Это будет классной заготовкой, чтобы удалённо получать данные о пользователях и их все действия удалённо
-# @dp.message(Command(""))
-# async def handle_get_users_data(message: types.Message):
-#    """Обработчик на секретную команду"""
-#    pass

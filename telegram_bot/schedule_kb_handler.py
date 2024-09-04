@@ -4,11 +4,11 @@ from aiogram import types, Dispatcher
 from magic_filter import F
 from create import bot, user_db, sch
 from message_editor import modify_message
-from common_modules.utils import add_sign_group_or_teacher
+from utils import add_sign_group_or_teacher
 from user_actions import write_user_action
 import schedule_kb
 import main_menu_kb
-from main_kb_handler import pressed_current_week_sch, pressed_other_week_sch
+from main_menu_handlers import pressed_current_week_sch, pressed_other_week_sch
 
 
 async def pressed_back_to_main(callback: types.CallbackQuery):
@@ -164,10 +164,10 @@ async def pressed_other_schedule(callback: types.CallbackQuery):
 
 
 def register_callbacks_schedule_kb(dp: Dispatcher):
+    """Регистрирует обработчики клавиатуры с расписанием"""
     dp.callback_query.register(pressed_back_to_main, schedule_kb.ScheduleFab.filter(F.action == "pressed_back_to_main"))
     dp.callback_query.register(pressed_time, schedule_kb.ScheduleFab.filter(F.action == "pressed_time"))
     dp.callback_query.register(pressed_info, schedule_kb.ScheduleFab.filter(F.action == "pressed_info"))
     dp.callback_query.register(pressed_schedule, schedule_kb.ScheduleFab.filter(F.action == "pressed_schedule"))
     dp.callback_query.register(pressed_back, schedule_kb.ScheduleFab.filter(F.action == "pressed_back"))
-    dp.callback_query.register(pressed_other_schedule,
-                               schedule_kb.ScheduleFab.filter(F.action == "pressed_other_schedule"))
+    dp.callback_query.register(pressed_other_schedule, schedule_kb.ScheduleFab.filter(F.action == "pressed_other_schedule"))
