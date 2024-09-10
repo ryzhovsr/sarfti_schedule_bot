@@ -277,6 +277,8 @@ class ScheduleData:
             lesson = loaded_table.query(f'Преподаватель == @target')
             if lesson.empty:
                 return out_text + '\n' + 'Пар на этой неделе нет!'
+            else:
+                lessons = self.__form_schedule_group(lesson.iterrows(), special_star, special_slash)
         elif output_type == 'Группа':
             lesson = loaded_table.query(f'Группа == @target')
             if lesson.empty:
