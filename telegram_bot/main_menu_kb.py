@@ -21,10 +21,12 @@ def get_keyboard(user_id: int) -> InlineKeyboardMarkup:
     # Устанавливаем эмодзи уведомления, в зависимости от выбора пользователя
     if user_db.is_user_notification_enabled(user_id):
         emoji = "🔔"
+        mode = "[вкл]"
     else:
         emoji = "🔕"
+        mode = "[выкл]"
 
-    builder.button(text=f"{emoji} Уведомления [выкл]", callback_data=MainFab(action="pressed_notifications"))
+    builder.button(text=f"{emoji} Уведомления {mode}", callback_data=MainFab(action="pressed_notifications"))
     builder.button(text="Закрыть", callback_data=MainFab(action="pressed_back"))
 
     # Выравниваем кнопки по 1 в ряд
