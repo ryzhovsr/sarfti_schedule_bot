@@ -113,72 +113,71 @@ class ScheduleData:
 
     def __load_main_data(self):
         """Парсит списки групп, преподавателей, аудиторий и недель с сайта СарФТИ"""
-        with contextlib.suppress(Exception):
-            # Берём страницу с расписанием СарФТИ
-            self.__html_data_sarfti_schedule = requests.post('https://sarfti.ru/?page_id=20',
-                                                             data={'page_id': '20', 'view': 'Просмотр'}).text
+        # Берём страницу с расписанием СарФТИ
+        self.__html_data_sarfti_schedule = requests.post('https://sarfti.ru/?page_id=20',
+                                                         data={'page_id': '20', 'view': 'Просмотр'}).text
 
-            # Разбираем страницу
-            self.__html_soup_sarfti_schedule = BeautifulSoup(self.__html_data_sarfti_schedule, 'lxml')
+        # Разбираем страницу
+        self.__html_soup_sarfti_schedule = BeautifulSoup(self.__html_data_sarfti_schedule, 'lxml')
 
-            # Получаем сырые данные групп, преподавателей, мест (аудиторий) и дат
-            groups_raw_data = [i.findAll('option') for i in
-                               self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'group_id'})]
-            teachers_raw_data = [i.findAll('option') for i in
-                                 self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'teacher_id'})]
-            places_raw_data = [i.findAll('option') for i in
-                               self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'place_id'})]
-            dates_raw_data = [i.findAll('option') for i in
-                              self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'date_id'})]
+        # Получаем сырые данные групп, преподавателей, мест (аудиторий) и дат
+        groups_raw_data = [i.findAll('option') for i in
+                           self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'group_id'})]
+        teachers_raw_data = [i.findAll('option') for i in
+                             self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'teacher_id'})]
+        places_raw_data = [i.findAll('option') for i in
+                           self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'place_id'})]
+        dates_raw_data = [i.findAll('option') for i in
+                          self.__html_soup_sarfti_schedule.findAll('select', attrs={'name': 'date_id'})]
 
-            # Получаем время занятий на будние дни
-            for item in self.__html_soup_sarfti_schedule.findAll('table',
-                                                                 attrs={'style': 'width: 274px; border-style: none;'}):
-                self.__class_time_weekdays = dict(x.split('=') for x in item.text.
-                                                  replace('\n\n\n1 пара', '1 пара').
-                                                  replace('\xa0', ' ').
-                                                  replace('\n\n\n', ';').
-                                                  replace('\n–\n', '=').
-                                                  replace('\n', ' | ')[:-1].split(';'))
-                break
+        # Получаем время занятий на будние дни
+        for item in self.__html_soup_sarfti_schedule.findAll('table',
+                                                             attrs={'style': 'width: 274px; border-style: none;'}):
+            self.__class_time_weekdays = dict(x.split('=') for x in item.text.
+                                              replace('\n\n\n1 пара', '1 пара').
+                                              replace('\xa0', ' ').
+                                              replace('\n\n\n', ';').
+                                              replace('\n–\n', '=').
+                                              replace('\n', ' | ')[:-1].split(';'))
+            break
 
-            # Получаем время занятий на субботу
-            for item in self.__html_soup_sarfti_schedule.findAll('table',
-                                                                 attrs={'style': 'width: 273px; border: none;'}):
-                self.__class_time_saturday = dict(x.split('=') for x in item.text.
-                                                  replace('\n\n\n1 пара', '1 пара').
-                                                  replace('\xa0', ' ').
-                                                  replace('\n\n\n', ';').
-                                                  replace('\n–\n', '=').
-                                                  replace('\n', ' | ')[:-1].split(';'))
-                break
+        # Получаем время занятий на субботу
+        for item in self.__html_soup_sarfti_schedule.findAll('table',
+                                                             attrs={'style': 'width: 273px; border: none;'}):
+            self.__class_time_saturday = dict(x.split('=') for x in item.text.
+                                              replace('\n\n\n1 пара', '1 пара').
+                                              replace('\xa0', ' ').
+                                              replace('\n\n\n', ';').
+                                              replace('\n–\n', '=').
+                                              replace('\n', ' | ')[:-1].split(';'))
+            break
 
-            for i in range(1, groups_raw_data[0].__len__()):
-                self.__groups[groups_raw_data[0][i].attrs['value']] = groups_raw_data[0][i].text
-            for i in range(1, places_raw_data[0].__len__()):
-                self.__places[places_raw_data[0][i].attrs['value']] = places_raw_data[0][i].text
-            for i in range(1, teachers_raw_data[0].__len__()):
-                if (not teachers_raw_data[0][i].text.startswith('Аа')) and (teachers_raw_data[0][i].text[-6] != '-'):
-                    self.__teachers[teachers_raw_data[0][i].attrs['value']] = teachers_raw_data[0][i].text
+        for i in range(1, groups_raw_data[0].__len__()):
+            self.__groups[groups_raw_data[0][i].attrs['value']] = groups_raw_data[0][i].text
+        for i in range(1, places_raw_data[0].__len__()):
+            self.__places[places_raw_data[0][i].attrs['value']] = places_raw_data[0][i].text
+        for i in range(1, teachers_raw_data[0].__len__()):
+            if (not teachers_raw_data[0][i].text.startswith('Аа')) and (teachers_raw_data[0][i].text[-6] != '-'):
+                self.__teachers[teachers_raw_data[0][i].attrs['value']] = teachers_raw_data[0][i].text
 
-            temp_dates = {}  # Временная переменная для хранения всех недель, необходима для сортированного списка
-            for i in range(0, dates_raw_data[0].__len__()):
-                temp_dates[dates_raw_data[0][i].attrs['value']] = dates_raw_data[0][i].text
-            self.__dates = temp_dates
+        temp_dates = {}  # Временная переменная для хранения всех недель, необходима для сортированного списка
+        for i in range(0, dates_raw_data[0].__len__()):
+            temp_dates[dates_raw_data[0][i].attrs['value']] = dates_raw_data[0][i].text
+        self.__dates = temp_dates
 
-            # Прогоняем цикл по всем сырым данным групп, преподавателей, мест (аудиторий) и дат
-            # for item in [groups_raw_data, teachers_raw_data, places_raw_data, dates_raw_data]:
-            #     for i in range(0, item[0].__len__()):
-            #         # Если элемент не содержит "Выберите", то загоняем его в соответствующий список
-            #         if 'Выберите' not in item[0][i].text:
-            #             if item == groups_raw_data:
-            #                 self.__groups[item[0][i].attrs['value']] = item[0][i].text
-            #             if item == teachers_raw_data:
-            #                 self.__teachers[item[0][i].attrs['value']] = item[0][i].text
-            #             if item == places_raw_data:
-            #                 self.__places[item[0][i].attrs['value']] = item[0][i].text
-            #             if item == dates_raw_data:
-            #                 self.__dates[item[0][i].attrs['value']] = item[0][i].text
+        # Прогоняем цикл по всем сырым данным групп, преподавателей, мест (аудиторий) и дат
+        # for item in [groups_raw_data, teachers_raw_data, places_raw_data, dates_raw_data]:
+        #     for i in range(0, item[0].__len__()):
+        #         # Если элемент не содержит "Выберите", то загоняем его в соответствующий список
+        #         if 'Выберите' not in item[0][i].text:
+        #             if item == groups_raw_data:
+        #                 self.__groups[item[0][i].attrs['value']] = item[0][i].text
+        #             if item == teachers_raw_data:
+        #                 self.__teachers[item[0][i].attrs['value']] = item[0][i].text
+        #             if item == places_raw_data:
+        #                 self.__places[item[0][i].attrs['value']] = item[0][i].text
+        #             if item == dates_raw_data:
+        #                 self.__dates[item[0][i].attrs['value']] = item[0][i].text
 
     def __cal_current_week(self):
         """Вычисляет текущую неделю"""
