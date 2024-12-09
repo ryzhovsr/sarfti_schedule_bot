@@ -519,6 +519,8 @@ class ScheduleData:
             return u'📝'
         elif lesson_type.startswith('Лаб'):
             return u'🔬'
+        elif lesson_type == 'Зачёт' or lesson_type == 'Зач':
+            return 'Зачёт.'
         elif lesson_type == 'Экзамен':
             return 'Экзамен.'
         elif lesson_type == 'Консультация':
